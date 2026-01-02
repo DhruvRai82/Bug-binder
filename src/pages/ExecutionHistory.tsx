@@ -75,6 +75,7 @@ export default function ExecutionHistory() {
     };
 
     const viewLogs = async (run: TestRun) => {
+        if (!selectedProject) return; // Ensure project is selected for projectId
         setSelectedRun(run);
         setAnalysis(null); // Reset analysis
         setLogsLoading(true);
@@ -107,7 +108,12 @@ export default function ExecutionHistory() {
     const confirmDelete = async () => {
         if (!runToDelete) return;
         try {
-            await api.delete(`/api/runner/run/${runToDelete.id}`);
+            if (selectedProject?.id) {
+                await api.delete(`/api/runner/run/${runToDelete.id}?projectId=${selectedProject.id}`);
+            } else {
+                // Fallback attempt without project ID (Backwards compat if backend allows)
+                await api.delete(`/api/runner/run/${runToDelete.id}`);
+            }
             setRuns(prev => prev.filter(r => r.id !== runToDelete.id));
             setRunToDelete(null);
         } catch (error) {

@@ -66,12 +66,15 @@ export const RunHistoryList: React.FC<RunHistoryListProps> = ({ runs, onSelectRu
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                             <span className="flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" />
-                                                {formatDistanceToNow(new Date(run.startTime), { addSuffix: true })}
+                                                {/* Safe Date Handling */}
+                                                {!isNaN(new Date(run.startTime).getTime())
+                                                    ? formatDistanceToNow(new Date(run.startTime), { addSuffix: true })
+                                                    : 'Unknown Date'}
                                             </span>
-                                            {run.endTime && (
+                                            {run.endTime && !isNaN(new Date(run.endTime).getTime()) && !isNaN(new Date(run.startTime).getTime()) && (
                                                 <span className="flex items-center gap-1">
                                                     <Clock className="w-3 h-3" />
-                                                    {((new Date(run.endTime).getTime() - new Date(run.startTime).getTime()) / 1000).toFixed(1)}s
+                                                    {Math.max(0, ((new Date(run.endTime).getTime() - new Date(run.startTime).getTime()) / 1000)).toFixed(1)}s
                                                 </span>
                                             )}
                                         </div>

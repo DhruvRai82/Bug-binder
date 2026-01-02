@@ -92,12 +92,14 @@ export function DebugDrawer() {
             timestamp: new Date().toLocaleTimeString(),
         };
 
-        setLogs(prev => [newLog, ...prev]);
+        // Use setTimeout to avoid state updates during render phase (React warning fix)
+        setTimeout(() => {
+            setLogs(prev => [newLog, ...prev]);
 
-        if (type === 'error' || type === 'network') {
-            setHasNewError(true);
-            // Optional: setIsOpen(true);
-        }
+            if (type === 'error' || type === 'network') {
+                setHasNewError(true);
+            }
+        }, 0);
     };
 
     const copyLogs = () => {

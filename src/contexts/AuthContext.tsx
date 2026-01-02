@@ -40,9 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 // OPTIONAL: Sync user to backend
                 try {
                     const token = await currentUser.getIdToken();
-                    // We can send this to backend to create/update user in users.json
-                    // DISABLE AUTO-SYNC for performance (User Request)
-                    /* 
+                    // Auto-Synced enabled for Role-Based Auth
                     await api.post('/api/auth/sync', {
                         uid: currentUser.uid,
                         email: currentUser.email,
@@ -51,7 +49,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
-                    */
                 } catch (err) {
                     console.error("Backend Sync Failed", err);
                 }

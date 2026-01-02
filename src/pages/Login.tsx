@@ -1,46 +1,250 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Chrome } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Chrome, Mail, Lock, Sparkles } from 'lucide-react';
+import { auth } from '../lib/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 export const Login = () => {
     const { user, signInWithGoogle } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [activeTab, setActiveTab] = useState('login');
+
+    // Form States
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+
+    // Preload animations
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
 
     if (user) {
         return <Navigate to="/" replace />;
     }
 
+    const handleEmailLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message.replace('Firebase: ', ''));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError('');
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            if (name) {
+                await updateProfile(userCredential.user, { displayName: name });
+            }
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message.replace('Firebase: ', ''));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-4">
-            <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]" />
-            <Card className="w-full max-w-md relative z-10 border-0 shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-                <CardHeader className="text-center space-y-2 pb-8">
-                    <div className="mx-auto w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                        <Chrome className="w-6 h-6 text-primary" />
-                    </div>
-                    <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                        Welcome Back
-                    </CardTitle>
-                    <CardDescription className="text-base">
-                        Sign in to Test Automation Studio
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4 pb-8">
-                    <Button
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-3 h-14 text-base font-medium transition-all hover:bg-primary/5 hover:border-primary/20 hover:text-primary group"
-                        onClick={signInWithGoogle}
-                    >
-                        <Chrome className="w-5 h-5 transition-transform group-hover:scale-110" />
-                        Continue with Google
-                    </Button>
-                    <div className="text-center text-xs text-muted-foreground mt-4">
-                        By clicking continue, you agree to our <span className="underline hover:text-primary cursor-pointer">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer">Privacy Policy</span>.
-                    </div>
-                </CardContent>
-            </Card>
+        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black selection:bg-primary/20">
+            {/* --- Animated Background Layers --- */}
+
+            {/* 1. Base Gradient Mesh */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(76,29,149,0.1),_rgba(15,23,42,1))]" />
+
+            {/* 2. Moving Orbs (Aurora Effect) */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[100px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[100px] animate-pulse delay-1000" />
+
+            {/* 3. Grid Pattern with Fade */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+
+            {/* --- Main Card --- */}
+            <div className={`relative z-10 w-full max-w-md transition-all duration-1000 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+
+                {/* Glowing Border Container */}
+                <div className="group relative rounded-xl p-[1px] bg-gradient-to-br from-white/20 via-white/5 to-transparent dark:from-indigo-500/50 dark:via-purple-500/50 dark:to-transparent">
+
+                    {/* Glow Blur behind card */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-20 blur-xl transition-opacity duration-500 group-hover:opacity-40" />
+
+                    <Card className="relative border-0 bg-white/90 dark:bg-black/80 backdrop-blur-xl shadow-2xl">
+                        <CardHeader className="text-center space-y-2 pb-6">
+                            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                <Chrome className="w-8 h-8 text-primary animate-pulse" />
+                            </div>
+                            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+                                Bug Binder
+                            </CardTitle>
+                            <CardDescription className="text-base text-gray-400">
+                                Next-Gen Test Automation
+                            </CardDescription>
+                        </CardHeader>
+
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                            <div className="px-8 mb-6">
+                                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 border border-white/5">
+                                    <TabsTrigger value="login" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary transition-all">Login</TabsTrigger>
+                                    <TabsTrigger value="register" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary transition-all">Register</TabsTrigger>
+                                </TabsList>
+                            </div>
+
+                            <CardContent className="space-y-4 pb-8">
+                                {error && (
+                                    <div className="p-3 text-sm text-red-400 bg-red-900/20 border border-red-500/20 rounded-md text-center animate-in fade-in slide-in-from-top-2">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <div className="space-y-4">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full flex items-center justify-center gap-3 h-12 text-base font-medium border-white/10 hover:bg-white/5 hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden"
+                                        onClick={signInWithGoogle}
+                                        disabled={isLoading}
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                        <Chrome className="w-5 h-5" />
+                                        Continue with Google
+                                    </Button>
+
+                                    <div className="relative py-2">
+                                        <div className="absolute inset-0 flex items-center">
+                                            <span className="w-full border-t border-white/10" />
+                                        </div>
+                                        <div className="relative flex justify-center text-xs uppercase">
+                                            <span className="bg-black/50 px-2 text-muted-foreground backdrop-blur-sm">
+                                                Or continue with email
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Login Form */}
+                                    <TabsContent value="login" className="space-y-4 mt-0 animate-in fade-in slide-in-from-right-4 duration-300">
+                                        <form onSubmit={handleEmailLogin} className="space-y-4">
+                                            <div className="space-y-2 group">
+                                                <Label htmlFor="email">Email</Label>
+                                                <div className="relative transition-all duration-300 focus-within:scale-[1.02]">
+                                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                    <Input
+                                                        id="email"
+                                                        type="email"
+                                                        placeholder="m@example.com"
+                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 group">
+                                                <Label htmlFor="password">Password</Label>
+                                                <div className="relative transition-all duration-300 focus-within:scale-[1.02]">
+                                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                    <Input
+                                                        id="password"
+                                                        type="password"
+                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <Button type="submit" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={isLoading}>
+                                                {isLoading ? (
+                                                    <span className="flex items-center gap-2"><Sparkles className="w-4 h-4 animate-spin" /> Signing In...</span>
+                                                ) : (
+                                                    'Sign In'
+                                                )}
+                                            </Button>
+                                        </form>
+                                    </TabsContent>
+
+                                    {/* Register Form */}
+                                    <TabsContent value="register" className="space-y-4 mt-0 animate-in fade-in slide-in-from-left-4 duration-300">
+                                        <form onSubmit={handleRegister} className="space-y-4">
+                                            <div className="space-y-2 group">
+                                                <Label htmlFor="name">Full Name</Label>
+                                                <Input
+                                                    id="name"
+                                                    placeholder="John Doe"
+                                                    className="bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all focus:scale-[1.02]"
+                                                    value={name}
+                                                    onChange={(e) => setName(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="space-y-2 group">
+                                                <Label htmlFor="register-email">Email</Label>
+                                                <div className="relative transition-all duration-300 focus-within:scale-[1.02]">
+                                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                    <Input
+                                                        id="register-email"
+                                                        type="email"
+                                                        placeholder="m@example.com"
+                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 group">
+                                                <Label htmlFor="register-password">Password</Label>
+                                                <div className="relative transition-all duration-300 focus-within:scale-[1.02]">
+                                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                                    <Input
+                                                        id="register-password"
+                                                        type="password"
+                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]" disabled={isLoading}>
+                                                {isLoading ? 'Creating Account...' : 'Create Account'}
+                                            </Button>
+                                        </form>
+                                    </TabsContent>
+                                </div>
+
+                                <div className="text-center text-xs text-muted-foreground mt-4">
+                                    By clicking continue, you agree to our <span className="underline hover:text-primary cursor-pointer hover:neon-text transition-all">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer hover:neon-text transition-all">Privacy Policy</span>.
+                                </div>
+                            </CardContent>
+                        </Tabs>
+                    </Card>
+                </div>
+            </div>
+
+            {/* Global Styles for Custom Animations */}
+            <style>{`
+                @keyframes gradient {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                .animate-gradient {
+                    animation: gradient 6s ease infinite;
+                }
+            `}</style>
         </div>
     );
 };

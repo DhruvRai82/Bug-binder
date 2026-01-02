@@ -35,9 +35,14 @@ export default function Dashboard({ selectedProject }: DashboardProps) {
     }
   }, [selectedProject]);
 
-  // Aggregate all data from all dates
-  const allTestCases = dailyData.flatMap(day => day.testCases || []);
-  const allBugs = dailyData.flatMap(day => day.bugs || []);
+  // Aggregate all data from all dates AND Deduplicate by ID
+  const allTestCases = Array.from(new Map(
+    dailyData.flatMap(day => day.testCases || []).map(tc => [tc.id, tc])
+  ).values());
+
+  const allBugs = Array.from(new Map(
+    dailyData.flatMap(day => day.bugs || []).map(bug => [bug.id, bug])
+  ).values());
 
   // Failed test cases (status === 'Fail')
   const failedTestCases = allTestCases.filter(tc => tc.status === 'Fail');

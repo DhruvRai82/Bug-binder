@@ -51,6 +51,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import NotFound from "./pages/NotFound";
 import { ProjectSelector } from "./components/ProjectSelector";
 import { Loader2 } from "lucide-react";
+import DatabaseView from "./pages/DatabaseView";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ function AppRoutes() {
       <Route path="/test-data" element={<TestData />} />
       <Route path="/schedules" element={<Schedules />} />
       <Route path="/http-lab" element={<APILab />} />
+      <Route path="/database" element={<DatabaseView />} />
       <Route path="/ide" element={<IdeLayout />} />
       <Route path="/settings" element={<SettingsLayout />}>
         <Route index element={<Navigate to="/settings/profile" replace />} />
