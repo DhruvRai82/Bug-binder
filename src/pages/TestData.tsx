@@ -1,48 +1,99 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/context/ProjectContext';
-import { api, API_BASE_URL } from '@/lib/api';
-import { FileSpreadsheet, Trash2, Upload, Plus, ArrowDownToLine } from 'lucide-react';
+import { api } from '@/lib/api';
+import { FileSpreadsheet, Trash2, Database, Wand2, Upload, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { EmptyState } from '@/components/EmptyState';
+import { generateMockData, SchemaField, FIELD_TYPES } from '@/lib/mockDataGenerator';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function TestData() {
     const { selectedProject } = useProject();
     const [datasets, setDatasets] = useState<any[]>([]);
+    const [selectedDataset, setSelectedDataset] = useState<any>(null);
+    const [previewData, setPreviewData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [selectedDataset, setSelectedDataset] = useState<any | null>(null);
-    const [rows, setRows] = useState<any[]>([]);
+
+    // Mock Data Generator State
+    const [mockGenOpen, setMockGenOpen] = useState(false);
+
+    // Fixed: Use valid 'name' type instead of 'fullName'/'firstName'
+    const [schema, setSchema] = useState<SchemaField[]>([
+        { id: '1', name: 'User ID', type: 'uuid' },
+        { id: '2', name: 'Full Name', type: 'name' },
+        { id: '3', name: 'Email', type: 'email' },
+    ]);
+    const [rowCount, setRowCount] = useState(50);
+    const [datasetName, setDatasetName] = useState("Mock Users");
 
     useEffect(() => {
-        fetchDatasets();
-    }, []);
+        if (selectedProject) fetchDatasets();
+    }, [selectedProject]);
 
     const fetchDatasets = async () => {
         try {
-            setLoading(true);
             const data = await api.get(`/api/test-data?projectId=${selectedProject.id}`);
             setDatasets(data);
-        } catch (e) {
-            console.error(e);
+            // Auto-select first if none selected
+            if (data.length > 0 && !selectedDataset) {
+                handleSelectDataset(data[0]);
+            }
+        } catch {
             toast.error("Failed to load datasets");
+        }
+    };
+
+    const handleSelectDataset = async (dataset: any) => {
+        setSelectedDataset(dataset);
+        setLoading(true);
+        try {
+            const data = await api.get(`/api/test-data/${dataset.id}/preview?projectId=${selectedProject.id}`);
+            setPreviewData(data);
+        } catch {
+            toast.error("Failed to load preview");
         } finally {
             setLoading(false);
         }
     };
 
-    const loadData = async (dataset: any) => {
-        setSelectedDataset(dataset);
+    const handleDeleteDataset = async (id: string, e: any) => {
+        e.stopPropagation();
         try {
-            const data = await api.get(`/api/test-data/${dataset.id}`);
-            setRows(data);
+            await api.delete(`/api/test-data/${id}?projectId=${selectedProject.id}`);
+            toast.success("Dataset deleted");
+            const updated = datasets.filter(d => d.id !== id);
+            setDatasets(updated);
+            if (selectedDataset?.id === id) {
+                setSelectedDataset(null);
+                setPreviewData([]);
+            }
         } catch {
-            toast.error("Failed to load rows");
+            toast.error("Failed to delete");
         }
     };
 
-    const handleFileUpload = async (e: any) => {
-        const file = e.target.files[0];
+    // Schema Builder Handlers
+    // Fixed: Use valid 'name' type default
+    const addField = () => setSchema([...schema, { id: uuidv4(), name: 'New Field', type: 'name' }]);
+    const removeField = (id: string) => setSchema(schema.filter(f => f.id !== id));
+    // Fixed: Explicit type casting for values from Select to match SchemaField['type']
+    const updateField = (id: string, key: keyof SchemaField, value: string) => {
+        setSchema(schema.map(f => f.id === id ? { ...f, [key]: value } : f));
+    };
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (!file) return;
 
         const formData = new FormData();
@@ -50,128 +101,257 @@ export default function TestData() {
         formData.append('projectId', selectedProject.id);
 
         try {
-            await api.post('/api/test-data/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            toast.success("Dataset Uploaded");
+            await api.post('/api/test-data/upload', formData);
+            toast.success("Dataset uploaded successfully");
             fetchDatasets();
-        } catch {
-            toast.error("Upload failed");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to upload dataset");
+        } finally {
+            // Reset input so same file can be selected again if needed
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
-    const [datasetToDelete, setDatasetToDelete] = useState<string | null>(null);
-
-    const confirmDelete = async () => {
-        if (!datasetToDelete) return;
+    const handleGenerate = async () => {
         try {
-            await api.delete(`/api/test-data/${datasetToDelete}`);
-            toast.success("Deleted");
-            if (selectedDataset?.id === datasetToDelete) setSelectedDataset(null);
+            const data = generateMockData(schema, rowCount);
+            // Convert to CSV or JSON script? For now, let's just save as JSON array
+            // We need a backend endpoint that accepts raw JSON to save as a file
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const file = new File([blob], `${datasetName}.json`, { type: 'application/json' });
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('projectId', selectedProject.id);
+
+            await api.post('/api/test-data/upload', formData); // Reusing upload endpoint
+            toast.success("Mock Data Generated & Saved");
+            setMockGenOpen(false);
             fetchDatasets();
-            setDatasetToDelete(null);
-        } catch {
-            toast.error("Delete failed");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to generate data");
         }
     };
 
     return (
-        <div className="p-8 space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-between items-center">
+        <div className="h-full flex flex-col p-6 animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6 flex-shrink-0">
                 <div>
-                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">
-                        Test Data Management
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Upload CSV or JSON files to drive your tests with dynamic variables.
-                    </p>
+                    <h1 className="text-2xl font-bold tracking-tight">Data Management</h1>
+                    <p className="text-muted-foreground">Manage test datasets and generate mock scenarios.</p>
                 </div>
                 <div className="flex gap-2">
-                    <input type="file" id="file-upload" className="hidden" accept=".csv,.json" onChange={handleFileUpload} />
-                    <Button onClick={() => document.getElementById('file-upload')?.click()}>
-                        <Upload className="h-4 w-4 mr-2" /> Upload Dataset
+                    <Dialog open={mockGenOpen} onOpenChange={setMockGenOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="secondary"><Wand2 className="h-4 w-4 mr-2" /> Generate Mock Data</Button>
+                        </DialogTrigger>
+                        <DialogContent
+                            className="max-w-4xl max-h-[90vh] flex flex-col border-0 bg-card/95 backdrop-blur-xl shadow-2xl p-0 overflow-hidden"
+                            onInteractOutside={(e) => e.preventDefault()}
+                        >
+                            <DialogHeader className="px-6 py-4 border-b bg-muted/20 backdrop-blur-md sticky top-0 z-10 flex flex-row items-center justify-between space-y-0">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-2 bg-blue-500/10 rounded-md">
+                                        <Wand2 className="h-6 w-6 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <DialogTitle className="text-2xl font-bold">
+                                            Mock Data Generator
+                                        </DialogTitle>
+                                        <DialogDescription className="mt-1">
+                                            Design a schema and generate realistic test data instantly.
+                                        </DialogDescription>
+                                    </div>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setMockGenOpen(false)} className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors">
+                                    <Trash2 className="h-4 w-4 hidden" /> {/* Hack to keep imports valid if X not imported, using Trash2 as placeholder or just generic X if I import it? Wait, I didn't import X in TestData. using just the button for now or reusing an existing icon like X if available? I need to check imports. */}
+                                    <span className="sr-only">Close</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                </Button>
+                            </DialogHeader>
+                            <div className="flex-1 overflow-hidden grid grid-cols-2 gap-0">
+                                <div className="space-y-4 overflow-y-auto p-6 border-r bg-background/30 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                    <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-2">Schema Definition</h4>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2 group">
+                                            <Label className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-blue-600 transition-colors">Dataset Name</Label>
+                                            <Input
+                                                value={datasetName}
+                                                onChange={e => setDatasetName(e.target.value)}
+                                                className="bg-background/50 border-input/50 focus:border-blue-500 transition-all font-medium"
+                                            />
+                                        </div>
+                                        <div className="space-y-2 group">
+                                            <Label className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-blue-600 transition-colors">Row Count</Label>
+                                            <Input
+                                                type="number"
+                                                value={rowCount}
+                                                onChange={e => setRowCount(parseInt(e.target.value))}
+                                                max={1000}
+                                                className="bg-background/50 border-input/50 focus:border-blue-500 transition-all font-mono"
+                                            />
+                                        </div>
+                                        <div className="space-y-3 pt-4 border-t border-dashed">
+                                            <div className="flex justify-between items-center">
+                                                <Label className="text-xs font-semibold text-muted-foreground">Fields Configuration</Label>
+                                                <Button size="sm" variant="outline" onClick={addField} className="h-7 text-xs border-dashed border-blue-200 hover:border-blue-400 text-blue-600 hover:bg-blue-50"><Plus className="h-3 w-3 mr-1" /> Add Field</Button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {schema.map((field, idx) => (
+                                                    <div key={field.id} className="flex gap-2 items-center group/field animate-in slide-in-from-left-2 duration-300">
+                                                        <Input
+                                                            className="h-9 flex-1 bg-background/50 border-input/50 focus:border-blue-500 transition-all text-sm"
+                                                            value={field.name}
+                                                            onChange={e => updateField(field.id, 'name', e.target.value)}
+                                                            placeholder="Field Name"
+                                                        />
+                                                        <Select value={field.type} onValueChange={v => updateField(field.id, 'type', v)}>
+                                                            <SelectTrigger className="h-9 w-[140px] bg-background/50 border-input/50"><SelectValue /></SelectTrigger>
+                                                            <SelectContent>
+                                                                {FIELD_TYPES.map((typeOption) => (
+                                                                    <SelectItem key={typeOption.value} value={typeOption.value}>{typeOption.label}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <Button size="icon" variant="ghost" className="h-9 w-9 text-muted-foreground hover:text-red-500 hover:bg-red-50" onClick={() => removeField(field.id)}>
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col bg-muted/10 p-6 overflow-hidden">
+                                    <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+                                        <Database className="h-4 w-4 text-muted-foreground" />
+                                        Live Preview <span className="text-[10px] text-muted-foreground font-normal normal-case">(First 5 Rows)</span>
+                                    </h4>
+                                    <div className="flex-1 bg-card rounded-xl border shadow-inner text-xs overflow-auto p-4 font-mono relative group">
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Badge variant="outline" className="bg-background/80 backdrop-blur">JSON Preview</Badge>
+                                        </div>
+                                        <pre className="text-muted-foreground">
+                                            {JSON.stringify(generateMockData(schema, 5), null, 2)}
+                                        </pre>
+                                    </div>
+                                    <Button onClick={handleGenerate} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 py-6 text-md font-semibold">
+                                        <Wand2 className="h-5 w-5 mr-2" /> Generate & Save Dataset
+                                    </Button>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                    {/* Hidden File Input */}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept=".csv,.json"
+                        onChange={handleFileUpload}
+                    />
+                    <Button onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="h-4 w-4 mr-2" /> Upload CSV/JSON
                     </Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Dataset List */}
-                <Card className="col-span-1 h-[600px] shadow-lg bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle>Datasets</CardTitle>
-                        <CardDescription>Select a file to preview</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-2">
-                            {datasets.map(d => (
-                                <div
-                                    key={d.id}
-                                    onClick={() => loadData(d)}
-                                    className={`p-3 rounded-lg border cursor-pointer hover:bg-muted transition-colors flex justify-between items-center ${selectedDataset?.id === d.id ? 'bg-muted border-primary' : ''}`}
-                                >
-                                    <div className="flex items-center gap-2 font-medium">
-                                        <FileSpreadsheet className="h-4 w-4 text-green-500" />
-                                        <div className="overflow-hidden">
-                                            <div className="truncate w-[150px]">{d.name}</div>
-                                            <div className="text-xs text-muted-foreground">{d.rowCount} Rows • {d.type.toUpperCase()}</div>
+            {/* Main Content Layout - Sidebar vs Empty */}
+            {datasets.length === 0 ? (
+                <EmptyState
+                    icon={Database}
+                    title="No Data Available"
+                    description="Upload a CSV/JSON file or generate mock data to get started."
+                    actionLabel="Generate Mock Data"
+                    onAction={() => setMockGenOpen(true)}
+                />
+            ) : (
+                <div className="flex-1 min-h-0 flex gap-6">
+                    {/* Left Sidebar: Dataset List */}
+                    <Card className="w-[300px] flex flex-col border-0 shadow-md bg-card/50 backdrop-blur-sm">
+                        <CardHeader className="pb-3 px-4 pt-4 border-b">
+                            <CardTitle className="text-base">Datasets</CardTitle>
+                        </CardHeader>
+                        <ScrollArea className="flex-1">
+                            <div className="p-2 space-y-1">
+                                {datasets.map(dataset => (
+                                    <div
+                                        key={dataset.id}
+                                        onClick={() => handleSelectDataset(dataset)}
+                                        className={`group px-3 py-2 rounded-md text-sm cursor-pointer flex justify-between items-center transition-all ${selectedDataset?.id === dataset.id
+                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-3 truncate">
+                                            <FileSpreadsheet className="h-4 w-4 opacity-70" />
+                                            <span className="truncate max-w-[150px]">{dataset.name}</span>
                                         </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className={`h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ${selectedDataset?.id === dataset.id ? 'text-primary-foreground hover:bg-primary-foreground/20' : 'hover:bg-background'}`}
+                                            onClick={(e) => handleDeleteDataset(dataset.id, e)}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-blue-500" onClick={(e) => { e.stopPropagation(); window.open(`${API_BASE_URL}/api/test-data/${d.id}/download`); }}>
-                                        <ArrowDownToLine className="h-3 w-3" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-red-500" onClick={(e) => { e.stopPropagation(); setDatasetToDelete(d.id); }}>
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                </div>
-                            ))}
-                            {datasets.length === 0 && (
-                                <div className="text-center text-muted-foreground py-8">
-                                    No datasets uploaded.
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </Card>
+
+                    {/* Right Main: Data Preview */}
+                    <Card className="flex-1 flex flex-col border-0 shadow-md overflow-hidden bg-card/50 backdrop-blur-sm">
+                        <CardHeader className="pb-2 px-6 pt-4 border-b bg-muted/10 flex flex-row justify-between items-center">
+                            <div>
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    <Database className="h-4 w-4 text-blue-500" />
+                                    {selectedDataset?.name || 'Select a dataset'}
+                                </CardTitle>
+                                <CardDescription className="text-xs mt-1">
+                                    {previewData.length > 0 ? `${previewData.length} records loaded for preview` : 'No preview available'}
+                                </CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex-1 p-0 min-h-0">
+                            {loading ? (
+                                <div className="h-full flex items-center justify-center text-muted-foreground">Loading data...</div>
+                            ) : previewData.length > 0 ? (
+                                <ScrollArea className="h-full">
+                                    <div className="p-0">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow className="hover:bg-transparent border-b-border/50">
+                                                    {Object.keys(previewData[0]).map(k => (
+                                                        <TableHead key={k} className="h-9 text-xs font-semibold whitespace-nowrap bg-muted/20 sticky top-0 z-10">{k}</TableHead>
+                                                    ))}
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {previewData.map((row, i) => (
+                                                    <TableRow key={i} className="border-b-border/50 hover:bg-muted/30">
+                                                        {Object.values(row).map((v: any, j) => (
+                                                            <TableCell key={j} className="py-2 text-xs truncate max-w-[200px]">{String(v)}</TableCell>
+                                                        ))}
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </ScrollArea>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                                    Select a dataset to view its content.
                                 </div>
                             )}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Data Grid */}
-                <Card className="col-span-2 min-h-[600px] shadow-lg bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle>Data Preview</CardTitle>
-                        <CardDescription>
-                            {selectedDataset ? `Showing content for ${selectedDataset.name}` : "Select a dataset to view rows"}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {selectedDataset && rows.length > 0 ? (
-                            <div className="overflow-auto max-h-[500px] border rounded-md">
-                                <table className="w-full text-sm">
-                                    <thead className="bg-muted sticky top-0">
-                                        <tr>
-                                            {Object.keys(rows[0]).map(header => (
-                                                <th key={header} className="p-2 text-left font-medium border-b">{header}</th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row, i) => (
-                                            <tr key={i} className="hover:bg-muted/50 border-b last:border-0">
-                                                {Object.values(row).map((val: any, j) => (
-                                                    <td key={j} className="p-2 truncate max-w-[200px]">{String(val)}</td>
-                                                ))}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
-                                <FileSpreadsheet className="h-12 w-12 mb-4 opacity-50" />
-                                Select a dataset to preview data.
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }

@@ -87,8 +87,18 @@ export default function APILab() {
                 body,
                 projectId: selectedProject?.id
             });
-            toast.success("Saved");
-            fetchCollections();
+
+            // Optimistic Update (Local State)
+            setCollections(prev => prev.map(col => ({
+                ...col,
+                requests: (col.requests || []).map((r: any) =>
+                    r.id === selectedRequest.id
+                        ? { ...r, method, url, headers: JSON.parse(headers), body }
+                        : r
+                )
+            })));
+
+            toast.success("Saved successfully");
         } catch { toast.error("Save Failed"); }
     };
 
@@ -147,31 +157,54 @@ export default function APILab() {
                     <div className="p-2 space-y-2">
                         {collections.map(col => (
                             <div key={col.id} className="space-y-1">
-                                <div className="flex items-center justify-between px-2 py-1 hover:bg-muted rounded group">
+                                <div
+                                    className="flex items-center justify-between px-2 py-1 hover:bg-muted rounded group cursor-pointer select-none"
+                                    onClick={async () => {
+                                        // Toggle Expand / Fetch
+                                        if (!col.expanded) {
+                                            // Fetch if empty
+                                            if (!col.requests || col.requests.length === 0) {
+                                                try {
+                                                    const reqs = await api.get(`/api/lab/collections/${col.id}/requests?projectId=${selectedProject?.id}`);
+                                                    setCollections(prev => prev.map(c => c.id === col.id ? { ...c, requests: reqs, expanded: true } : c));
+                                                } catch { toast.error("Failed to load requests"); }
+                                            } else {
+                                                // Just expand
+                                                setCollections(prev => prev.map(c => c.id === col.id ? { ...c, expanded: true } : c));
+                                            }
+                                        } else {
+                                            // Collapse
+                                            setCollections(prev => prev.map(c => c.id === col.id ? { ...c, expanded: false } : c));
+                                        }
+                                    }}
+                                >
                                     <div className="flex items-center gap-2 font-medium">
-                                        <Folder className="h-4 w-4 text-orange-500" />
+                                        {col.expanded ? <ChevronDown className="h-4 w-4 text-orange-500" /> : <ChevronRight className="h-4 w-4 text-orange-500" />}
                                         <span className="truncate w-[150px]">{col.name}</span>
                                     </div>
                                     <div className="flex gap-1 opacity-0 group-hover:opacity-100">
-                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setActiveCollectionId(col.id); setShowRequestDialog(true); }}><Plus className="h-3 w-3" /></Button>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); setActiveCollectionId(col.id); setShowRequestDialog(true); }}><Plus className="h-3 w-3" /></Button>
                                         <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={(e) => { e.stopPropagation(); setCollectionToDelete(col.id); }}><Trash2 className="h-3 w-3" /></Button>
                                     </div>
                                 </div>
-                                <div className="pl-6 space-y-1">
-                                    {col.items.map((req: any) => (
-                                        <div
-                                            key={req.id}
-                                            onClick={() => setSelectedRequest(req)}
-                                            className={`flex items-center justify-between px-2 py-1 rounded cursor-pointer text-sm ${selectedRequest?.id === req.id ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-[10px] font-bold w-10 ${req.method === 'GET' ? 'text-green-600' : req.method === 'POST' ? 'text-blue-600' : 'text-orange-600'}`}>{req.method}</span>
-                                                <span className="truncate w-[120px]">{req.name}</span>
+                                {col.expanded && (
+                                    <div className="pl-6 space-y-1">
+                                        {(col.requests || []).map((req: any) => (
+                                            <div
+                                                key={req.id}
+                                                onClick={() => setSelectedRequest(req)}
+                                                className={`flex items-center justify-between px-2 py-1 rounded cursor-pointer text-sm ${selectedRequest?.id === req.id ? 'bg-primary/10 text-primary' : 'hover:bg-muted'}`}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-bold w-10 ${req.method === 'GET' ? 'text-green-600' : req.method === 'POST' ? 'text-blue-600' : 'text-orange-600'}`}>{req.method}</span>
+                                                    <span className="truncate w-[120px]">{req.name}</span>
+                                                </div>
+                                                <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setRequestToDelete(req.id); }}><Trash2 className="h-3 w-3" /></Button>
                                             </div>
-                                            <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setRequestToDelete(req.id); }}><Trash2 className="h-3 w-3" /></Button>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+
+                                )}
                             </div>
                         ))}
                     </div>
@@ -200,12 +233,12 @@ export default function APILab() {
                     onOpenChange={setShowRequestDialog}
                     onSave={handleCreateRequest}
                 />
-            </div>
+            </div >
 
             {/* Main Area */}
-            <div className="flex-1 flex flex-col min-w-0">
+            < div className="flex-1 flex flex-col min-w-0" >
                 {/* Request Bar */}
-                <div className="p-4 border-b flex gap-2 items-center bg-background">
+                < div className="p-4 border-b flex gap-2 items-center bg-background" >
                     <Select value={method} onValueChange={setMethod}>
                         <SelectTrigger className="w-[100px]">
                             <SelectValue />
@@ -224,12 +257,12 @@ export default function APILab() {
                     <Button variant="outline" onClick={handleSave} disabled={!selectedRequest}>
                         <Save className="h-4 w-4" />
                     </Button>
-                </div>
+                </div >
 
                 {/* Editors */}
-                <div className="flex-1 flex flex-col md:flex-row min-h-0">
+                < div className="flex-1 flex flex-col md:flex-row min-h-0" >
                     {/* Request Params/Body */}
-                    <div className="flex-1 border-r flex flex-col">
+                    < div className="flex-1 border-r flex flex-col" >
                         <Tabs defaultValue="body" className="flex-1 flex flex-col">
                             <TabsList className="w-full justify-start rounded-none border-b px-4 h-10 bg-muted/20">
                                 <TabsTrigger value="params">Params</TabsTrigger>
@@ -253,10 +286,10 @@ export default function APILab() {
                                 />
                             </TabsContent>
                         </Tabs>
-                    </div>
+                    </div >
 
                     {/* Response */}
-                    <div className="flex-1 flex flex-col bg-muted/5">
+                    < div className="flex-1 flex flex-col bg-muted/5" >
                         <div className="h-10 border-b px-4 flex items-center justify-between text-xs text-muted-foreground bg-muted/20">
                             <span>Response</span>
                             {response && (
@@ -280,9 +313,9 @@ export default function APILab() {
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </div >
+                </div >
+            </div >
+        </div >
     );
 }

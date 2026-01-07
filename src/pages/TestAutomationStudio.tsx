@@ -537,40 +537,49 @@ export default function TestAutomationStudio({ selectedProject }: TestAutomation
 
       {/* New Script Dialog */}
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent>
+        <DialogContent className="border-0 bg-card/95 backdrop-blur-xl shadow-2xl sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Create New Script</DialogTitle>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <div className="p-2 bg-primary/10 rounded-md">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              Create Automation Script
+            </DialogTitle>
             <DialogDescription>
-              Create a new test automation script for {selectedProject?.name}
+              Initialize a new test script. You can use AI to generate the steps later.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Script Name</Label>
+          <div className="space-y-5 py-4">
+            <div className="space-y-2 group">
+              <Label htmlFor="name" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Script Name</Label>
               <Input
                 id="name"
                 value={newScriptName}
                 onChange={(e) => setNewScriptName(e.target.value)}
-                placeholder="e.g., Login Test"
+                placeholder="e.g., User Login Flow"
+                className="bg-background/50 border-input/50 focus:border-primary transition-all text-lg h-11"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+            <div className="space-y-2 group">
+              <Label htmlFor="description" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Description (Optional)</Label>
               <Textarea
                 id="description"
                 value={newScriptDesc}
                 onChange={(e) => setNewScriptDesc(e.target.value)}
-                placeholder="Describe what this test does..."
+                placeholder="Briefly describe the test scenario..."
                 rows={3}
+                className="resize-none bg-background/50 border-input/50 focus:border-primary transition-all"
               />
             </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => setShowNewDialog(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={handleCreateScript} className="flex-1 shadow-md" disabled={!newScriptName}>
+                Create Script
+              </Button>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateScript}>Create Script</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -172,7 +172,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
     a.download = `${script.name.replace(/\s+/g, '_')}.${extension}`;
     a.click();
     window.URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Success",
       description: "Script exported successfully"
@@ -210,14 +210,14 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
 
   // Filter scripts
   const filteredScripts = scripts.filter(script => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       script.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       script.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       script.language.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesCategory = categoryFilter === 'all' || script.category === categoryFilter;
     const matchesLanguage = languageFilter === 'all' || script.language === languageFilter;
-    
+
     return matchesSearch && matchesCategory && matchesLanguage;
   });
 
@@ -233,7 +233,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
             Manage test automation scripts for {selectedProject?.name}
           </p>
         </div>
-        
+
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogTrigger asChild>
             <Button>
@@ -241,26 +241,34 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
               Add Script
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl border-0 bg-card/95 backdrop-blur-xl shadow-2xl">
             <DialogHeader>
-              <DialogTitle>Create New Script</DialogTitle>
-              <DialogDescription>Provide script details including language and code.</DialogDescription>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-md">
+                  <Code2 className="h-6 w-6 text-primary" />
+                </div>
+                Create New Script
+              </DialogTitle>
+              <DialogDescription>
+                Define the parameters for your new automation script.
+              </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="scriptName">Script Name</Label>
+            <div className="space-y-5 py-2">
+              <div className="grid grid-cols-2 gap-5">
+                <div className="space-y-2 group">
+                  <Label htmlFor="scriptName" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Script Name</Label>
                   <Input
                     id="scriptName"
                     value={newScript.name}
                     onChange={(e) => setNewScript({ ...newScript, name: e.target.value })}
-                    placeholder="e.g., Login Test Script"
+                    placeholder="e.g., Login Flow Test"
+                    className="bg-background/50 border-input/50 focus:border-primary transition-all"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="language">Language</Label>
+                <div className="space-y-2 group">
+                  <Label htmlFor="language" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Language</Label>
                   <Select value={newScript.language} onValueChange={(value) => setNewScript({ ...newScript, language: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-background/50 border-input/50 focus:ring-primary/20">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
@@ -279,11 +287,11 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   </Select>
                 </div>
               </div>
-              
-              <div>
-                <Label htmlFor="category">Category</Label>
+
+              <div className="space-y-2 group">
+                <Label htmlFor="category" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Category</Label>
                 <Select value={newScript.category} onValueChange={(value: any) => setNewScript({ ...newScript, category: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background/50 border-input/50 focus:ring-primary/20">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -295,30 +303,31 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div>
-                <Label htmlFor="description">Description</Label>
+
+              <div className="space-y-2 group">
+                <Label htmlFor="description" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Description</Label>
                 <Textarea
                   id="description"
                   value={newScript.description}
                   onChange={(e) => setNewScript({ ...newScript, description: e.target.value })}
-                  placeholder="Describe what this script does"
+                  placeholder="Describe the purpose and expected outcome of this script..."
+                  className="resize-none bg-background/50 border-input/50 focus:border-primary transition-all min-h-[80px]"
                 />
               </div>
-              
-              <div>
-                <Label htmlFor="code">Code</Label>
+
+              <div className="space-y-2 group">
+                <Label htmlFor="code" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Initial Code</Label>
                 <Textarea
                   id="code"
                   value={newScript.code}
                   onChange={(e) => setNewScript({ ...newScript, code: e.target.value })}
-                  placeholder="Paste your script code here"
-                  rows={10}
-                  className="font-mono text-sm"
+                  placeholder="// Entry point..."
+                  rows={8}
+                  className="font-mono text-xs bg-muted/30 border-input/50 focus:border-primary transition-all"
                 />
               </div>
-              
-              <Button onClick={createScript} className="w-full">
+
+              <Button onClick={createScript} className="w-full shadow-lg hover:shadow-primary/25 transition-all" disabled={!newScript.name || !newScript.language}>
                 Create Script
               </Button>
             </div>
@@ -351,7 +360,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
               <SelectItem value="utility">Utility</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Select value={languageFilter} onValueChange={setLanguageFilter}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Language" />
@@ -373,8 +382,8 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
             <Code2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No scripts found</h3>
             <p className="text-muted-foreground mb-4">
-              {searchQuery || categoryFilter !== 'all' || languageFilter !== 'all' 
-                ? 'Try adjusting your filters' 
+              {searchQuery || categoryFilter !== 'all' || languageFilter !== 'all'
+                ? 'Try adjusting your filters'
                 : 'Create your first automation script'}
             </p>
             {(!searchQuery && categoryFilter === 'all' && languageFilter === 'all') && (
@@ -468,8 +477,8 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                 </div>
                 <div>
                   <Label htmlFor="editLanguage">Language</Label>
-                  <Select 
-                    value={editingScript.language} 
+                  <Select
+                    value={editingScript.language}
                     onValueChange={(value) => setEditingScript({ ...editingScript, language: value })}
                   >
                     <SelectTrigger>
@@ -491,11 +500,11 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   </Select>
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="editCategory">Category</Label>
-                <Select 
-                  value={editingScript.category} 
+                <Select
+                  value={editingScript.category}
                   onValueChange={(value: any) => setEditingScript({ ...editingScript, category: value })}
                 >
                   <SelectTrigger>
@@ -510,7 +519,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div>
                 <Label htmlFor="editDescription">Description</Label>
                 <Textarea
@@ -519,7 +528,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   onChange={(e) => setEditingScript({ ...editingScript, description: e.target.value })}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="editCode">Code</Label>
                 <Textarea
@@ -530,7 +539,7 @@ export default function Scripts({ selectedProject }: ScriptsProps) {
                   className="font-mono text-sm"
                 />
               </div>
-              
+
               <div className="flex gap-2">
                 <Button onClick={updateScript} className="flex-1">
                   Update Script

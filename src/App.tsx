@@ -24,7 +24,6 @@ import NotificationsSettings from "./pages/settings/NotificationsSettings";
 import DisplaySettings from "./pages/settings/DisplaySettings";
 import Recorder from './pages/Recorder';
 import { ScrollToTop } from './components/ScrollToTop';
-import ExecutionHistory from './pages/ExecutionHistory';
 import VisualTests from './pages/VisualTests';
 import TestHub from "./pages/TestHub";
 import TestOrchestrator from "./pages/TestOrchestrator";
@@ -52,6 +51,7 @@ import NotFound from "./pages/NotFound";
 import { ProjectSelector } from "./components/ProjectSelector";
 import { Loader2 } from "lucide-react";
 import DatabaseView from "./pages/DatabaseView";
+import { TitleBar } from "./components/TitleBar";
 
 const queryClient = new QueryClient();
 
@@ -93,9 +93,7 @@ function AppRoutes() {
       <Route path="/test-cases" element={<TestCases selectedProject={selectedProject} />} />
       <Route path="/bugs" element={<Bugs selectedProject={selectedProject} />} />
       <Route path="/recorder" element={<Recorder />} />
-      {/* Both routes point to the new ExecutionHistory component */}
-      <Route path="/execution-reports" element={<ExecutionHistory />} />
-      <Route path="/execution-history" element={<ExecutionHistory />} />
+
       <Route path="/visual-tests" element={<VisualTests />} />
       <Route path="/visual-tests" element={<VisualTests />} />
       <Route path="/test-hub" element={<TestHub />} />
@@ -144,10 +142,10 @@ const AppLayout = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="h-screen w-full flex overflow-hidden bg-background">
+    <SidebarProvider className="h-screen w-full overflow-hidden">
+      <div className="h-full w-full flex overflow-hidden bg-background">
         <AppSidebar />
-        <main className="flex-1 flex flex-col h-full overflow-hidden relative z-10">
+        <main className="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative z-10">
           <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
             <div className="flex items-center">
               <SidebarTrigger className="mr-4" />
@@ -223,23 +221,27 @@ const App = () => (
     <TooltipProvider>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
+        <Toaster />
+        <Toaster />
+        <div className="relative h-screen w-full overflow-hidden font-sans antialiased text-foreground bg-background">
+          {/* <TitleBar /> REMOVED */}
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
 
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </div>
         <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
         <DebugDrawer />
       </ThemeProvider>

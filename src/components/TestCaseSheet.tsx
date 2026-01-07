@@ -192,38 +192,42 @@ export function TestCaseSheet({ testCases, onTestCaseAdd, onBulkTestCaseAdd, onT
 
         {/* AI Generation Dialog */}
         <Dialog open={showAiDialog} onOpenChange={setShowAiDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl border-0 bg-card/95 backdrop-blur-xl shadow-2xl" onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-indigo-600" />
-                Generate Test Suite with AI
+              <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+                <div className="p-2 bg-indigo-500/10 rounded-md">
+                  <Sparkles className="h-6 w-6 text-indigo-600" />
+                </div>
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Generate Test Suite
+                </span>
               </DialogTitle>
               <DialogDescription>
-                Describe the module or feature flow in detail (e.g., "Registration flow with email validation, password rules, and error states").
-                The AI will generate a comprehensive list of test cases (Positive, Negative, Edge).
+                Describe the module or feature flow in detail. The AI will generate comprehensive test scenarios.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Detailed Flow Description</Label>
+              <div className="space-y-2 group">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-indigo-600 transition-colors">Detailed Flow Description</Label>
                 <Textarea
                   placeholder="e.g. User navigates to checkout, enters shipping info. If address is invalid, show error. If card is declined, show alert. If successful, redirect to confirmation..."
                   value={aiPrompt}
                   onChange={(e) => setAiPrompt(e.target.value)}
                   rows={8}
+                  className="bg-background/50 border-input/50 focus:border-indigo-500 transition-all font-mono text-xs resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
-                  Provide as much detail as possible. The AI will try to generate 20+ scenarios including edge cases.
+                <p className="text-[10px] text-muted-foreground bg-muted/50 p-2 rounded border">
+                  <strong>Tip:</strong> Provide as much detail as possible. The AI will try to generate 20+ scenarios including edge cases.
                 </p>
               </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowAiDialog(false)}>Cancel</Button>
-              <Button onClick={handleGenerateWithAI} disabled={!aiPrompt.trim() || isGenerating} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button onClick={handleGenerateWithAI} disabled={!aiPrompt.trim() || isGenerating} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20">
                 {isGenerating ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating Suite (this may take a minute)...
+                    Generating Suite...
                   </>
                 ) : (
                   <>

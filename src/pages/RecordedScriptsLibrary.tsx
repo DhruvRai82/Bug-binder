@@ -79,12 +79,6 @@ export default function RecordedScriptsLibrary() {
 
             if (result.runId) {
                 toast.success('Execution started!');
-                // Auto-redirect to history to see logs? Or just notify?
-                // Let's notify and allow user to click "View Reports"
-                const shouldView = confirm('Execution started. View logs now?');
-                if (shouldView) {
-                    navigate('/execution-reports');
-                }
             } else {
                 toast.error('Failed to trigger execution');
             }
@@ -99,7 +93,7 @@ export default function RecordedScriptsLibrary() {
     const confirmDelete = async () => {
         if (!scriptToDelete) return;
         try {
-            await api.delete(`/api/recorder/${scriptToDelete}`);
+            await api.delete(`/api/recorder/${scriptToDelete}?projectId=${selectedProject?.id}`);
             toast.success('Script deleted');
             loadScripts();
             setScriptToDelete(null);
@@ -134,19 +128,13 @@ export default function RecordedScriptsLibrary() {
 
     return (
         <div className="p-4 w-full space-y-6">
-            <div className="flex justify-between items-end">
-                <div>
-                    <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                        Recorded Scripts
-                    </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Manage, replay, and export your automated test scenarios.
-                    </p>
-                </div>
-                <Button variant="outline" onClick={() => navigate('/execution-reports')} className="shadow-sm">
-                    <LayoutList className="h-4 w-4 mr-2" />
-                    View Reports
-                </Button>
+            <div>
+                <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    Recorded Scripts
+                </h1>
+                <p className="text-muted-foreground mt-2 text-lg">
+                    Manage, replay, and export your automated test scenarios.
+                </p>
             </div>
 
             <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
@@ -352,6 +340,6 @@ export default function RecordedScriptsLibrary() {
                 title="Delete Script?"
                 description="This will permanently delete this recorded script and its history."
             />
-        </div>
+        </div >
     );
 }

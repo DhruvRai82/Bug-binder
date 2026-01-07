@@ -12,8 +12,6 @@ import { toast } from 'sonner';
 
 // New Components
 import { ExecutionConsole } from '@/components/ExecutionConsole';
-import { RunHistoryList } from '@/components/RunHistoryList';
-import { RunDetails } from '@/components/RunDetails';
 
 // Recursive Tree Item Component
 const FileTreeItem = ({
@@ -96,7 +94,6 @@ export default function TestOrchestrator() {
     // Run State
     const [activeRunId, setActiveRunId] = useState<string | null>(null);
     const [currentRunData, setCurrentRunData] = useState<any>(null);
-    const [runHistory, setRunHistory] = useState<any[]>([]);
 
     // Details Drawer
     const [viewRunId, setViewRunId] = useState<string | null>(null);
@@ -119,19 +116,8 @@ export default function TestOrchestrator() {
         }
     };
 
-    const fetchHistory = async () => {
-        if (!selectedProject) return;
-        try {
-            const runs = await api.get(`/api/runner/runs/${selectedProject.id}`);
-            setRunHistory(runs as any[]);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     useEffect(() => {
         fetchFiles();
-        fetchHistory();
     }, [selectedProject?.id]);
 
     // Polling Logic
@@ -147,8 +133,7 @@ export default function TestOrchestrator() {
                         // Stop Polling
                         if (pollingRef.current) clearInterval(pollingRef.current);
                         pollingRef.current = null;
-                        setActiveRunId(null); // Return to ready state (but keep data visible in console? maybe not, auto-refresh history)
-                        fetchHistory();
+                        setActiveRunId(null);
                         toast.success(`Run ${data.status}`);
                     }
                 } catch (e) {
@@ -171,23 +156,6 @@ export default function TestOrchestrator() {
             if (pollingRef.current) clearInterval(pollingRef.current);
         };
     }, []);
-
-    // Drawer Data Fetcher
-    useEffect(() => {
-        if (viewRunId && selectedProject) {
-            (async () => {
-                try {
-                    const data = await api.get(`/api/runner/run/${viewRunId}?projectId=${selectedProject.id}`);
-                    setViewRunData(data);
-                } catch (e) {
-                    toast.error("Failed to fetch run details");
-                }
-            })();
-        } else {
-            setViewRunData(null);
-        }
-    }, [viewRunId]);
-
 
     const handleToggle = (id: string, checked: boolean) => {
         const getDescendantIds = (nodeId: string, nodes: FileNode[]): string[] => {
@@ -282,23 +250,6 @@ export default function TestOrchestrator() {
     };
 
     const selectedCount = getSelectedFileCount(fileSystem, selectedIds);
-    const passRate = runHistory.length > 0
-        ? Math.round((runHistory.filter(r => r.status === 'completed').length / runHistory.length) * 100)
-        : 0;
-
-    const handleDeleteRun = async (runId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!selectedProject || !confirm("Delete this run?")) return;
-
-        try {
-            await api.delete(`/api/runner/run/${runId}?projectId=${selectedProject.id}`);
-            toast.success("Run delete");
-            fetchHistory();
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to delete run");
-        }
-    };
 
     return (
         <div className="h-[calc(100vh-4rem)] flex flex-col bg-background">
@@ -376,29 +327,8 @@ export default function TestOrchestrator() {
                 <main className="flex-1 bg-background/50 flex flex-col min-w-0">
                     <ScrollArea className="flex-1">
                         <div className="p-6 flex flex-col gap-6">
-                            {/* Stat Cards */}
-                            <div className="grid grid-cols-3 gap-4 shrink-0">
-                                <Card>
-                                    <CardHeader className="py-4">
-                                        <CardTitle className="text-sm font-medium">Last Run</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold">
-                                            {runHistory[0] ? new Date(runHistory[0].startTime).toLocaleTimeString() : 'Never'}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            {runHistory[0] ? runHistory[0].status : '--'}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                                <Card>
-                                    <CardHeader className="py-4">
-                                        <CardTitle className="text-sm font-medium">Pass Rate</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-2xl font-bold text-emerald-600">{passRate}%</div>
-                                    </CardContent>
-                                </Card>
+                            {/* Stat Cards - Simplified */}
+                            <div className="grid grid-cols-1 gap-4 shrink-0">
                                 <Card>
                                     <CardHeader className="py-4">
                                         <CardTitle className="text-sm font-medium">Selected Tests</CardTitle>
@@ -410,13 +340,6 @@ export default function TestOrchestrator() {
                             </div>
 
                             {/* Active Run / Live Console */}
-                            {/* 
-                       Logic: 
-                       - If running, show Console. 
-                       - If not running, show "Ready to Run" 
-                       - OR show "Last Run Console" if we just finished?
-                       Let's show Console if running. 
-                    */}
                             <div className="flex-1 min-h-[500px] flex flex-col">
                                 {activeRunId && currentRunData ? (
                                     <ExecutionConsole
@@ -460,28 +383,7 @@ export default function TestOrchestrator() {
                         </div>
                     </ScrollArea>
                 </main>
-
-                {/* Right Sidebar: Run History */}
-                <aside className="w-80 border-l bg-muted/10 flex flex-col">
-                    <div className="p-3 border-b shrink-0 bg-background/50 backdrop-blur">
-                        <span className="font-semibold text-sm">Run History</span>
-                    </div>
-                    <ScrollArea className="flex-1 p-2">
-                        <RunHistoryList
-                            runs={runHistory}
-                            onSelectRun={(id) => setViewRunId(id)}
-                            onDeleteRun={handleDeleteRun}
-                        />
-                    </ScrollArea>
-                </aside>
             </div>
-
-            {/* Details Drawer */}
-            <RunDetails
-                isOpen={!!viewRunId}
-                onClose={() => setViewRunId(null)}
-                run={viewRunData}
-            />
 
         </div>
     );

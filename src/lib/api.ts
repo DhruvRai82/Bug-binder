@@ -39,6 +39,18 @@ export const getHeaders = async () => {
 export const api = {
     get: async (url: string) => {
         // console.log(`[API GET] ${url}`);
+
+        // ELECTRON: Intercept /projects
+        if (window.electron && url === '/projects') {
+            console.log('[API] Routing /projects to Electron IPC');
+            // We need the user ID. In the web version, it's in headers.
+            // Here we can grab it from Auth or store it.
+            // For now, let's assume auth.currentUser is available since we are logged in.
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error("User not authenticated for IPC");
+            return await window.electron.getProjects(userId);
+        }
+
         const response = await fetch(`${API_BASE_URL}${url}`, {
             headers: await getHeaders(),
         });
@@ -51,10 +63,30 @@ export const api = {
 
     post: async (url: string, body: any, config: any = {}) => {
         // console.log(`[API POST] ${url}`, body);
+
+        // ELECTRON: Intercept POST /projects
+        if (window.electron && url === '/projects') {
+            console.log('[API] Routing POST /projects to Electron IPC');
+            // Body is the project data
+            // We need to ensure userId is attached if the service expects it in the args or if the body has it.
+            // LocalProjectService.createProject(name, description, userId, id) through IPC
+            // The IPC handler expects { name, description, userId, id }
+            // We should inject userId from auth
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error("User not authenticated for IPC");
+
+            const projectData = { ...body, userId };
+            return await window.electron.createProject(projectData);
+        }
+
         const headers = await getHeaders();
         const finalHeaders = { ...headers, ...config.headers };
 
-        if (finalHeaders['Content-Type'] === 'multipart/form-data') {
+        if (body instanceof FormData) {
+            if (finalHeaders['Content-Type']) {
+                delete finalHeaders['Content-Type']; // Let browser set boundary
+            }
+        } else if (finalHeaders['Content-Type'] === 'multipart/form-data') {
             delete finalHeaders['Content-Type'];
         } else {
             body = JSON.stringify(body);

@@ -414,31 +414,40 @@ export default function TestCases({ selectedProject }: TestCasesProps) {
                 Add Page
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="border-0 bg-card/95 backdrop-blur-xl shadow-2xl sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Create New Test Page</DialogTitle>
-                <DialogDescription>Enter a page name and date to create a new test page.</DialogDescription>
+                <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                  <div className="p-2 bg-primary/10 rounded-md">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  Create New Test Page
+                </DialogTitle>
+                <DialogDescription>
+                  Organize your test cases by sprint, date, or feature.
+                </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="pageName">Page Name</Label>
+              <div className="space-y-5 py-4">
+                <div className="space-y-2 group">
+                  <Label htmlFor="pageName" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Page Name</Label>
                   <Input
                     id="pageName"
                     value={newPageName}
                     onChange={(e) => setNewPageName(e.target.value)}
-                    placeholder="e.g., Sprint 1 Tests, Regression Suite"
+                    placeholder="e.g., Sprint 42 Release"
+                    className="bg-background/50 border-input/50 focus:border-primary transition-all"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="pageDate">Date</Label>
+                <div className="space-y-2 group">
+                  <Label htmlFor="pageDate" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-primary transition-colors">Target Date</Label>
                   <Input
                     id="pageDate"
                     type="date"
                     value={newPageDate}
                     onChange={(e) => setNewPageDate(e.target.value)}
+                    className="bg-background/50 border-input/50 focus:border-primary transition-all"
                   />
                 </div>
-                <Button onClick={createCustomPage} className="w-full">
+                <Button onClick={createCustomPage} className="w-full shadow-md" disabled={!newPageName || !newPageDate}>
                   Create Page
                 </Button>
               </div>

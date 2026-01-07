@@ -394,24 +394,29 @@ export function BugSheet({ bugs, testCases, onBugAdd, onBugUpdate, onBugDelete, 
         setShowAiDialog(open);
         if (!open) setBugPrompt(''); // Clear prompt on close
       }}>
-        <DialogContent>
+        <DialogContent className="border-0 bg-card/95 backdrop-blur-xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-600" />
-              Generate Bug Report with AI
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <div className="p-2 bg-purple-500/10 rounded-md">
+                <Sparkles className="h-5 w-5 text-purple-600" />
+              </div>
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Generate Bug Report
+              </span>
             </DialogTitle>
             <DialogDescription>
               Paste the bug description, logs, or steps. The AI will format it into a structured bug report.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Bug Description / Logs</Label>
+            <div className="space-y-2 group">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground group-focus-within:text-purple-600 transition-colors">Bug Details / Logs</Label>
               <Textarea
                 placeholder="Paste error logs, steps, or description here..."
                 value={bugPrompt}
                 onChange={(e) => setBugPrompt(e.target.value)}
-                rows={6}
+                rows={8}
+                className="bg-background/50 border-input/50 focus:border-purple-500 transition-all font-mono text-xs resize-none"
               />
             </div>
           </div>
@@ -422,7 +427,7 @@ export function BugSheet({ bugs, testCases, onBugAdd, onBugUpdate, onBugDelete, 
             <Button
               onClick={handleGenerateWithAI}
               disabled={!bugPrompt.trim() || isGenerating}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20"
             >
               {isGenerating ? (
                 <>
@@ -432,7 +437,7 @@ export function BugSheet({ bugs, testCases, onBugAdd, onBugUpdate, onBugDelete, 
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Generate
+                  Generate Report
                 </>
               )}
             </Button>

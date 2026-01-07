@@ -104,103 +104,150 @@ export default function GitSettings() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out">
             <div>
-                <h3 className="text-lg font-medium">Version Control (Git)</h3>
-                <p className="text-sm text-muted-foreground">
-                    Manage data synchronization with your remote repository.
+                <h3 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                    Version Control
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2 max-w-xl">
+                    Synchronize your test data and scripts with your remote Git repository to ensure version history and collaboration.
                 </p>
             </div>
-            <div className="border-t pt-6" />
 
-            <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-blue-500/5 to-transparent border-b">
-                    <CardTitle className="flex items-center gap-2 text-blue-600">
+            <Card className="border-0 shadow-lg bg-card/60 backdrop-blur-md overflow-hidden ring-1 ring-white/10 dark:ring-white/5 relative">
+                <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 opacity-70" />
+
+                <CardHeader className="bg-background/20 border-b border-border/50">
+                    <CardTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                         <GitBranch className="h-5 w-5" />
-                        Git Status
+                        Repository Status
                     </CardTitle>
                     <CardDescription>
-                        Check local changes and sync with remote.
+                        Check local changes and push updates to your upstream origin.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
+
+                <CardContent className="p-6 space-y-8">
                     {/* Status Display */}
-                    <div className="p-6 bg-background border rounded-xl shadow-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            {gitStatus === 'CLEAN' && <CheckCircle2 className="h-6 w-6 text-green-500" />}
-                            {gitStatus === 'MODIFIED' && <AlertCircle className="h-6 w-6 text-yellow-500" />}
-                            {gitStatus === 'BEHIND' && <Clock className="h-6 w-6 text-blue-500" />}
-                            {gitStatus === 'ERROR' && <AlertCircle className="h-6 w-6 text-destructive" />}
-                            {gitStatus === 'UNKNOWN' && <Clock className="h-6 w-6 text-muted-foreground" />}
-                            <span className="text-lg font-semibold">Status: {gitMessage}</span>
+                    <div className="relative group">
+                        <div className={`p-6 rounded-xl border-2 transition-all duration-300 ${gitStatus === 'CLEAN' ? 'border-green-500/20 bg-green-500/5' :
+                                gitStatus === 'MODIFIED' ? 'border-yellow-500/20 bg-yellow-500/5' :
+                                    gitStatus === 'ERROR' ? 'border-destructive/20 bg-destructive/5' :
+                                        'border-border bg-background/50'
+                            }`}>
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-full shadow-sm ${gitStatus === 'CLEAN' ? 'bg-green-100 text-green-600' :
+                                            gitStatus === 'MODIFIED' ? 'bg-yellow-100 text-yellow-600' :
+                                                gitStatus === 'ERROR' ? 'bg-red-100 text-red-600' :
+                                                    'bg-muted text-muted-foreground'
+                                        }`}>
+                                        {gitStatus === 'CLEAN' && <CheckCircle2 className="h-6 w-6" />}
+                                        {gitStatus === 'MODIFIED' && <AlertCircle className="h-6 w-6" />}
+                                        {gitStatus === 'BEHIND' && <Clock className="h-6 w-6" />}
+                                        {gitStatus === 'ERROR' && <AlertCircle className="h-6 w-6" />}
+                                        {gitStatus === 'UNKNOWN' && <Activity className="h-6 w-6 animate-pulse" />}
+                                    </div>
+                                    <div>
+                                        <h4 className="text-lg font-semibold tracking-tight">{gitMessage}</h4>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {gitDetails || "No additional status details available."}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={checkGitStatus}
+                                    disabled={isGitLoading}
+                                    className="hover:border-blue-500 hover:text-blue-600 transition-colors"
+                                >
+                                    <Activity className={`h-3.5 w-3.5 mr-2 ${isGitLoading ? 'animate-spin' : ''}`} />
+                                    Refresh
+                                </Button>
+                            </div>
                         </div>
-                        {gitDetails && (
-                            <p className="text-sm text-muted-foreground ml-9 mb-4">{gitDetails}</p>
-                        )}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={checkGitStatus}
-                            disabled={isGitLoading}
-                            className="ml-9 text-primary hover:text-primary/80 hover:bg-primary/10"
-                        >
-                            Refresh Status
-                        </Button>
                     </div>
 
-                    {/* Commit Message Input */}
-                    <div className="space-y-3">
-                        <Label htmlFor="commit-message" className="text-base font-medium">Commit Message</Label>
-                        <Textarea
-                            id="commit-message"
-                            value={commitMessage}
-                            onChange={(e) => setCommitMessage(e.target.value)}
-                            placeholder="Enter commit message (e.g., 'Updated test data')"
-                            disabled={isGitLoading}
-                            rows={2}
-                            className="resize-none bg-background"
-                        />
-                    </div>
+                    {/* Action Zone */}
+                    <div className="grid lg:grid-cols-2 gap-8">
+                        {/* Commit Section */}
+                        <div className="space-y-4 group/commit">
+                            <div className="space-y-2">
+                                <Label htmlFor="commit-message" className="text-xs font-semibold uppercase text-muted-foreground group-focus-within/commit:text-blue-500 transition-colors">
+                                    Commit Changes
+                                </Label>
+                                <Textarea
+                                    id="commit-message"
+                                    value={commitMessage}
+                                    onChange={(e) => setCommitMessage(e.target.value)}
+                                    placeholder="Describe your changes (e.g., 'Updated login test scenario')"
+                                    disabled={isGitLoading}
+                                    className="resize-none bg-background/50 border-muted-foreground/20 focus:border-blue-500 transition-all min-h-[120px] shadow-inner"
+                                />
+                            </div>
+                            <Button
+                                onClick={handleCommitPush}
+                                disabled={!canCommit || !commitMessage.trim() || isGitLoading}
+                                className={`w-full h-11 text-base shadow-md transition-all duration-300 ${canCommit
+                                        ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/25 hover:-translate-y-0.5'
+                                        : 'opacity-50 cursor-not-allowed'
+                                    }`}
+                            >
+                                <Upload className="h-4 w-4 mr-2" />
+                                {isGitLoading ? 'Syncing...' : 'Commit & Push'}
+                            </Button>
+                        </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4">
-                        <Button
-                            onClick={handleCommitPush}
-                            disabled={!canCommit || !commitMessage.trim() || isGitLoading}
-                            className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
-                        >
-                            <Upload className="h-4 w-4 mr-2" />
-                            {isGitLoading ? 'Processing...' : 'Commit & Push'}
-                        </Button>
-                        <Button
-                            onClick={handlePullSync}
-                            disabled={isGitLoading}
-                            variant="outline"
-                            className="flex-1 h-11 border-blue-200 hover:border-blue-300 hover:bg-blue-50 text-blue-700 shadow-sm hover:shadow-md transition-all"
-                        >
-                            <GitPullRequest className="h-4 w-4 mr-2" />
-                            {isGitLoading ? 'Processing...' : 'Pull & Sync'}
-                        </Button>
+                        {/* Pull Section */}
+                        <div className="flex flex-col space-y-4">
+                            <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                                Remote Synchronization
+                            </Label>
+                            <div className="flex-1 rounded-xl bg-muted/20 border border-dashed flex flex-col items-center justify-center p-6 text-center space-y-3 hover:bg-muted/30 transition-colors">
+                                <div className="bg-background p-3 rounded-full shadow-sm">
+                                    <GitPullRequest className="h-6 w-6 text-blue-500" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h5 className="font-medium text-foreground">Pull Latest Changes</h5>
+                                    <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
+                                        Fetch and merge updates from the remote repository to keep your list compliant.
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={handlePullSync}
+                                    disabled={isGitLoading}
+                                    variant="outline"
+                                    className="w-full mt-2 border-blue-200 hover:border-blue-400 hover:text-blue-600 dark:border-blue-900 dark:hover:border-blue-700"
+                                >
+                                    <Clock className="h-4 w-4 mr-2" />
+                                    {isGitLoading ? 'Processing...' : 'Pull from Origin'}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Run Status Log */}
-                    <div className="space-y-3">
-                        <Label className="text-base font-medium">Activity Log</Label>
-                        <ScrollArea className="h-40 w-full border rounded-xl p-4 bg-muted/30 shadow-inner">
+                    <div className="space-y-3 pt-4 border-t">
+                        <Label className="text-xs font-semibold uppercase text-muted-foreground">Operation Log</Label>
+                        <ScrollArea className="h-48 w-full border rounded-xl bg-black/5 dark:bg-black/40 shadow-inner p-4 font-mono text-sm settings-log-area">
                             {gitLogs.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
+                                <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-40">
                                     <Activity className="h-8 w-8 mb-2" />
-                                    <p className="text-sm">No activity yet</p>
+                                    <p className="text-xs">No Git operations recorded in this session.</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     {gitLogs.map((log, index) => (
-                                        <div key={index} className="text-sm flex gap-3 items-start">
-                                            <span className="text-muted-foreground font-mono text-xs mt-0.5 shrink-0">{log.time}</span>
-                                            <span className={`flex-1 break-words ${log.type === 'success' ? 'text-green-600 font-medium' :
-                                                log.type === 'error' ? 'text-destructive font-medium' :
-                                                    'text-foreground'
+                                        <div key={index} className="flex gap-3 items-start animate-in slide-in-from-left-2 fade-in duration-300">
+                                            <span className="text-muted-foreground/60 text-[10px] mt-0.5 w-14 shrink-0">{log.time}</span>
+                                            <span className={`flex-1 break-all ${log.type === 'success' ? 'text-green-600 dark:text-green-400' :
+                                                    log.type === 'error' ? 'text-red-500 dark:text-red-400' :
+                                                        'text-foreground'
                                                 }`}>
+                                                <span className="mr-2 opacity-50 select-none">
+                                                    {log.type === 'success' ? '✓' : log.type === 'error' ? '✗' : 'ℹ'}
+                                                </span>
                                                 {log.message}
                                             </span>
                                         </div>
