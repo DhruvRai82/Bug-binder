@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "@tanstack/react-router";
 import {
   TestTube2,
   Bug,
@@ -70,12 +70,21 @@ const navigationGroups = [
 const SidebarLink = React.forwardRef<
   HTMLAnchorElement,
   { item: any; collapsed: boolean }
->(({ item, collapsed }, ref) => (
-  <NavLink
-    ref={ref}
-    to={item.url}
-    className={({ isActive }) =>
-      cn(
+>(({ item, collapsed }, ref) => {
+  const { pathname } = useLocation();
+  // Simple equality check for active state, or startsWith if nested?
+  // Previous logic was exact match usually for sidebar items, except maybe sub-routes.
+  // Let's use exact match for now as per previous simple logic usually implied, 
+  // or checks if it starts with for some.
+  // The 'isActive' in NavLink usually implies partial match relative to 'to'.
+  // But here we can just check pathname.
+  const isActive = pathname === item.url || pathname.startsWith(item.url + '/');
+
+  return (
+    <Link
+      ref={ref}
+      to={item.url}
+      className={cn(
         "flex items-center transition-all duration-200 group/link select-none",
         collapsed
           ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
@@ -83,36 +92,39 @@ const SidebarLink = React.forwardRef<
         isActive
           ? "bg-blue-600 text-white shadow-md font-bold"
           : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800"
-      )
-    }
-  >
-    <item.icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
-    {!collapsed && (
-      <>
-        <span className="flex-1 text-base tracking-wide">{item.title}</span>
-        {item.badge && (
-          <Badge
-            variant="destructive"
-            className="text-xs px-1.5 py-0.5 ml-auto text-white"
-          >
-            {item.badge}
-          </Badge>
-        )}
-      </>
-    )}
-  </NavLink>
-));
+      )}
+    >
+      <item.icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+      {!collapsed && (
+        <>
+          <span className="flex-1 text-base tracking-wide">{item.title}</span>
+          {item.badge && (
+            <Badge
+              variant="destructive"
+              className="text-xs px-1.5 py-0.5 ml-auto text-white"
+            >
+              {item.badge}
+            </Badge>
+          )}
+        </>
+      )}
+    </Link>
+  );
+});
 SidebarLink.displayName = "SidebarLink";
 
 const AdminLink = React.forwardRef<
   HTMLAnchorElement,
   { collapsed: boolean }
->(({ collapsed }, ref) => (
-  <NavLink
-    ref={ref}
-    to="/admin"
-    className={({ isActive }) =>
-      cn(
+>(({ collapsed }, ref) => {
+  const { pathname } = useLocation();
+  const isActive = pathname.startsWith('/admin');
+
+  return (
+    <Link
+      ref={ref}
+      to="/admin"
+      className={cn(
         "flex items-center transition-all duration-200 group/link select-none",
         collapsed
           ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
@@ -120,15 +132,15 @@ const AdminLink = React.forwardRef<
         isActive
           ? "bg-blue-600 text-white shadow-md font-bold"
           : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800"
-      )
-    }
-  >
-    <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
-    {!collapsed && (
-      <span className="flex-1 text-base tracking-wide">Admin Panel</span>
-    )}
-  </NavLink>
-));
+      )}
+    >
+      <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+      {!collapsed && (
+        <span className="flex-1 text-base tracking-wide">Admin Panel</span>
+      )}
+    </Link>
+  );
+});
 AdminLink.displayName = "AdminLink";
 
 // SettingsLink component removed as it is moving to the Profile Dropdown

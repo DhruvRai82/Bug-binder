@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "@tanstack/react-router";
 import {
     BarChart3,
     Users,
@@ -57,10 +57,10 @@ export function AdminSidebar() {
                             {adminItems.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <NavLink to={item.url} end={item.url === '/admin'} className={getNavClasses}>
+                                        <Link to={item.url} activeProps={{ className: "bg-sidebar-accent text-sidebar-accent-foreground font-medium" }} inactiveProps={{ className: "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground" }}>
                                             <item.icon className="h-5 w-5" />
                                             {!collapsed && <span>{item.title}</span>}
-                                        </NavLink>
+                                        </Link>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
@@ -73,10 +73,10 @@ export function AdminSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild className="hover:bg-red-100/50 text-red-700">
-                            <NavLink to="/">
+                            <Link to="/">
                                 <LogOut className="h-5 w-5" />
                                 {!collapsed && <span>Exit to App</span>}
-                            </NavLink>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

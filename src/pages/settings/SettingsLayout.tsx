@@ -1,88 +1,100 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { User, Settings, Palette, Bell, Monitor, Key, FolderOpen, GitBranch } from "lucide-react";
+import { Link, useLocation, Outlet } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import {
+    User,
+    Settings,
+    Bell,
+    Palette,
+    Shield,
+    Monitor,
+    Sparkles,
+    GitBranch,
+    Folder
+} from "lucide-react";
+import { TitleBar } from "@/components/TitleBar";
 
 const sidebarNavItems = [
     {
         title: "Profile",
         href: "/settings/profile",
-        icon: <User className="h-4 w-4" />,
+        icon: User,
     },
     {
         title: "Account",
         href: "/settings/account",
-        icon: <Settings className="h-4 w-4" />,
+        icon: Shield,
     },
     {
         title: "Appearance",
         href: "/settings/appearance",
-        icon: <Palette className="h-4 w-4" />,
+        icon: Palette,
     },
     {
         title: "Notifications",
         href: "/settings/notifications",
-        icon: <Bell className="h-4 w-4" />,
+        icon: Bell,
     },
     {
         title: "Display",
         href: "/settings/display",
-        icon: <Monitor className="h-4 w-4" />,
+        icon: Monitor,
     },
     {
-        title: "AI Brain & Keys",
+        title: "AI Integration",
         href: "/settings/ai",
-        icon: <Key className="h-4 w-4" />,
+        icon: Sparkles,
     },
     {
         title: "Projects",
         href: "/settings/projects",
-        icon: <FolderOpen className="h-4 w-4" />,
+        icon: Folder,
     },
     {
-        title: "Version Control",
+        title: "Git Integration",
         href: "/settings/git",
-        icon: <GitBranch className="h-4 w-4" />,
+        icon: GitBranch,
     },
 ];
 
 export default function SettingsLayout() {
-    const location = useLocation();
+    const { pathname } = useLocation();
 
     return (
-        <div className="flex flex-col lg:flex-row w-full lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
-            <aside className="lg:w-1/5 lg:border-r bg-muted/10 lg:overflow-y-auto">
-                <div className="p-6">
-                    <div className="mb-6 px-2">
-                        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-                        <p className="text-muted-foreground text-sm">
-                            Manage your account settings and preferences.
-                        </p>
-                    </div>
-                    <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
-                        {sidebarNavItems.map((item) => (
-                            <NavLink
-                                key={item.href}
-                                to={item.href}
-                                className={({ isActive }) =>
-                                    cn(
-                                        "justify-start text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 px-4 py-2 rounded-md",
-                                        isActive
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-muted-foreground hover:bg-muted/50"
-                                    )
-                                }
-                            >
-                                {item.icon}
-                                {item.title}
-                            </NavLink>
-                        ))}
-                    </nav>
+        <div className="flex flex-col h-full bg-background">
+            {/* TitleBar removed from here as it likely belongs in main layout */}
+            <div className="flex-1 space-y-6 p-10 pb-16 overflow-y-auto">
+                <div className="space-y-0.5">
+                    <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+                    <p className="text-muted-foreground">
+                        Manage your account settings and set e-mail preferences.
+                    </p>
                 </div>
-            </aside>
-            <div className="flex-1 lg:overflow-y-auto bg-background p-8">
-                <Outlet />
+                <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+                    <aside className="-mx-4 lg:w-1/5">
+                        <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1 pl-4">
+                            {sidebarNavItems.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    to={item.href}
+                                    className={cn(
+                                        "flex items-center gap-3 justify-start rounded-md px-3 py-2 text-sm font-medium hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50 transition-colors",
+                                        pathname === item.href
+                                            ? "bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-50"
+                                            : "text-muted-foreground"
+                                    )}
+                                >
+                                    <item.icon className="h-4 w-4" />
+                                    {item.title}
+                                </Link>
+                            ))}
+                        </nav>
+                    </aside>
+                    <div className="flex-1 lg:max-w-4xl">
+                        <Outlet />
+                    </div>
+                </div>
             </div>
         </div>
     );
 }
+

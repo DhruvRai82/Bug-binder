@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Project } from '@/types';
+import { useRouter } from '@tanstack/react-router';
 
 interface ProjectContextType {
   selectedProject: Project | null;
@@ -9,6 +10,7 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [selectedProject, setProjectState] = useState<Project | null>(() => {
     try {
       const stored = localStorage.getItem('selectedProject');
@@ -25,6 +27,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     } else {
       localStorage.removeItem('selectedProject');
     }
+    // Invalidate router immediately to trigger loaders
+    router.invalidate();
   };
 
   return (

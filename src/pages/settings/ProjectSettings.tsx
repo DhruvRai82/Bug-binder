@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { Project } from '@/types';
 import { useProject } from '@/context/ProjectContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 
 export default function ProjectSettings() {
     // Project State
@@ -291,8 +291,8 @@ export default function ProjectSettings() {
                             <div
                                 key={project.id}
                                 className={`group flex items-center justify-between p-3 rounded-lg text-sm transition-all duration-300 cursor-pointer border ${selectedProject?.id === project.id
-                                        ? 'bg-primary/10 border-primary/20 shadow-sm'
-                                        : 'bg-transparent border-transparent hover:bg-muted/50 hover:border-border'
+                                    ? 'bg-primary/10 border-primary/20 shadow-sm'
+                                    : 'bg-transparent border-transparent hover:bg-muted/50 hover:border-border'
                                     }`}
                                 style={{ animationDelay: `${i * 50}ms` }}
                             >

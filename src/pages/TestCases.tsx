@@ -22,46 +22,47 @@ interface CustomPage {
   date: string;
 }
 
+import { Route } from '@/routes/_authenticated/test-cases'
+
 export default function TestCases({ selectedProject }: TestCasesProps) {
-  const [customPages, setCustomPages] = useState<CustomPage[]>([]);
-  const [activePage, setActivePage] = useState<string>('');
-  const [dailyData, setDailyData] = useState<DailyData[]>([]);
+  const loaderData = Route.useLoaderData()
+
+  const [customPages, setCustomPages] = useState<CustomPage[]>(loaderData.pages);
+  const [activePage, setActivePage] = useState<string>(loaderData.pages.length > 0 ? loaderData.pages[0].id : '');
+  const [dailyData, setDailyData] = useState<DailyData[]>(loaderData.initialData);
+
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [newPageName, setNewPageName] = useState('');
   const [newPageDate, setNewPageDate] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSpreadsheetMode, setIsSpreadsheetMode] = useState(false); // New state for view toggle
+  const [isSpreadsheetMode, setIsSpreadsheetMode] = useState(false);
   const [spreadsheetRows, setSpreadsheetRows] = useState<TestCase[]>([]);
   const [pendingDeletePageId, setPendingDeletePageId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (selectedProject) {
-      loadCustomPages();
+    // Sync with loader if needed (e.g. project change)
+    setCustomPages(loaderData.pages)
+    if (loaderData.pages.length > 0) {
+      setActivePage(loaderData.pages[0].id)
+      setDailyData(loaderData.initialData)
+    } else {
+      setActivePage('')
+      setDailyData([])
     }
-  }, [selectedProject]);
-
-  useEffect(() => {
-    if (selectedProject && activePage) {
-      const page = customPages.find(p => p.id === activePage);
-      if (page) {
-        loadDailyData(page.date);
-      }
-    }
-  }, [selectedProject, activePage, customPages]);
+  }, [loaderData])
 
   const loadCustomPages = async () => {
     try {
       const pages = await api.get(`/api/projects/${selectedProject.id}/pages`);
       setCustomPages(pages);
-      if (pages.length > 0 && !activePage) {
-        setActivePage(pages[0].id);
-      }
+      // Logic for mount handled by loader now
     } catch (error) {
       console.error('Error loading custom pages:', error);
     }
   };
+
 
   const loadDailyData = async (date?: string) => {
     try {
@@ -353,6 +354,18 @@ export default function TestCases({ selectedProject }: TestCasesProps) {
     );
   });
 
+
+  useEffect(() => {
+    if (selectedProject && activePage) {
+      const page = customPages.find(p => p.id === activePage);
+
+      const currentDataHasDate = dailyData.some(d => d.date === page?.date);
+      if (page && !currentDataHasDate) {
+        loadDailyData(page.date);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProject, activePage, customPages]); // Removed dailyData/loadDailyData to act like mount check for that page
 
   // Sync spreadsheet rows with data when mode activates or page changes
   useEffect(() => {

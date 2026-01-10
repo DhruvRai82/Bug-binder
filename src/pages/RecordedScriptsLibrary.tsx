@@ -21,7 +21,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProject } from '@/context/ProjectContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
@@ -37,7 +37,7 @@ interface RecordedScript {
 }
 
 export default function RecordedScriptsLibrary() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const { selectedProject } = useProject();
     const [scripts, setScripts] = useState<RecordedScript[]>([]);
     const [isPlaying, setIsPlaying] = useState<string | null>(null);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,33 +7,18 @@ import { Bug, TestTube2, AlertTriangle, TrendingUp, Search, Filter, BarChart3, P
 import { TestCase, Bug as BugType, DailyData } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnalyticsChart } from '@/components/AnalyticsChart';
-import { api } from '@/lib/api';
+import { Route } from '@/routes/_authenticated/dashboard';
+import { useProject } from '@/context/ProjectContext';
 
-interface DashboardProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  selectedProject: any;
-}
-
-export default function Dashboard({ selectedProject }: DashboardProps) {
-  const [dailyData, setDailyData] = useState<DailyData[]>([]);
+export default function Dashboard() {
+  const { selectedProject } = useProject();
+  const dailyData = Route.useLoaderData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
 
-  useEffect(() => {
-    const loadAllData = async () => {
-      try {
-        const data = await api.get(`/api/projects/${selectedProject.id}/daily-data`);
-        setDailyData(data);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-      }
-    };
+  // Removed internal fetching logic as it is now handled by the loader
 
-    if (selectedProject) {
-      loadAllData();
-    }
-  }, [selectedProject]);
 
   // Aggregate all data from all dates AND Deduplicate by ID
   const allTestCases = Array.from(new Map(

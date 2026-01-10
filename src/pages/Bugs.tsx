@@ -20,10 +20,17 @@ interface CustomPage {
   date: string;
 }
 
+import { Route } from '@/routes/_authenticated/bugs'
+
 export default function Bugs({ selectedProject }: BugsProps) {
-  const [customPages, setCustomPages] = useState<CustomPage[]>([]);
-  const [activePage, setActivePage] = useState<string>('');
-  const [dailyData, setDailyData] = useState<DailyData[]>([]);
+  const loaderData = Route.useLoaderData()
+
+  // Initialize from loader data
+  const [customPages, setCustomPages] = useState<CustomPage[]>(loaderData.pages);
+  // Default active page is first one if exists
+  const [activePage, setActivePage] = useState<string>(loaderData.pages.length > 0 ? loaderData.pages[0].id : '');
+  const [dailyData, setDailyData] = useState<DailyData[]>(loaderData.initialData);
+
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [newPageName, setNewPageName] = useState('');
@@ -33,16 +40,18 @@ export default function Bugs({ selectedProject }: BugsProps) {
   const { toast } = useToast();
 
   const loadCustomPages = useCallback(async () => {
+    // validation: if we already have pages from loader and selectedProject matches, maybe skip?
+    // But selectedProject might change. 
+    // For now, keep this for re-fetching on project change if component stays mounted but prop changes?
+    // Actually route keys usually handle this.
+
+    // The original code re-fetched on mount.
+    // We can skip the mount fetch because we have loader data.
     try {
       const pages = await api.get(`/api/projects/${selectedProject.id}/pages`);
       setCustomPages(pages);
-      if (pages.length > 0 && !activePage) {
-        setActivePage(pages[0].id);
-      }
-    } catch (error) {
-      console.error('Error loading custom pages:', error);
-    }
-  }, [selectedProject, activePage]);
+    } catch (e) { console.error(e) }
+  }, [selectedProject]);
 
   const loadDailyData = useCallback(async (date?: string) => {
     try {
@@ -57,20 +66,58 @@ export default function Bugs({ selectedProject }: BugsProps) {
     }
   }, [selectedProject]);
 
-  useEffect(() => {
-    if (selectedProject) {
-      loadCustomPages();
-    }
-  }, [selectedProject, loadCustomPages]);
+  // Update effect to only run if deps change, NOT on mount if we have data
+  // BUT: logic is complex.
+  // Simplest: `useEffect` will run on mount. If we set initial state, it might re-fetch.
+  // We can rely on `selectedProject` changing.
+
+  // If we want to avoid double fetch on mount:
+  // We can use a ref `mounted`? 
+  // actually `loader` runs before mount.
+  // `useEffect` runs after mount.
+  // If we want to support switching projects without unmounting (if Router keeps layout), 
+  // we need effects. 
+  // But our Key is likely changing or we force invalidation.
 
   useEffect(() => {
+    // If loader data is stale (e.g. project changed client side but loader was for old project? 
+    // No, we invalidate router on project change so loader re-runs with NEW project).
+    // So Loader Data is always fresh for the current project.
+
+    // We update state when loaderData changes? 
+    setCustomPages(loaderData.pages)
+    if (loaderData.pages.length > 0) {
+      setActivePage(loaderData.pages[0].id)
+      setDailyData(loaderData.initialData)
+    } else {
+      setActivePage('')
+      setDailyData([])
+    }
+  }, [loaderData])
+
+  // We still need logic to fetch when `activePage` changes manually.
+  useEffect(() => {
     if (selectedProject && activePage) {
+      // Check if we already have data for this page? 
+      // `dailyData` is array of all data? No, `loadDailyData` fetches for specific date?
+      // Wait, `loadDailyData` fetches ARRAY of DailyData?
+      // Let's check `loadDailyData` implementation.
+      // It fetches `/daily-data?date=...`. Returns `DailyData[]`? Usually returns one entry?
+      // Code says `setDailyData(data)`. `dailyData` type is `DailyData[]`.
+      // So likely it returns [ { date: ..., ... } ].
+
+      // If we just loaded initialData from loader (which is for page[0]), 
+      // and activePage is page[0], we don't need to fetch.
+
       const page = customPages.find(p => p.id === activePage);
-      if (page) {
+      const currentDataHasDate = dailyData.some(d => d.date === page?.date);
+
+      if (page && !currentDataHasDate) {
         loadDailyData(page.date);
       }
     }
-  }, [selectedProject, activePage, customPages, loadDailyData]);
+  }, [selectedProject, activePage, customPages, loadDailyData]); // Removed dailyData from deps to avoid loop if logic wrong, but added check
+
 
   const createCustomPage = async () => {
     if (!selectedProject) {

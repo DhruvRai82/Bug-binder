@@ -2,18 +2,18 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "@tanstack/react-router";
 
 export function ScrollToTop() {
     const [isVisible, setIsVisible] = useState(false);
     const scrolledElementRef = useRef<HTMLElement | null>(null);
-    const location = useLocation();
+    const { pathname } = useLocation();
 
     // Reset when changing routes
     useEffect(() => {
         setIsVisible(false);
         scrolledElementRef.current = null;
-    }, [location]);
+    }, [pathname]);
 
     useEffect(() => {
         const handleScroll = (event: Event) => {

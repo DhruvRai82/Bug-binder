@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw, CheckCircle, XCircle, Clock, AlertTriangle, ArrowLeft, Trash2, Sparkles, ChevronRight, Stethoscope } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
 import { toast } from 'sonner';
 
@@ -135,7 +135,7 @@ export default function ExecutionHistory() {
         <div className="p-6 space-y-6 w-full">
             <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate('/recorder')} className="gap-2">
+                    <Button variant="ghost" onClick={() => navigate({ to: '/recorder' })} className="gap-2">
                         <ArrowLeft className="w-4 h-4" /> Back
                     </Button>
                     <div>

@@ -1,18 +1,18 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, AlertTriangle } from "lucide-react";
 
 const NotFound = () => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      pathname
     );
-  }, [location.pathname]);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-4">
@@ -36,7 +36,7 @@ const NotFound = () => {
 
         <Button
           size="lg"
-          onClick={() => navigate('/')}
+          onClick={() => navigate({ to: '/' })}
           className="group shadow-lg hover:shadow-xl transition-all"
         >
           <Home className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />

@@ -121,13 +121,26 @@ export default function IdeLayout() {
         return null;
     };
 
-    const handleOpenFile = (file: FileNode) => {
-        // Check if already open
+    const handleOpenFile = async (file: FileNode) => {
+        // Optimistic open (show immediately what we have)
         if (!openFiles.find(f => f.id === file.id)) {
             setOpenFiles(prev => [...prev, file]);
         }
         setActiveFileId(file.id);
         setViewMode('editor');
+
+        // Fetch fresh content from API
+        try {
+            const freshData = await api.get(`/api/fs/${file.id}`);
+            // Update openFiles with fresh content
+            setOpenFiles(prev => prev.map(f =>
+                f.id === file.id ? { ...f, content: freshData.content } : f
+            ));
+            // Update fileSystem (source of truth for re-opening) logic is hard with recursion.
+            // But updating openFiles is enough for the active session.
+        } catch (e) {
+            console.error("Failed to refresh file content", e);
+        }
 
         // Auto-expand sidebar
         const pathIds = findPathIds(fileSystem, file.id);
@@ -138,7 +151,6 @@ export default function IdeLayout() {
                 return newSet;
             });
 
-            // Scoping Logic:
             if (pathIds.length > 0) {
                 setScopedRootId(pathIds[0]);
             } else {
@@ -263,12 +275,22 @@ export default function IdeLayout() {
     // Editor Actions
     const handleSaveFile = async () => {
         if (!activeFile) return;
+        const toastId = toast.loading("Saving...");
         try {
+            // Update backend
             await api.put(`/api/fs/${activeFile.id}/content`, {
                 content: activeFile.content
             });
+
+            toast.dismiss(toastId);
             toast.success(`Saved ${activeFile.name}`);
+
+            // Also update the main fileSystem tree so re-opening works without network fetch if we wanted
+            // But handleOpenFile now fetches fresh, so we are safe.
+            // We still update the local 'openFiles' state which is already updated by 'handleEditorChange'
+
         } catch (error) {
+            toast.dismiss(toastId);
             toast.error("Failed to save");
             console.error(error);
         }

@@ -10,6 +10,7 @@ export const getHeaders = async () => {
     };
 
     // REAL FIREBASE TOKEN
+    await auth.authStateReady();
     if (auth.currentUser) {
         try {
             const token = await auth.currentUser.getIdToken();
