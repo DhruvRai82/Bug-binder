@@ -4,15 +4,24 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Terminal, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { AIFailureAnalysis } from './AIFailureAnalysis';
+
+interface AIAnalysis {
+    failureReason: string;
+    technicalRootCause: string;
+    suggestedFix: string;
+    confidenceScore: number;
+}
 
 interface ExecutionConsoleProps {
     runId: string;
     logs: string[];
     status: 'running' | 'completed' | 'failed';
     progress?: number; // 0-100
+    aiAnalysis?: AIAnalysis;
 }
 
-export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs, status, progress = 0 }) => {
+export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs, status, progress = 0, aiAnalysis }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Auto-scroll to bottom
@@ -64,28 +73,36 @@ export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs,
                 </div>
             )}
 
-            <CardContent className="flex-1 p-0 overflow-hidden font-mono text-xs relative">
-                <div
-                    ref={scrollRef}
-                    className="h-full w-full overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
-                >
-                    {logs.length === 0 && (
-                        <div className="text-slate-600 italic">Waiting for logs...</div>
-                    )}
-                    {logs.map((log, i) => (
-                        <div key={i} className="break-words whitespace-pre-wrap">
-                            <span className="text-slate-500 mr-2">[{new Date().toLocaleTimeString()}]</span>
-                            <span className={log.includes('Msg:') ? 'text-blue-400' :
-                                log.toLowerCase().includes('error') || log.toLowerCase().includes('fail') ? 'text-red-400' :
-                                    'text-slate-300'}>
-                                {log}
-                            </span>
-                        </div>
-                    ))}
-                    {status === 'running' && (
-                        <div className="animate-pulse text-emerald-500/50">_</div>
-                    )}
+            <CardContent className="flex-1 p-0 overflow-hidden font-mono text-xs relative flex flex-col">
+                <div className="flex-1 overflow-hidden flex flex-col">
+                    <div
+                        ref={scrollRef}
+                        className="flex-1 w-full overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+                    >
+                        {logs.length === 0 && (
+                            <div className="text-slate-600 italic">Waiting for logs...</div>
+                        )}
+                        {logs.map((log, i) => (
+                            <div key={i} className="break-words whitespace-pre-wrap">
+                                <span className="text-slate-500 mr-2">[{new Date().toLocaleTimeString()}]</span>
+                                <span className={log.includes('Msg:') ? 'text-blue-400' :
+                                    log.toLowerCase().includes('error') || log.toLowerCase().includes('fail') ? 'text-red-400' :
+                                        'text-slate-300'}>
+                                    {log}
+                                </span>
+                            </div>
+                        ))}
+                        {status === 'running' && (
+                            <div className="animate-pulse text-emerald-500/50">_</div>
+                        )}
+                    </div>
                 </div>
+
+                {status === 'failed' && aiAnalysis && (
+                    <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+                        <AIFailureAnalysis analysis={aiAnalysis} />
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

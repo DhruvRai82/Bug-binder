@@ -8,3 +8,4 @@ coverage/
 backend/
 copy-shadcn-admin/
 chat/
+!Application/backend/

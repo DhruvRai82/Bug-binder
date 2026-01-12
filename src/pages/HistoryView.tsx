@@ -156,6 +156,7 @@ export default function HistoryView() {
                                 logs={selectedRun.logs || []}
                                 status={selectedRun.status}
                                 progress={100}
+                                aiAnalysis={selectedRun.ai_analysis}
                             />
                         )}
                     </div>

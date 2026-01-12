@@ -515,6 +515,7 @@ export default function RunnerView() {
                                         logs={currentRunData.logs || []}
                                         status={currentRunData.status}
                                         progress={currentRunData.results ? (currentRunData.results.length / (selectedCount || 1)) * 100 : 0}
+                                        aiAnalysis={currentRunData.ai_analysis}
                                     />
                                 ) : (
                                     /* Command Center Interface */

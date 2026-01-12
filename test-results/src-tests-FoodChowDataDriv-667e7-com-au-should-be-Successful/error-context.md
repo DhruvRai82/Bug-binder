@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - img [ref=e7]
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - generic [ref=e12]:
+          - img [ref=e14]
+          - heading "Be the owner of your data" [level=1] [ref=e16]
+          - heading "Eliminate third-party intervention with Foodchow" [level=5] [ref=e18]
+        - generic [ref=e20]:
+          - img [ref=e22]
+          - heading "Start your business online for free" [level=1] [ref=e24]
+          - heading "Foodchow allows restaurant owners to go online for free" [level=5] [ref=e26]
+        - generic [ref=e28]:
+          - img [ref=e30]
+          - heading "Take your restaurant online today" [level=1] [ref=e32]
+          - heading "Increase your business with your own online ordering platform" [level=5] [ref=e34]
+        - generic [ref=e36]:
+          - img [ref=e38]
+          - heading "Be the owner of your data" [level=1] [ref=e40]
+          - heading "Eliminate third-party intervention with Foodchow" [level=5] [ref=e42]
+        - generic [ref=e44]:
+          - img [ref=e46]
+          - heading "Start your business online for free" [level=1] [ref=e48]
+          - heading "Foodchow allows restaurant owners to go online for free" [level=5] [ref=e50]
+        - generic [ref=e52]:
+          - img [ref=e54]
+          - heading "Take your restaurant online today" [level=1] [ref=e56]
+          - heading "Increase your business with your own online ordering platform" [level=5] [ref=e58]
+        - generic [ref=e60]:
+          - img [ref=e62]
+          - heading "Be the owner of your data" [level=1] [ref=e64]
+          - heading "Eliminate third-party intervention with Foodchow" [level=5] [ref=e66]
+      - generic [ref=e67]:
+        - button [ref=e68] [cursor=pointer]
+        - button [ref=e70] [cursor=pointer]
+        - button [ref=e72] [cursor=pointer]
+  - generic [ref=e74]:
+    - img [ref=e77]
+    - heading "Welcome To FoodChow" [level=1] [ref=e80]
+    - generic [ref=e81]:
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - textbox "Enter your email address" [ref=e90]
+          - generic: Email Address
+        - generic [ref=e91]:
+          - textbox "Enter your password" [ref=e92]
+          - generic: Password
+          - generic [ref=e93]: 
+        - generic [ref=e94]:
+          - generic [ref=e95] [cursor=pointer]: Forgot Password?
+          - generic [ref=e96]:
+            - checkbox "Remember Me" [ref=e97]
+            - generic [ref=e98]: Remember Me
+        - button "Login" [ref=e101] [cursor=pointer]:
+          - text: Login
+          - generic: 
+      - heading "Don’t have an account? Signup" [level=3] [ref=e104]:
+        - text: Don’t have an account?
+        - link "Signup" [ref=e105] [cursor=pointer]:
+          - /url: https://www.foodchow.com/free-demo
+```

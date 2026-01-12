@@ -110,7 +110,7 @@ export default function SchedulesView() {
         try {
             return cronstrue.toString(cron);
         } catch (e) {
-            return "Invalid Cron Expression";
+            return `Invalid: ${cron}`;
         }
     };
 
