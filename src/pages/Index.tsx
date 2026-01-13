@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Route } from '@/routes/_authenticated/dashboard';
-import { ProjectSelector } from '@/components/ProjectSelector';
-import { DashboardCard } from '@/components/DashboardCard';
+import { ProjectSelector } from '@/features/projects/ProjectSelector';
+import { DashboardCard } from '@/features/reports/DashboardCard';
 import { Project, TestCase, Bug, DailyData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/context/ProjectContext';

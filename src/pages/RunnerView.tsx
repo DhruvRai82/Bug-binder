@@ -11,7 +11,7 @@ import { FSNode, FileNode, buildFileTree } from './IDE/types';
 import { toast } from 'sonner';
 
 // New Components
-import { ExecutionConsole } from '@/components/ExecutionConsole';
+import { ExecutionConsole } from '@/features/execution/ExecutionConsole';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";

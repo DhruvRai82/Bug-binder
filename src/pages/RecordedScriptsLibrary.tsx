@@ -24,7 +24,7 @@ import { useProject } from '@/context/ProjectContext';
 import { useNavigate } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
 // import { supabase } from '@/integrations/supabase/client';
 
 interface RecordedScript {

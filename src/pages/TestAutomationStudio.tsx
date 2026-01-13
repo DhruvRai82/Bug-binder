@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import AIChatbot from "@/components/AIChatbot";
+import AIChatbot from "@/features/ai/AIChatbot";
 
 interface Script {
   id: string;

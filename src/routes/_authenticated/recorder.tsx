@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Recorder from '@/pages/Recorder'
 
-import { DashboardSkeleton } from '@/components/skeletons'
+import { DashboardSkeleton } from '@/components/common/skeletons'
 
 export const Route = createFileRoute('/_authenticated/recorder')({
   component: Recorder,

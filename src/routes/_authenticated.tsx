@@ -1,12 +1,12 @@
 import { createFileRoute, Outlet, redirect, useLocation, Link } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/AppSidebar"
+import { AppSidebar } from "@/components/common/AppSidebar"
 import { ProjectProvider, useProject } from "@/context/ProjectContext"
 import { SettingsProvider } from "@/contexts/SettingsContext"
 import { useAuth } from "@/contexts/AuthContext"
-import { useTheme } from "@/components/ThemeProvider"
-import { ProjectSelector } from "@/components/ProjectSelector"
-import { ScrollToTop } from '@/components/ScrollToTop'
+import { useTheme } from "@/components/common/ThemeProvider"
+import { ProjectSelector } from "@/features/projects/ProjectSelector"
+import { ScrollToTop } from '@/components/common/ScrollToTop'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,

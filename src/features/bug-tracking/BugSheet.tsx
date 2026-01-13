@@ -12,9 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
 import { Bug, TestCase } from '@/types';
 import { BugForm } from './BugForm';
-import { ImportDialog } from './ImportDialog';
+import { ImportDialog } from '@/features/test-management/ImportDialog';
 import { cn } from '@/lib/utils';
-import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
 
 interface BugSheetProps {
   bugs: Bug[];

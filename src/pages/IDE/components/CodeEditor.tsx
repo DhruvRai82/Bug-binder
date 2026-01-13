@@ -1,6 +1,6 @@
 import Editor from '@monaco-editor/react';
 import { FileNode } from '../types';
-import { useTheme } from '@/components/ThemeProvider';
+import { useTheme } from '@/components/common/ThemeProvider';
 import { Loader2 } from 'lucide-react';
 
 interface CodeEditorProps {

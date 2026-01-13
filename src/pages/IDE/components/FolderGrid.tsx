@@ -1,7 +1,7 @@
 import { Folder, FileCode, FileJson, Hash, FileType, Coffee } from 'lucide-react';
 import { FileNode } from '../types';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/components/ThemeProvider';
+import { useTheme } from '@/components/common/ThemeProvider';
 
 import {
     ContextMenu,

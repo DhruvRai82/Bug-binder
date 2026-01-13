@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Dashboard from '@/pages/Dashboard'
-import { DashboardSkeleton } from '@/components/skeletons'
+import { DashboardSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
 import { DailyData } from '@/types'
 

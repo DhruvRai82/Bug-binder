@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { API_BASE_URL, api } from '@/lib/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import RecordedScriptsLibrary from "./RecordedScriptsLibrary";
-import { SaveRecordingDialog } from "@/components/SaveRecordingDialog";
+import { SaveRecordingDialog } from "@/components/common/SaveRecordingDialog";
 
 interface RecordedStep {
     action: 'click' | 'type' | 'navigate' | 'scroll';

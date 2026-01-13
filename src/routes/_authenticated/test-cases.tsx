@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import TestCases from '@/pages/TestCases'
-import { TableSkeleton } from '@/components/skeletons'
+import { TableSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/_authenticated/test-cases')({

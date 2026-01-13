@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Bugs from '@/pages/Bugs'
-import { TableSkeleton } from '@/components/skeletons'
+import { TableSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
 
 export const Route = createFileRoute('/_authenticated/bugs')({

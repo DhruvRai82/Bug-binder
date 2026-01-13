@@ -2,10 +2,13 @@ node_modules/
 service-account.json
 .env
 .env.local
-dist
+dist/
 coverage/
 .DS_Store
 backend/
 copy-shadcn-admin/
 chat/
 !Application/backend/
+*.log
+tmp/
+.gemini/

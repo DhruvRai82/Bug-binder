@@ -10,7 +10,7 @@ import { RefreshCw, CheckCircle, XCircle, Clock, AlertTriangle, ArrowLeft, Trash
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from '@tanstack/react-router';
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
 import { toast } from 'sonner';
 
 interface TestRun {

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Bug, TestTube2, AlertTriangle, TrendingUp, Search, Filter, BarChart3, PieChart, Activity, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { TestCase, Bug as BugType, DailyData } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AnalyticsChart } from '@/components/AnalyticsChart';
+import { AnalyticsChart } from '@/features/reports/AnalyticsChart';
 import { Route } from '@/routes/_authenticated/dashboard';
 import { useProject } from '@/context/ProjectContext';
 

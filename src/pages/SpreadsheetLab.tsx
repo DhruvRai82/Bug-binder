@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { SpreadsheetGrid, textEditor } from '@/components/DataGrid';
+import { SpreadsheetGrid, textEditor } from '@/components/common/DataGrid';
 import { Column } from 'react-data-grid';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';

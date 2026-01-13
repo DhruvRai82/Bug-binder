@@ -10,8 +10,8 @@ import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
-import { CreateCollectionDialog } from '@/components/CreateCollectionDialog';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
+import { CreateCollectionDialog } from '@/features/projects/CreateCollectionDialog';
 import { CreateRequestDialog } from '@/components/CreateRequestDialog';
 
 export default function APILab() {

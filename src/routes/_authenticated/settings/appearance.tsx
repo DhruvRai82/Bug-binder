@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import AppearanceSettings from '@/pages/settings/AppearanceSettings'
 
-import { FormSkeleton } from '@/components/skeletons'
+import { FormSkeleton } from '@/components/common/skeletons'
 
 export const Route = createFileRoute('/_authenticated/settings/appearance')({
   component: AppearanceSettings,

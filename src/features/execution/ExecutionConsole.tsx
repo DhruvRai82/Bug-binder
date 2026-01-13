@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Terminal, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
-import { AIFailureAnalysis } from './AIFailureAnalysis';
+import { AIFailureAnalysis } from '@/features/ai/AIFailureAnalysis';
 
 interface AIAnalysis {
     failureReason: string;

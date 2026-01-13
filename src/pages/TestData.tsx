@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { EmptyState } from '@/components/EmptyState';
+import { EmptyState } from '@/components/common/EmptyState';
 import { generateMockData, SchemaField, FIELD_TYPES } from '@/lib/mockDataGenerator';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +41,7 @@ export default function TestData() {
 
     const fetchDatasets = async () => {
         try {
-            const data = await api.get(`/api/test-data?projectId=${selectedProject.id}`);
+            const data = await api.get(`/api/test-data?projectId=${selectedProject?.id}`);
             setDatasets(data);
             // Auto-select first if none selected
             if (data.length > 0 && !selectedDataset) {
@@ -56,7 +56,7 @@ export default function TestData() {
         setSelectedDataset(dataset);
         setLoading(true);
         try {
-            const data = await api.get(`/api/test-data/${dataset.id}/preview?projectId=${selectedProject.id}`);
+            const data = await api.get(`/api/test-data/${dataset.id}/preview?projectId=${selectedProject?.id}`);
             setPreviewData(data);
         } catch {
             toast.error("Failed to load preview");
@@ -68,7 +68,7 @@ export default function TestData() {
     const handleDeleteDataset = async (id: string, e: any) => {
         e.stopPropagation();
         try {
-            await api.delete(`/api/test-data/${id}?projectId=${selectedProject.id}`);
+            await api.delete(`/api/test-data/${id}?projectId=${selectedProject?.id}`);
             toast.success("Dataset deleted");
             const updated = datasets.filter(d => d.id !== id);
             setDatasets(updated);
@@ -98,7 +98,7 @@ export default function TestData() {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('projectId', selectedProject.id);
+        formData.append('projectId', selectedProject?.id || '');
 
         try {
             await api.post('/api/test-data/upload', formData);
@@ -123,7 +123,7 @@ export default function TestData() {
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('projectId', selectedProject.id);
+            formData.append('projectId', selectedProject?.id || '');
 
             await api.post('/api/test-data/upload', formData); // Reusing upload endpoint
             toast.success("Mock Data Generated & Saved");

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme } from "@/components/common/ThemeProvider";
 
 export default function AppearanceSettings() {
     const { theme, setTheme } = useTheme();

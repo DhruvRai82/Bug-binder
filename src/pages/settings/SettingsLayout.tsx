@@ -11,7 +11,7 @@ import {
     GitBranch,
     Folder
 } from "lucide-react";
-import { TitleBar } from "@/components/TitleBar";
+import { TitleBar } from "@/components/common/TitleBar";
 
 const sidebarNavItems = [
     {

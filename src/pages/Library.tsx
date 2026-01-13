@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
 import { useProject } from '@/context/ProjectContext';
-import { ScriptDetailsModal } from '@/components/ScriptDetailsModal';
-import { ReportsView } from '@/components/ReportsView';
+import { ScriptDetailsModal } from '@/features/execution/ScriptDetailsModal';
+import { ReportsView } from '@/features/reports/ReportsView';
 
 interface Recording {
     id: string;

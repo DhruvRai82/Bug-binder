@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -34,7 +34,7 @@ export default function VisualTests() {
     const fetchTests = async () => {
         try {
             setLoading(true);
-            const data = await api.get(`/api/visual?projectId=${selectedProject.id}`);
+            const data = await api.get(`/api/visual?projectId=${selectedProject?.id}`);
             setTests(data);
         } catch (e) {
             console.error(e);
@@ -65,7 +65,7 @@ export default function VisualTests() {
     const confirmDeleteTest = async () => {
         if (!testToDelete) return;
         try {
-            await api.delete(`/api/visual/${testToDelete}?projectId=${selectedProject.id}`);
+            await api.delete(`/api/visual/${testToDelete}?projectId=${selectedProject?.id}`);
             setTests(prev => prev.filter(t => t.id !== testToDelete));
             toast.success('Test deleted');
             setSelectedTest(null);
@@ -80,7 +80,7 @@ export default function VisualTests() {
         if (e) e.stopPropagation();
         toast.info("Running Visual Test...", { duration: 2000 });
         try {
-            const result = await api.post(`/api/visual/${testId}/run`, { projectId: selectedProject.id });
+            const result = await api.post(`/api/visual/${testId}/run`, { projectId: selectedProject?.id });
             if (result.diffPercentage > 0) {
                 toast.warning(`Mismatch detected: ${result.diffPercentage.toFixed(2)}%`);
             } else {
@@ -116,7 +116,7 @@ export default function VisualTests() {
     const handleApprove = async () => {
         if (!selectedTest) return;
         try {
-            await api.post(`/api/visual/${selectedTest.id}/approve`, { projectId: selectedProject.id });
+            await api.post(`/api/visual/${selectedTest.id}/approve`, { projectId: selectedProject?.id });
             toast.success("Changes Approved! New Baseline Set.");
             loadImages(selectedTest.id); // Reload to show baseline match
         } catch (e) {

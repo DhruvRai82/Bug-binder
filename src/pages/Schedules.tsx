@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
-import { CronBuilder } from '@/components/CronBuilder';
+import { DeleteConfirmationDialog } from '@/features/test-management/DeleteConfirmationDialog';
+import { CronBuilder } from '@/features/execution/CronBuilder';
 import cronstrue from 'cronstrue';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ export default function Schedules() {
 
     const fetchSchedules = async () => {
         try {
-            const data = await api.get(`/api/schedules?projectId=${selectedProject.id}`);
+            const data = await api.get(`/api/schedules?projectId=${selectedProject?.id}`);
             setSchedules(data);
         } catch {
             toast.error("Failed to load schedules");

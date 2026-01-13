@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Plus, Calendar, Edit2, X, Search, AlertTriangle } from 'lucide-react';
-import { BugSheet } from '@/components/BugSheet';
+import { BugSheet } from '@/features/bug-tracking/BugSheet';
 import { Bug, DailyData, Project } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { api } from '@/lib/api';
