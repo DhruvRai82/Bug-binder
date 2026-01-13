@@ -41,7 +41,7 @@ function createWindow() {
     }
 }
 
-import { localProjectService } from '../backend/src/services/LocalProjectService.js';
+import { localProjectService } from '../backend/src/services/persistence/LocalProjectService.js';
 
 app.whenReady().then(() => {
     createWindow();
