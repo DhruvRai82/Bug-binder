@@ -418,6 +418,7 @@ export function TestCaseSheet({ testCases, onTestCaseAdd, onBulkTestCaseAdd, onT
         title="Delete Test Cases"
         description={`Are you sure you want to delete ${selectedTestCases.size} test case(s)? This action cannot be undone.`}
         confirmText="Delete Test Cases"
+        verificationText="delete"
       />
 
       <AlertDialog open={!!testCaseToDelete} onOpenChange={(open) => !open && setTestCaseToDelete(null)}>

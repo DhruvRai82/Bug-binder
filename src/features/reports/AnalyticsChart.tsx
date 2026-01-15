@@ -9,16 +9,17 @@ interface AnalyticsChartProps {
   nameKey?: string;
   colors?: string[];
   onClick?: (data: any) => void;
+  height?: number;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey = 'name', colors = COLORS, onClick }: AnalyticsChartProps) {
+export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey = 'name', colors = COLORS, onClick, height = 300 }: AnalyticsChartProps) {
   const renderChart = () => {
     switch (type) {
       case 'pie':
         return (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={height}>
             <PieChart>
               <Pie
                 data={data}
@@ -43,7 +44,7 @@ export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey =
 
       case 'bar':
         return (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={height}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={nameKey} />
@@ -56,7 +57,7 @@ export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey =
 
       case 'line':
         return (
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={height}>
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={nameKey} />

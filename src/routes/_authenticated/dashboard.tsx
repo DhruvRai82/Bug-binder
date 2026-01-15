@@ -4,6 +4,15 @@ import { DashboardSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
 import { DailyData } from '@/types'
 
+import { useIsMobile } from '@/hooks/use-mobile'
+import { MobileDashboard } from '@/mobile/pages/Dashboard'
+
+function DashboardSwitcher() {
+  const isMobile = useIsMobile()
+  if (isMobile) return <MobileDashboard />
+  return <Dashboard />
+}
+
 export const Route = createFileRoute('/_authenticated/dashboard')({
   loader: async (): Promise<DailyData[]> => {
     try {
@@ -18,5 +27,5 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
     }
   },
   pendingComponent: DashboardSkeleton,
-  component: Dashboard,
+  component: DashboardSwitcher,
 })

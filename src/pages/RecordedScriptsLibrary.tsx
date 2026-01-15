@@ -21,6 +21,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProject } from '@/context/ProjectContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from '@tanstack/react-router';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
@@ -39,6 +40,7 @@ interface RecordedScript {
 export default function RecordedScriptsLibrary() {
     // const navigate = useNavigate();
     const { selectedProject } = useProject();
+    const { user } = useAuth();
     const [scripts, setScripts] = useState<RecordedScript[]>([]);
     const [isPlaying, setIsPlaying] = useState<string | null>(null);
     const [viewScript, setViewScript] = useState<RecordedScript | null>(null);
@@ -48,15 +50,16 @@ export default function RecordedScriptsLibrary() {
     const [executionError, setExecutionError] = useState<string | null>(null);
 
     useEffect(() => {
-        loadScripts();
-    }, [selectedProject]);
+        if (selectedProject && user) loadScripts();
+    }, [selectedProject, user]);
 
     const loadScripts = async () => {
         try {
             const projectId = selectedProject?.id;
+            const uid = user?.uid || '';
             const url = projectId
-                ? `/api/recorder/list?projectId=${projectId}`
-                : '/api/recorder/list';
+                ? `/api/recorder/list?projectId=${projectId}&userId=${uid}`
+                : `/api/recorder/list?userId=${uid}`;
 
             const data = await api.get(url);
             setScripts(data);

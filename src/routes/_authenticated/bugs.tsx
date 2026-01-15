@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import Bugs from '@/pages/Bugs'
 import { TableSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { MobileBugs } from '@/mobile/pages/Bugs'
 
 export const Route = createFileRoute('/_authenticated/bugs')({
   loader: async () => {

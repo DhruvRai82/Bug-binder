@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useLocation, Link } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect, useLocation, Link, Navigate } from '@tanstack/react-router'
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/common/AppSidebar"
 import { ProjectProvider, useProject } from "@/context/ProjectContext"
@@ -17,6 +17,9 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { LogOut, Settings as SettingsIcon, Sun, Moon } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { MobileNavBar } from "@/components/common/MobileNavBar"
+import { MobileLayout } from "@/mobile/MobileLayout"
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: ({ context }) => {
@@ -28,6 +31,7 @@ export const Route = createFileRoute('/_authenticated')({
 
 function AuthenticatedComponent() {
   const { user, loading, logout } = useAuth()
+  const isMobile = useIsMobile()
 
   if (loading) {
     return (
@@ -113,8 +117,23 @@ function AuthenticatedComponent() {
     // Actually TanStack Router recommends beforeLoad redirects for auth
     // But we need context.auth available in beforeLoad.
     // For now, simple component return is safe.
-    throw redirect({ to: '/login' })
+    return <Navigate to="/login" />
     return null
+  }
+
+
+
+  if (isMobile) {
+    return (
+      <MobileLayout>
+        {/* We use ProjectWrapper to ensure context is loaded even on mobile dashboard */}
+        <ProjectProvider>
+          <SettingsProvider>
+            <ProjectCheckWrapper />
+          </SettingsProvider>
+        </ProjectProvider>
+      </MobileLayout>
+    )
   }
 
   return (
@@ -122,7 +141,7 @@ function AuthenticatedComponent() {
       <div className="h-full w-full flex overflow-hidden bg-background">
         <AppSidebar />
         <main className="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative z-10">
-          <Header user={user} logout={logout} />
+          <Header user={user} logout={logout} isMobile={false} />
           <div id="main-content-scroll" className="flex-1 overflow-y-auto relative">
             <ProjectProvider>
               <SettingsProvider>
@@ -137,12 +156,14 @@ function AuthenticatedComponent() {
   )
 }
 
-function Header({ user, logout }: { user: any, logout: () => void }) {
+function Header({ user, logout, isMobile }: { user: any, logout: () => void, isMobile: boolean }) {
   const { theme, setTheme } = useTheme()
+  // const isMobile = useIsMobile(); // REMOVED: Received as prop
+
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
       <div className="flex items-center">
-        <SidebarTrigger className="mr-4" />
+        {!isMobile && <SidebarTrigger className="mr-4" />}
         <div className="text-sm font-medium">TestFlow Platform</div>
       </div>
       <div className="flex items-center gap-4">

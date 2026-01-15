@@ -20,6 +20,7 @@ export default function ProjectSettings() {
     const [newProject, setNewProject] = useState({ name: '', description: '' });
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const [deleteConfirmationInput, setDeleteConfirmationInput] = useState("");
 
     const { selectedProject, setSelectedProject } = useProject();
     const navigate = useNavigate();
@@ -350,7 +351,12 @@ export default function ProjectSettings() {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={!!projectToDelete} onOpenChange={(open) => !open && setProjectToDelete(null)}>
+            <Dialog open={!!projectToDelete} onOpenChange={(open) => {
+                if (!open) {
+                    setProjectToDelete(null);
+                    setDeleteConfirmationInput("");
+                }
+            }}>
                 <DialogContent className="border-destructive/20 shadow-destructive/10">
                     <DialogHeader>
                         <DialogTitle className="text-destructive flex items-center gap-2">
@@ -359,19 +365,44 @@ export default function ProjectSettings() {
                         </DialogTitle>
                         <DialogDescription>
                             Are you absolutely sure you want to delete <strong className="text-foreground">{projectToDelete?.name}</strong>?
-                            <div className="mt-2 p-3 bg-destructive/10 text-destructive text-xs rounded-md border border-destructive/20">
-                                WARNING: This action is permanent and will remove all test cases, scripts, and results associated with this project.
-                            </div>
                         </DialogDescription>
                     </DialogHeader>
+
+                    <div className="space-y-4">
+                        <div className="p-3 bg-destructive/10 text-destructive text-xs rounded-md border border-destructive/20">
+                            WARNING: This action is permanent and will remove all test cases, scripts, and results associated with this project.
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="text-xs font-semibold text-muted-foreground uppercase">
+                                Type <span className="text-foreground font-bold select-all">"{projectToDelete?.name}"</span> to confirm:
+                            </Label>
+                            <Input
+                                value={deleteConfirmationInput}
+                                onChange={(e) => setDeleteConfirmationInput(e.target.value)}
+                                placeholder={projectToDelete?.name}
+                                className="bg-muted/50"
+                                autoComplete="off"
+                            />
+                        </div>
+                    </div>
                     <div className="flex justify-end gap-3 mt-4">
-                        <Button variant="ghost" onClick={() => setProjectToDelete(null)}>
+                        <Button variant="ghost" onClick={() => {
+                            setProjectToDelete(null);
+                            setDeleteConfirmationInput("");
+                        }}>
                             Cancel
                         </Button>
                         <Button
                             variant="destructive"
                             className="shadow-md"
-                            onClick={() => projectToDelete && deleteProject(projectToDelete.id)}
+                            disabled={deleteConfirmationInput !== projectToDelete?.name}
+                            onClick={() => {
+                                if (projectToDelete && deleteConfirmationInput === projectToDelete.name) {
+                                    deleteProject(projectToDelete.id);
+                                    setDeleteConfirmationInput("");
+                                }
+                            }}
                         >
                             Delete Project
                         </Button>

@@ -102,10 +102,31 @@ export function DebugDrawer() {
         }, 0);
     };
 
-    const copyLogs = () => {
+    const copyLogs = async () => {
         const text = logs.map(l => `[${l.timestamp}] [${l.type.toUpperCase()}] ${l.message} ${l.details || ''}`).join('\n');
-        navigator.clipboard.writeText(text);
-        alert('Logs copied to clipboard');
+        try {
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(text);
+                alert('Logs copied to clipboard');
+            } else {
+                // Fallback for HTTP / Mobile
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Logs copied to clipboard (Callback)');
+                } catch (err) {
+                    alert('Unable to copy logs');
+                }
+                document.body.removeChild(textArea);
+            }
+        } catch (err) {
+            console.error('Failed to copy', err);
+            alert('Failed to copy logs');
+        }
     };
 
     const clearLogs = () => {

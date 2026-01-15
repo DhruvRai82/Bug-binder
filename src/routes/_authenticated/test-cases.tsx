@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import TestCases from '@/pages/TestCases'
 import { TableSkeleton } from '@/components/common/skeletons'
 import { api } from '@/lib/api'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { MobileTestCases } from '@/mobile/pages/TestCases'
 
 export const Route = createFileRoute('/_authenticated/test-cases')({
   loader: async () => {
@@ -36,8 +38,11 @@ export const Route = createFileRoute('/_authenticated/test-cases')({
 function TestCasesRoute() {
   const stored = localStorage.getItem('selectedProject')
   const selectedProject = stored ? JSON.parse(stored) : null
+  const isMobile = useIsMobile()
 
   if (!selectedProject) return <div>Please select a project.</div>
+
+  if (isMobile) return <MobileTestCases />
 
   return <TestCases selectedProject={selectedProject} />
 }

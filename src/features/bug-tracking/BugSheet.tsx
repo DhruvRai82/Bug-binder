@@ -452,6 +452,7 @@ export function BugSheet({ bugs, testCases, onBugAdd, onBugUpdate, onBugDelete, 
         title="Delete Bugs"
         description={`Are you sure you want to delete ${selectedBugs.size} bug(s)? This action cannot be undone.`}
         confirmText="Delete Bugs"
+        verificationText="delete"
       />
     </div>
   );

@@ -55,6 +55,7 @@ const navigationGroups = [
   {
     items: [
       { title: "API Lab", url: "/http-lab", icon: Globe },
+      { title: "Speed Lab", url: "/speed-lab", icon: Zap },
     ]
   },
   {

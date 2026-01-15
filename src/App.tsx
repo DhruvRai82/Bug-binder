@@ -39,7 +39,10 @@ function InnerApp() {
   return <RouterProvider router={router} context={{ auth }} />
 }
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export default function App() {
+  const isMobile = useIsMobile();
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -47,8 +50,12 @@ export default function App() {
           <AuthProvider>
             <InnerApp />
           </AuthProvider>
-          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
-          <DebugDrawer />
+          {!isMobile && (
+            <>
+              <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+              <DebugDrawer />
+            </>
+          )}
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>

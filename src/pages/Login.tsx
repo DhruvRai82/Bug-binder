@@ -61,15 +61,15 @@ export const Login = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black selection:bg-primary/20">
+        <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background selection:bg-primary/20 transition-colors duration-500">
             {/* --- Animated Background Layers --- */}
 
             {/* 1. Base Gradient Mesh */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(76,29,149,0.1),_rgba(15,23,42,1))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(76,29,149,0.1),rgba(15,23,42,1))]" />
 
             {/* 2. Moving Orbs (Aurora Effect) */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[100px] animate-pulse" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[100px] animate-pulse delay-1000" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-500/10 dark:bg-purple-600/20 blur-[100px] animate-pulse" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 dark:bg-indigo-600/20 blur-[100px] animate-pulse delay-1000" />
 
             {/* 3. Grid Pattern with Fade */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
@@ -78,35 +78,35 @@ export const Login = () => {
             <div className={`relative z-10 w-full max-w-md transition-all duration-1000 ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
 
                 {/* Glowing Border Container */}
-                <div className="group relative rounded-xl p-[1px] bg-gradient-to-br from-white/20 via-white/5 to-transparent dark:from-indigo-500/50 dark:via-purple-500/50 dark:to-transparent">
+                <div className="group relative rounded-xl p-[1px] bg-gradient-to-br from-black/5 via-black/0 to-transparent dark:from-white/20 dark:via-white/5 dark:to-transparent">
 
                     {/* Glow Blur behind card */}
                     <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 opacity-20 blur-xl transition-opacity duration-500 group-hover:opacity-40" />
 
-                    <Card className="relative border-0 bg-white/90 dark:bg-black/80 backdrop-blur-xl shadow-2xl">
+                    <Card className="relative border-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-2xl dark:shadow-none">
                         <CardHeader className="text-center space-y-2 pb-6">
-                            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl flex items-center justify-center mb-4 ring-1 ring-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl flex items-center justify-center mb-4 ring-1 ring-black/5 dark:ring-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
                                 <Chrome className="w-8 h-8 text-primary animate-pulse" />
                             </div>
-                            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
+                            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
                                 Bug Binder
                             </CardTitle>
-                            <CardDescription className="text-base text-gray-400">
+                            <CardDescription className="text-base text-muted-foreground">
                                 Next-Gen Test Automation
                             </CardDescription>
                         </CardHeader>
 
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                             <div className="px-8 mb-6">
-                                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 border border-white/5">
-                                    <TabsTrigger value="login" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary transition-all">Login</TabsTrigger>
-                                    <TabsTrigger value="register" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary transition-all">Register</TabsTrigger>
+                                <TabsList className="grid w-full grid-cols-2 bg-muted p-1 border border-border/50">
+                                    <TabsTrigger value="login" className="data-[state=active]:bg-background data-[state=active]:text-primary transition-all shadow-sm">Login</TabsTrigger>
+                                    <TabsTrigger value="register" className="data-[state=active]:bg-background data-[state=active]:text-primary transition-all shadow-sm">Register</TabsTrigger>
                                 </TabsList>
                             </div>
 
                             <CardContent className="space-y-4 pb-8">
                                 {error && (
-                                    <div className="p-3 text-sm text-red-400 bg-red-900/20 border border-red-500/20 rounded-md text-center animate-in fade-in slide-in-from-top-2">
+                                    <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md text-center animate-in fade-in slide-in-from-top-2">
                                         {error}
                                     </div>
                                 )}
@@ -114,21 +114,21 @@ export const Login = () => {
                                 <div className="space-y-4">
                                     <Button
                                         variant="outline"
-                                        className="w-full flex items-center justify-center gap-3 h-12 text-base font-medium border-white/10 hover:bg-white/5 hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden"
+                                        className="w-full flex items-center justify-center gap-3 h-12 text-base font-medium border-input hover:bg-accent hover:text-accent-foreground transition-all hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden"
                                         onClick={signInWithGoogle}
                                         disabled={isLoading}
                                     >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                                         <Chrome className="w-5 h-5" />
                                         Continue with Google
                                     </Button>
 
                                     <div className="relative py-2">
                                         <div className="absolute inset-0 flex items-center">
-                                            <span className="w-full border-t border-white/10" />
+                                            <span className="w-full border-t border-border" />
                                         </div>
                                         <div className="relative flex justify-center text-xs uppercase">
-                                            <span className="bg-black/50 px-2 text-muted-foreground backdrop-blur-sm">
+                                            <span className="bg-background px-2 text-muted-foreground backdrop-blur-sm">
                                                 Or continue with email
                                             </span>
                                         </div>
@@ -145,7 +145,7 @@ export const Login = () => {
                                                         id="email"
                                                         type="email"
                                                         placeholder="m@example.com"
-                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        className="pl-10 bg-muted/50 border-input focus:border-primary/50 focus:bg-background transition-all"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
                                                         required
@@ -159,7 +159,7 @@ export const Login = () => {
                                                     <Input
                                                         id="password"
                                                         type="password"
-                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        className="pl-10 bg-muted/50 border-input focus:border-primary/50 focus:bg-background transition-all"
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
                                                         required
@@ -184,7 +184,7 @@ export const Login = () => {
                                                 <Input
                                                     id="name"
                                                     placeholder="John Doe"
-                                                    className="bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all focus:scale-[1.02]"
+                                                    className="bg-muted/50 border-input focus:border-primary/50 focus:bg-background transition-all focus:scale-[1.02]"
                                                     value={name}
                                                     onChange={(e) => setName(e.target.value)}
                                                 />
@@ -197,7 +197,7 @@ export const Login = () => {
                                                         id="register-email"
                                                         type="email"
                                                         placeholder="m@example.com"
-                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        className="pl-10 bg-muted/50 border-input focus:border-primary/50 focus:bg-background transition-all"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
                                                         required
@@ -211,7 +211,7 @@ export const Login = () => {
                                                     <Input
                                                         id="register-password"
                                                         type="password"
-                                                        className="pl-10 bg-black/20 border-white/10 focus:border-primary/50 focus:bg-black/40 transition-all"
+                                                        className="pl-10 bg-muted/50 border-input focus:border-primary/50 focus:bg-background transition-all"
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
                                                         required
@@ -226,7 +226,7 @@ export const Login = () => {
                                 </div>
 
                                 <div className="text-center text-xs text-muted-foreground mt-4">
-                                    By clicking continue, you agree to our <span className="underline hover:text-primary cursor-pointer hover:neon-text transition-all">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer hover:neon-text transition-all">Privacy Policy</span>.
+                                    By clicking continue, you agree to our <span className="underline hover:text-primary cursor-pointer transition-all">Terms of Service</span> and <span className="underline hover:text-primary cursor-pointer transition-all">Privacy Policy</span>.
                                 </div>
                             </CardContent>
                         </Tabs>

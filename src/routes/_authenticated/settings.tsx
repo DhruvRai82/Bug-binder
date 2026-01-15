@@ -45,8 +45,22 @@ const sidebarNavItems = [
   },
 ];
 
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileSettingsHub } from "@/mobile/pages/settings/SettingsHub";
+
+function SettingsSwitcher() {
+  const isMobile = useIsMobile();
+  // On mobile, this layout should just be a container for the children
+  if (isMobile) return (
+    <div className="h-full w-full bg-background">
+      <Outlet />
+    </div>
+  );
+  return <SettingsLayout />;
+}
+
 export const Route = createFileRoute('/_authenticated/settings')({
-  component: SettingsLayout,
+  component: SettingsSwitcher,
 })
 
 function SettingsLayout() {

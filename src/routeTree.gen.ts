@@ -21,6 +21,7 @@ import { Route as AuthenticatedTestOrchestratorRouteImport } from './routes/_aut
 import { Route as AuthenticatedTestHubRouteImport } from './routes/_authenticated/test-hub'
 import { Route as AuthenticatedTestDataRouteImport } from './routes/_authenticated/test-data'
 import { Route as AuthenticatedTestCasesRouteImport } from './routes/_authenticated/test-cases'
+import { Route as AuthenticatedSpeedLabRouteImport } from './routes/_authenticated/speed-lab'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSchedulesRouteImport } from './routes/_authenticated/schedules'
 import { Route as AuthenticatedRecorderRouteImport } from './routes/_authenticated/recorder'
@@ -98,6 +99,11 @@ const AuthenticatedTestDataRoute = AuthenticatedTestDataRouteImport.update({
 const AuthenticatedTestCasesRoute = AuthenticatedTestCasesRouteImport.update({
   id: '/test-cases',
   path: '/test-cases',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedSpeedLabRoute = AuthenticatedSpeedLabRouteImport.update({
+  id: '/speed-lab',
+  path: '/speed-lab',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
@@ -205,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/recorder': typeof AuthenticatedRecorderRoute
   '/schedules': typeof AuthenticatedSchedulesRoute
   '/settings': typeof AuthenticatedSettingsRouteWithChildren
+  '/speed-lab': typeof AuthenticatedSpeedLabRoute
   '/test-cases': typeof AuthenticatedTestCasesRoute
   '/test-data': typeof AuthenticatedTestDataRoute
   '/test-hub': typeof AuthenticatedTestHubRoute
@@ -233,6 +240,7 @@ export interface FileRoutesByTo {
   '/ide': typeof AuthenticatedIdeRoute
   '/recorder': typeof AuthenticatedRecorderRoute
   '/schedules': typeof AuthenticatedSchedulesRoute
+  '/speed-lab': typeof AuthenticatedSpeedLabRoute
   '/test-cases': typeof AuthenticatedTestCasesRoute
   '/test-data': typeof AuthenticatedTestDataRoute
   '/test-hub': typeof AuthenticatedTestHubRoute
@@ -265,6 +273,7 @@ export interface FileRoutesById {
   '/_authenticated/recorder': typeof AuthenticatedRecorderRoute
   '/_authenticated/schedules': typeof AuthenticatedSchedulesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteWithChildren
+  '/_authenticated/speed-lab': typeof AuthenticatedSpeedLabRoute
   '/_authenticated/test-cases': typeof AuthenticatedTestCasesRoute
   '/_authenticated/test-data': typeof AuthenticatedTestDataRoute
   '/_authenticated/test-hub': typeof AuthenticatedTestHubRoute
@@ -297,6 +306,7 @@ export interface FileRouteTypes {
     | '/recorder'
     | '/schedules'
     | '/settings'
+    | '/speed-lab'
     | '/test-cases'
     | '/test-data'
     | '/test-hub'
@@ -325,6 +335,7 @@ export interface FileRouteTypes {
     | '/ide'
     | '/recorder'
     | '/schedules'
+    | '/speed-lab'
     | '/test-cases'
     | '/test-data'
     | '/test-hub'
@@ -356,6 +367,7 @@ export interface FileRouteTypes {
     | '/_authenticated/recorder'
     | '/_authenticated/schedules'
     | '/_authenticated/settings'
+    | '/_authenticated/speed-lab'
     | '/_authenticated/test-cases'
     | '/_authenticated/test-data'
     | '/_authenticated/test-hub'
@@ -466,6 +478,13 @@ declare module '@tanstack/react-router' {
       path: '/test-cases'
       fullPath: '/test-cases'
       preLoaderRoute: typeof AuthenticatedTestCasesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/speed-lab': {
+      id: '/_authenticated/speed-lab'
+      path: '/speed-lab'
+      fullPath: '/speed-lab'
+      preLoaderRoute: typeof AuthenticatedSpeedLabRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings': {
@@ -629,6 +648,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRecorderRoute: typeof AuthenticatedRecorderRoute
   AuthenticatedSchedulesRoute: typeof AuthenticatedSchedulesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRouteWithChildren
+  AuthenticatedSpeedLabRoute: typeof AuthenticatedSpeedLabRoute
   AuthenticatedTestCasesRoute: typeof AuthenticatedTestCasesRoute
   AuthenticatedTestDataRoute: typeof AuthenticatedTestDataRoute
   AuthenticatedTestHubRoute: typeof AuthenticatedTestHubRoute
@@ -646,6 +666,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRecorderRoute: AuthenticatedRecorderRoute,
   AuthenticatedSchedulesRoute: AuthenticatedSchedulesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRouteWithChildren,
+  AuthenticatedSpeedLabRoute: AuthenticatedSpeedLabRoute,
   AuthenticatedTestCasesRoute: AuthenticatedTestCasesRoute,
   AuthenticatedTestDataRoute: AuthenticatedTestDataRoute,
   AuthenticatedTestHubRoute: AuthenticatedTestHubRoute,

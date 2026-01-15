@@ -1,6 +1,14 @@
 import { auth } from './firebase'; // Import Firebase Auth
 
-export const API_BASE_URL = import.meta.env.VITE_API_TARGET || 'http://localhost:8081';
+// DYNAMIC API HOST: Uses current hostname (e.g., 192.168.x.x) if not overridden
+const getBaseUrl = () => {
+    if (import.meta.env.VITE_API_TARGET) return import.meta.env.VITE_API_TARGET;
+    // Fallback: Infer from current browser location (supports mobile/local IP)
+    const hostname = window.location.hostname;
+    return `http://${hostname}:8081`;
+};
+
+export const API_BASE_URL = getBaseUrl();
 
 console.log('[Frontend] API Base URL:', API_BASE_URL);
 

@@ -65,7 +65,15 @@ export function generateMockRow(schema: SchemaField[]): Record<string, any> {
                 row[field.name] = Math.random() > 0.5;
                 break;
             case 'uuid':
-                row[field.name] = crypto.randomUUID();
+                // Fallback for insecure contexts where crypto.randomUUID might be undefined
+                if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                    row[field.name] = crypto.randomUUID();
+                } else {
+                    row[field.name] = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    });
+                }
                 break;
             case 'status':
                 row[field.name] = getRandomElement(STATUSES);
