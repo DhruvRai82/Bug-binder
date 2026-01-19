@@ -102,6 +102,4 @@ A fully native-like experience for testing on the go.
 
 ---
 
-<div align="center">
-  <sub>Built with ❤️ by the TestFlow Team</sub>
-</div>
+
