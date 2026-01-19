@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MobileNavBar } from '@/components/common/MobileNavBar';
+import { useProject } from '@/context/ProjectContext';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
-import { Gauge, Zap, Search, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Gauge, Zap, Search, AlertCircle, CheckCircle2, History, Clock, Trash2 } from 'lucide-react';
 
 export default function MobileSpeedLab() {
+    const { selectedProject } = useProject();
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
+    const [historyOpen, setHistoryOpen] = useState(false);
+    const [history, setHistory] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (historyOpen && selectedProject?.id) loadHistory();
+    }, [historyOpen, selectedProject?.id]);
+
+    const loadHistory = async () => {
+        try {
+            if (!selectedProject?.id) return;
+            const data = await api.get(`/api/performance/history/${selectedProject.id}`);
+            setHistory(data);
+        } catch { toast.error("Failed to load history"); }
+    };
 
     const handleAnalyze = async () => {
         if (!url) return toast.error("Enter URL");
@@ -22,11 +39,16 @@ export default function MobileSpeedLab() {
         setLoading(true);
         setResult(null);
         try {
-            const data = await api.post('/api/performance/analyze', { url: targetUrl, device: 'mobile' });
+            const data = await api.post('/api/performance/analyze', {
+                url: targetUrl,
+                device: 'mobile',
+                projectId: selectedProject?.id
+            });
             setResult(data);
             toast.success("Done");
-        } catch { toast.error("Failed"); }
-        finally { setLoading(false); }
+        } catch (e: any) {
+            toast.error(e.response?.data?.error || "Failed");
+        } finally { setLoading(false); }
     };
 
     const getScoreColor = (score: number) => {
@@ -50,19 +72,35 @@ export default function MobileSpeedLab() {
         </Card>
     );
 
+    const handleDelete = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (!confirm('Delete?')) return;
+        try {
+            await api.delete(`/api/performance/history/${id}`);
+            loadHistory();
+            if (result?.id === id) setResult(null);
+            toast.success("Deleted");
+        } catch { toast.error("Failed"); }
+    };
+
     return (
         <div className="min-h-screen bg-background pb-20">
             <MobileNavBar />
 
             <div className="p-4 space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="p-3 bg-yellow-500/10 rounded-xl">
-                        <Zap className="h-6 w-6 text-yellow-600" />
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 bg-yellow-500/10 rounded-xl">
+                            <Zap className="h-6 w-6 text-yellow-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold">Speed Lab</h1>
+                            <p className="text-sm text-muted-foreground">Mobile Performance Audit</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold">Speed Lab</h1>
-                        <p className="text-sm text-muted-foreground">Mobile Performance Audit</p>
-                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => setHistoryOpen(true)}>
+                        <History className="h-6 w-6" />
+                    </Button>
                 </div>
 
                 <div className="flex gap-2">
@@ -83,7 +121,7 @@ export default function MobileSpeedLab() {
                         <div className="text-sm text-muted-foreground">Auditing... this takes ~15s</div>
                     </div>
                 ) : result ? (
-                    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-3">
                             <MobileGauge title="Performance" score={result.scores.performance} icon={Zap} />
                             <MobileGauge title="SEO" score={result.scores.seo} icon={Search} />
@@ -131,6 +169,47 @@ export default function MobileSpeedLab() {
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-1 ml-6">{a.description}</p>
                             </div>
+                        ))}
+                    </div>
+                </DrawerContent>
+            </Drawer>
+
+            <Drawer open={historyOpen} onOpenChange={setHistoryOpen}>
+                <DrawerContent className="h-[80vh]">
+                    <DrawerHeader>
+                        <DrawerTitle>Audit History</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="p-4 overflow-y-auto space-y-3">
+                        {history.map(run => (
+                            <Card key={run.id} className="active:scale-95 transition-transform" onClick={() => {
+                                setResult(run);
+                                setHistoryOpen(false);
+                            }}>
+                                <CardContent className="p-3">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-bold text-sm truncate">{run.url}</div>
+                                            <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                                <Clock className="w-3 h-3" /> {new Date(run.timestamp).toLocaleDateString()} • {run.device}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-end gap-2 shrink-0">
+                                            <div className={`text-xl font-bold ${getScoreColor(run.scores.performance)}`}>
+                                                {run.scores.performance}
+                                            </div>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 text-red-500 bg-red-100/50 dark:bg-red-900/20 hover:bg-red-100 hover:text-red-600 rounded-full"
+                                                onClick={(e) => handleDelete(e, run.id)}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         ))}
                     </div>
                 </DrawerContent>

@@ -1,115 +1,107 @@
-<h1 align="center">🐞 Bug Binder - QA Automation Platform</h1>
+# <div align="center">⚡ TestFlow Platform</div>
 
-<p align="center">
-  A comprehensive, modern QA platform for <b>Test Case Management</b>, <b>Bug Tracking</b>, <b>Visual Regression Testing</b>, and <b>API Testing</b>.<br/>
-  Built with <b>React, TypeScript, Node.js, Express, Supabase, and Playwright</b>.
-</p>
-
----
-
-## 🚀 Features
-
-### 1. Test Management
-- 📝 **Test Cases**: Create, organize, and track manual test cases with steps, expected results, and priority.
-- 🐞 **Bug Tracking**: Log defects with severity, status workflow, and direct integration with test cases.
-- 📊 **Dashboard**: Real-time insights into test execution status and bug trends.
-
-### 2. Automation Suite
-- 🎥 **Web Recorder**: Record browser interactions and export them as **Selenium IDE (.side)**, **Java**, or **Python** scripts.
-- 📸 **Visual Regression Testing**: 
-    - Compare screenshots against baselines.
-    - Highlight differences pixel-by-pixel.
-    - Approve/Reject changes directly from the UI.
-- 🧪 **API Lab**: A built-in Postman-like module for testing REST APIs.
-    - Create collections and save requests.
-    - Bypass CORS issues with a built-in proxy.
-    - View headers, body, and status codes.
-- 🕒 **Scheduler**: Schedule cron jobs to run your test scripts automatically.
-
-### 3. Architecture
-- **Frontend**: React, TypeScript, Tailwind CSS, shadcn-ui (Vite).
-- **Backend**: Node.js, Express.
-- **Database**: Supabase (PostgreSQL).
-- **Engine**: Playwright (Visual Tests), Node-Cron (Scheduler).
-- **Deployment**: Docker-ready (supports hybrid deployment with Render/Netlify).
+<div align="center">
+  <img src="docs/logo.png" alt="TestFlow Logo" width="100" />
+  <br/>
+  <i>The Next-Gen QA Automation & Performance Analysis Platform</i>
+  <br/>
+  <b>Web • Mobile • API • Performance</b>
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+## 📖 Overview
 
-- **Frontend**: React 18, TypeScript, Tailwind CSS, Lucide Icons, Recharts.
-- **Backend**: Node.js, Express.js, TypeScript.
-- **Database**: Supabase (PostgreSQL).
-- **Testing**: Playwright (Visual Comparisons), Jest (Unit Tests).
-- **Tools**: Simple-Git (Version Control), Multer (File Uploads), Socket.io (Real-time updates).
+**TestFlow** (formerly BugBinder) is an enterprise-grade QA platform designed to unify manual testing, automated scripts, and performance auditing into a single, cohesive interface. Built with a modern tech stack, it offers a seamless experience across **Desktop** and **Mobile** devices.
+
+### 🌟 Key Features
+
+#### 1. 🚀 Speed Lab (New!)
+Analyze web performance instantly using our integrated Lighthouse engine.
+*   **Core Web Vitals**: Measure LCP, CLS, and TBT in real-time.
+*   **Multi-Device**: audit desktop or mobile viewports.
+*   **History**: Track performance trends over time.
+
+#### 2. 📱 Mobile-First Architecture
+A fully native-like experience for testing on the go.
+*   **Responsive Design**: Dedicated mobile views for all major modules.
+*   **Touch Optimized**: Swipeable drawers, large tap targets, and bottom navigation.
+*   **On-the-Go Management**: Trigger tests and view results from your phone.
+
+#### 3. 🧪 Automation Studio
+*   **Web Recorder**: Record browser actions and generate Playwright scripts.
+*   **Visual Regression**: Pixel-perfect screenshot comparison.
+*   **Test Orchestrator**: Schedule cron jobs for automated nightly runs.
+
+#### 4. 🔌 API Lab
+*   **HTTP Runner**: integrated Postman-lite for testing backend APIs.
+*   **Proxied Requests**: Bypass CORS issues automatically.
 
 ---
 
-## 💻 Getting Started
+## 📸 Screenshots
+
+| **Desktop Dashboard** | **Speed Lab Analysis** |
+|:---:|:---:|
+| ![Dashboard](docs/dashboard_desktop.png) | ![Speed Lab](docs/speedlab_desktop.png) |
+
+| **Mobile Speed Lab** | **Mobile Test Hub** |
+|:---:|:---:|
+| ![Mobile Speed](docs/mobile_speedlab.png) | ![Mobile Hub](docs/mobile_testhub.png) |
+
+---
+
+## 🛠 Tech Stack
+
+*   **Frontend**: React 18, TypeScript, Tailwind CSS, Shadcn/UI, Vite
+*   **Backend**: Node.js, Express, Puppeteer/Lighthouse
+*   **Database**: Supabase (PostgreSQL)
+*   **Engine**: Playwright, Google Lighthouse
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
-- npm or yarn
-- Supabase Account (for database)
+*   Node.js v18+
+*   Supabase Account
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <YOUR_REPO_URL>
-   cd bug-binder
-   ```
+1.  **Clone the Repo**
+    ```bash
+    git clone https://github.com/your-org/test-flow.git
+    cd test-flow
+    ```
 
-2. **Frontend Setup**
-   ```bash
-   npm install
-   npm run dev
-   ```
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    cd backend && npm install
+    ```
 
-3. **Backend Setup**
-   ```bash
-   cd backend
-   npm install
-   # Create a .env file with your credentials (see .env.example)
-   npm run dev
-   ```
+3.  **Environment Setup**
+    Create `.env` files in root and `backend/` directories (see `.env.example`).
 
-### Environment Variables
-**Frontend (`.env`)**
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_key
-VITE_API_BASE_URL=http://localhost:8080 (or production URL)
-```
+4.  **Run Development Server**
+    ```bash
+    # Terminal 1 (Frontend)
+    npm run dev
 
-**Backend (`backend/.env`)**
-```
-PORT=8080
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_KEY=your_service_role_key
-GEMINI_API_KEY=your_ai_key (Optional)
-```
+    # Terminal 2 (Backend)
+    cd backend && npm run dev
+    ```
 
 ---
 
-## � API Documentation
-The backend exposes a full REST API for integrating with CI/CD pipelines.
-See the full API documentation in [api_documentation.md](./data/api_documentation.md) (or generated artifact).
+## 🔮 Roadmap
 
-**Quick Endpoints:**
-- `GET /api/projects`: List projects
-- `GET /api/visual`: List visual tests
-- `GET /api/schedules`: List active schedules
+*   [ ] **JSON Execution Engine**: Move to a declarative, language-agnostic test format.
+*   [ ] **Smart Selectors**: Self-healing tests that resist UI changes.
+*   [ ] **Integrations**: Connect directly to Jira and Slack.
 
 ---
 
-## � Docker Support
-The project is fully Dockerized.
-```bash
-docker-compose up --build
-```
-
----
-
-## 📄 License
-MIT License.
+<div align="center">
+  <sub>Built with ❤️ by the TestFlow Team</sub>
+</div>

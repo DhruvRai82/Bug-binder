@@ -111,3 +111,84 @@ export function FormSkeleton() {
         </div>
     )
 }
+
+export function SpeedLabSkeleton() {
+    return (
+        <div className="h-full flex gap-6 p-6 max-w-[1600px] mx-auto w-full animate-pulse">
+            <div className="flex-1 flex flex-col space-y-8">
+                {/* Header */}
+                <div className="space-y-2">
+                    <Skeleton className="h-8 w-48 rounded-md bg-muted/20" />
+                    <Skeleton className="h-5 w-96 rounded-md bg-muted/20" />
+                </div>
+
+                {/* Input Bar */}
+                <div className="h-16 rounded-xl bg-muted/10 w-full" />
+
+                {/* Gauges Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-48 rounded-xl bg-muted/10" />
+                    ))}
+                </div>
+
+                {/* Metrics */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="h-64 rounded-xl bg-muted/10 col-span-1" />
+                    <div className="h-64 rounded-xl bg-muted/10 col-span-2" />
+                </div>
+            </div>
+
+            {/* Sidebar Skeleton */}
+            <div className="w-[300px] border-l pl-6 space-y-4">
+                <Skeleton className="h-6 w-32 bg-muted/20" />
+                <div className="space-y-3">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <Skeleton key={i} className="h-20 w-full rounded-lg bg-muted/10" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export function AppLoadingSkeleton() {
+    return (
+        <div className="h-screen w-full flex overflow-hidden bg-background">
+            {/* Sidebar Skeleton - Clean outline */}
+            <div className="w-[19rem] h-full border-r bg-sidebar p-2 flex flex-col gap-2 hidden md:flex">
+                <div className="h-14 border-b px-4 flex items-center mb-2">
+                    <Skeleton className="h-8 w-8 rounded-lg bg-muted/20 mr-3" />
+                    <div className="space-y-1">
+                        <Skeleton className="h-4 w-32 bg-muted/20" />
+                        <Skeleton className="h-2 w-20 bg-muted/20" />
+                    </div>
+                </div>
+                <div className="space-y-1">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <Skeleton key={i} className="h-10 w-full rounded-lg bg-muted/10" />
+                    ))}
+                </div>
+            </div>
+
+            {/* Main Content - Minimalist Spinner */}
+            <div className="flex-1 flex flex-col h-full relative">
+                <div className="h-14 border-b flex items-center justify-between px-4">
+                    <Skeleton className="h-8 w-48 bg-muted/10 rounded" />
+                    <div className="flex gap-4">
+                        <Skeleton className="h-8 w-8 rounded-full bg-muted/10" />
+                        <Skeleton className="h-8 w-8 rounded-full bg-muted/10" />
+                    </div>
+                </div>
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4 animate-pulse">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center">
+                            <Skeleton className="h-6 w-6 rounded-full bg-blue-500/40" />
+                        </div>
+                        <p className="text-sm text-muted-foreground font-medium">Loading Workspace...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}

@@ -84,6 +84,7 @@ export function MobileSettingsHub() {
                 </div>
             ))}
 
+            {/* 
             <Button
                 variant="destructive"
                 className="w-full h-12 rounded-xl mt-8"
@@ -91,7 +92,8 @@ export function MobileSettingsHub() {
             >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
-            </Button>
+            </Button> 
+            */}
         </div>
     );
 }
