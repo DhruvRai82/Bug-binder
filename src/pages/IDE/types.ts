@@ -18,6 +18,7 @@ export interface FileNode {
     content?: string;
     children?: FileNode[];
     parentId: string | null;
+    path?: string;
 }
 
 export function buildFileTree(nodes: FSNode[]): FileNode[] {
@@ -48,7 +49,17 @@ export function buildFileTree(nodes: FSNode[]): FileNode[] {
         }
     });
 
-    // 3. Sort (Folders first, then files)
+    // 3. Compute Paths (Recursive)
+    const computePaths = (node: FileNode, currentPath: string) => {
+        node.path = `${currentPath}/${node.name}`;
+        if (node.children) {
+            node.children.forEach(child => computePaths(child, node.path!));
+        }
+    };
+
+    tree.forEach(rootNode => computePaths(rootNode, ''));
+
+    // 4. Sort (Folders first, then files)
     const sortNodes = (n: FileNode[]) => {
         n.sort((a, b) => {
             if (a.type === b.type) return a.name.localeCompare(b.name);

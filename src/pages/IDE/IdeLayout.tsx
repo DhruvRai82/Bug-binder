@@ -56,11 +56,32 @@ export default function IdeLayout() {
     const fetchFileSystem = async () => {
         if (!selectedProject) return;
         setLoading(true);
+        // Capture current path IDs before update to preserve navigation
+        const currentPathIds = currentPath.map(n => n.id);
+
         try {
             const data = await api.get(`/api/fs?projectId=${selectedProject.id}`);
             const tree = buildFileTree(data as FSNode[]);
             setFileSystem(tree);
-            setCurrentPath([]);
+
+            // Restore Path Navigation
+            if (currentPathIds.length > 0) {
+                const newPath: FileNode[] = [];
+                let currentLevel = tree;
+
+                for (const id of currentPathIds) {
+                    const node = currentLevel.find(n => n.id === id);
+                    if (node) {
+                        newPath.push(node);
+                        currentLevel = node.children || [];
+                    } else {
+                        break;
+                    }
+                }
+                setCurrentPath(newPath);
+            } else {
+                setCurrentPath([]);
+            }
         } catch (error) {
             console.error(error);
             toast.error("Failed to load file system");
