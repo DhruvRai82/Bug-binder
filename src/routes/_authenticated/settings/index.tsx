@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 import { MobileSettingsHub } from '@/mobile/pages/settings/SettingsHub'
 import { useIsMobile } from '@/hooks/use-mobile'
 
@@ -6,7 +6,9 @@ function SettingsIndexSwitcher() {
   const isMobile = useIsMobile()
   // On mobile, show the Hub
   if (isMobile) return <MobileSettingsHub />
-  return null // Desktop will handle redirect in beforeLoad
+
+  // Desktop: Redirect to Profile
+  return <Navigate to="/settings/profile" />
 }
 
 export const Route = createFileRoute('/_authenticated/settings/')({

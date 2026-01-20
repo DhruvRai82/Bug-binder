@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  TestTube2, 
-  Bug, 
-  Code2, 
-  BarChart3, 
-  Settings, 
+import {
+  TestTube2,
+  Bug,
+  Code2,
+  BarChart3,
+  Settings,
   User,
   Bell,
   Search
@@ -23,7 +23,7 @@ export const Navigation = () => {
                 <TestTube2 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-primary">TestHub</h1>
+                <h1 className="text-xl font-bold text-primary">TestFlow</h1>
                 <p className="text-xs text-muted-foreground">Test Management Platform</p>
               </div>
             </div>
@@ -61,8 +61,8 @@ export const Navigation = () => {
             <div className="hidden md:flex items-center">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search tests, bugs..."
                   className="w-64 pl-10 pr-4 py-2 text-sm bg-muted/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-smooth"
                 />
@@ -72,8 +72,8 @@ export const Navigation = () => {
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="h-5 w-5" />
-              <Badge 
-                variant="destructive" 
+              <Badge
+                variant="destructive"
                 className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs"
               >
                 3

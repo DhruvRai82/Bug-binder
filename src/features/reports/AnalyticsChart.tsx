@@ -37,7 +37,14 @@ export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey =
                   <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  borderColor: 'hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                  borderRadius: 'var(--radius)'
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         );
@@ -49,7 +56,15 @@ export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey =
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={nameKey} />
               <YAxis />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  borderColor: 'hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                  borderRadius: 'var(--radius)'
+                }}
+                cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+              />
               <Bar dataKey={dataKey} fill="#8884d8" onClick={onClick} cursor="pointer" />
             </BarChart>
           </ResponsiveContainer>
@@ -62,7 +77,14 @@ export function AnalyticsChart({ type, data, title, dataKey = 'value', nameKey =
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey={nameKey} />
               <YAxis />
-              <Tooltip />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  borderColor: 'hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                  borderRadius: 'var(--radius)'
+                }}
+              />
               <Line type="monotone" dataKey={dataKey} stroke="#8884d8" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
