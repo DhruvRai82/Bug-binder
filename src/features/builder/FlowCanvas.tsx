@@ -270,6 +270,7 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
                     onNodeClick={onNodeClick}
                     onPaneClick={onPaneClick}
                     fitView
+                    deleteKeyCode={['Backspace', 'Delete']}
                     // Drag & Drop Handlers
                     onDragOver={onDragOver}
                     onDrop={onDrop}

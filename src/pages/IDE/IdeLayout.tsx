@@ -267,7 +267,8 @@ export default function IdeLayout() {
                 });
                 toast.success(`${type} created`);
             }
-            fetchFileSystem();
+            // Small delay to allow FS flush
+            setTimeout(() => fetchFileSystem(), 300);
         } catch (error: any) {
             toast.error(error.response?.data?.error || "Operation failed");
         }
@@ -422,7 +423,6 @@ export default function IdeLayout() {
                                     value={dialogName}
                                     onChange={(e) => setDialogName(e.target.value)}
                                     placeholder={dialogMode === 'create_folder' ? "Folder name" : "filename.ext"}
-                                    autoFocus
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') handleDialogSubmit();
                                     }}

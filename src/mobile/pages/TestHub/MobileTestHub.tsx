@@ -20,7 +20,7 @@ export default function MobileTestHub() {
                         <Layers className="h-6 w-6 text-indigo-600" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Automation Hub</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">TestFlow Automation</h1>
                         <p className="text-sm text-muted-foreground">Manage data & schedules</p>
                     </div>
                 </div>

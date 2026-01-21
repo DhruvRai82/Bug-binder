@@ -50,13 +50,19 @@ export default function Schedules() {
 
     const fetchHistory = async () => {
         try {
-            // Mocking history API or using existing run logs if available
-            // Assuming we can get recent runs from TestRunService (needs endpoint)
-            // For now, let's just use a dummy list until Backend Endpoint is ready for pure history
-            // Actually, let's use the Runner Reports endpoint if available or empty.
-            // TODO: Connect to real `/api/runner/history`.
-            setHistory([]);
-        } catch (e) { }
+            if (!selectedProject?.id) return;
+            const data = await api.get(`/api/recorder/reports?projectId=${selectedProject.id}`);
+            // Map Report Data to History UI Format
+            // Report: { scriptName, status, startTime, ... }
+            const mapped = data.slice(0, 10).map((r: any) => ({
+                scriptName: r.scriptName,
+                status: r.status,
+                timestamp: new Date(r.startTime).toLocaleString(),
+            }));
+            setHistory(mapped);
+        } catch (e) {
+            console.error("Failed to load history", e);
+        }
     };
 
     const handleCreate = async () => {

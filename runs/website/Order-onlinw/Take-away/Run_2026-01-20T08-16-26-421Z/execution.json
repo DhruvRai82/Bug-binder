@@ -1,0 +1,16 @@
+[
+  {
+    "stepId": "1",
+    "action": "navigate",
+    "status": "PASSED",
+    "timestamp": "2026-01-20T08:16:26.808Z",
+    "error": null
+  },
+  {
+    "stepId": "2",
+    "action": "click",
+    "status": "FAILED",
+    "timestamp": "2026-01-20T08:16:33.702Z",
+    "error": "page.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.add-button')\u001b[22m\n"
+  }
+]

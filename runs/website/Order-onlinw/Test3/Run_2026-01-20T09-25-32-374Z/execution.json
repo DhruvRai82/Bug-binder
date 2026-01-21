@@ -1,0 +1,16 @@
+[
+  {
+    "stepId": "1",
+    "action": "navigate",
+    "status": "PASSED",
+    "timestamp": "2026-01-20T09:25:32.746Z",
+    "error": null
+  },
+  {
+    "stepId": "2",
+    "action": "click",
+    "status": "FAILED",
+    "timestamp": "2026-01-20T09:25:41.568Z",
+    "error": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('button.inline-flex:has-text(\\'TakeAway\\')')\u001b[22m\n"
+  }
+]

@@ -57,60 +57,36 @@ export function FolderGrid({ items, onNavigate, onOpenFile, onRename, onDelete }
     }
 
     return (
-        <>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-6">
-                {items.map((item) => (
-                    <ContextMenu key={item.id}>
-                        <ContextMenuTrigger>
-                            <div
-                                className="group flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-all hover:scale-105 active:scale-95 border border-transparent hover:border-border/50"
-                                onClick={() => item.type === 'folder' ? onNavigate(item) : onOpenFile(item)}
-                            >
-                                <div className={cn(
-                                    "w-20 h-20 flex items-center justify-center rounded-2xl shadow-sm transition-shadow group-hover:shadow-md",
-                                    item.type === 'folder' ? "bg-amber-100 dark:bg-amber-900/20" : "bg-blue-50 dark:bg-blue-900/10"
-                                )}>
-                                    {getIcon(item)}
-                                </div>
-                                <span className="text-sm font-medium text-center truncate w-full px-2">
-                                    {item.name}
-                                </span>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-6">
+            {items.map((item) => (
+                <ContextMenu key={item.id}>
+                    <ContextMenuTrigger>
+                        <div
+                            className="group flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 cursor-pointer transition-all hover:scale-105 active:scale-95 border border-transparent hover:border-border/50"
+                            onClick={() => item.type === 'folder' ? onNavigate(item) : onOpenFile(item)}
+                        >
+                            <div className={cn(
+                                "w-20 h-20 flex items-center justify-center rounded-2xl shadow-sm transition-shadow group-hover:shadow-md",
+                                item.type === 'folder' ? "bg-amber-100 dark:bg-amber-900/20" : "bg-blue-50 dark:bg-blue-900/10"
+                            )}>
+                                {getIcon(item)}
                             </div>
-                        </ContextMenuTrigger>
-                        <ContextMenuContent>
-                            <ContextMenuItem onClick={() => handleInitiateRename(item)}>
-                                <Edit className="w-4 h-4 mr-2" /> Rename
-                            </ContextMenuItem>
-                            <ContextMenuItem onClick={() => onDelete(item)} className="text-red-500 focus:text-red-500">
-                                <Trash className="w-4 h-4 mr-2" /> Delete
-                            </ContextMenuItem>
-                        </ContextMenuContent>
-                    </ContextMenu>
-                ))}
-            </div>
-
-            {/* Rename Dialog */}
-            <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Rename Item</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4">
-                        <Label>New Name</Label>
-                        <Input
-                            value={renameName}
-                            onChange={(e) => setRenameName(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleConfirmRename()}
-                            autoFocus
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setRenameOpen(false)}>Cancel</Button>
-                        <Button onClick={handleConfirmRename}>Rename</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </>
+                            <span className="text-sm font-medium text-center truncate w-full px-2">
+                                {item.name}
+                            </span>
+                        </div>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                        <ContextMenuItem onClick={() => onRename(item, item.name)}>
+                            <Edit className="w-4 h-4 mr-2" /> Rename
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => onDelete(item)} className="text-red-500 focus:text-red-500">
+                            <Trash className="w-4 h-4 mr-2" /> Delete
+                        </ContextMenuItem>
+                    </ContextMenuContent>
+                </ContextMenu>
+            ))}
+        </div>
     );
 }
 

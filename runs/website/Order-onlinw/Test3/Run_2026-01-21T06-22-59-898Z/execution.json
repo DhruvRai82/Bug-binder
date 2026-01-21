@@ -1,0 +1,72 @@
+[
+  {
+    "stepId": "1",
+    "action": "navigate",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:00.289Z",
+    "error": null
+  },
+  {
+    "stepId": "2",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:02.956Z",
+    "error": null
+  },
+  {
+    "stepId": "3",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:33.234Z",
+    "error": null
+  },
+  {
+    "stepId": "4",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:33.940Z",
+    "error": null
+  },
+  {
+    "stepId": "5",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:34.104Z",
+    "error": null
+  },
+  {
+    "stepId": "6",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:34.469Z",
+    "error": null
+  },
+  {
+    "stepId": "7",
+    "action": "click",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:34.793Z",
+    "error": null
+  },
+  {
+    "stepId": "8",
+    "action": "type",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:35.923Z",
+    "error": null
+  },
+  {
+    "stepId": "9",
+    "action": "type",
+    "status": "PASSED",
+    "timestamp": "2026-01-21T06:23:37.950Z",
+    "error": null
+  },
+  {
+    "stepId": "10",
+    "action": "type",
+    "status": "FAILED",
+    "timestamp": "2026-01-21T06:23:37.987Z",
+    "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#«r2p5»-form-item')\u001b[22m\n"
+  }
+]

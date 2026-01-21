@@ -13,7 +13,7 @@ export default function TestHub() {
                         <Layers className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Automation Suite</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">TestFlow Automation</h1>
                         <p className="text-sm text-muted-foreground">Manage data, schedules, and visual tests in one place.</p>
                     </div>
                 </div>
