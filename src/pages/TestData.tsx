@@ -136,17 +136,21 @@ export default function TestData() {
     };
 
     return (
-        <div className="h-full flex flex-col p-6 animate-in fade-in duration-500">
+        <div className="h-full flex flex-col p-8 pt-6 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6 flex-shrink-0">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Data Management</h1>
-                    <p className="text-muted-foreground">Manage test datasets and generate mock scenarios.</p>
+            <div className="flex justify-between items-end mb-8 flex-shrink-0">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        Data Management
+                    </h1>
+                    <p className="text-muted-foreground max-w-lg">
+                        Manage test datasets, upload CSVs, or generate realistic mock scenarios for your tests.
+                    </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     <Dialog open={mockGenOpen} onOpenChange={setMockGenOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="secondary"><Wand2 className="h-4 w-4 mr-2" /> Generate Mock Data</Button>
+                            <Button className="bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200 shadow-sm"><Wand2 className="h-4 w-4 mr-2" /> Mock Generator</Button>
                         </DialogTrigger>
                         <DialogContent
                             className="max-w-4xl max-h-[90vh] flex flex-col border-0 bg-card/95 backdrop-blur-xl shadow-2xl p-0 overflow-hidden"
@@ -154,8 +158,8 @@ export default function TestData() {
                         >
                             <DialogHeader className="px-6 py-4 border-b bg-muted/20 backdrop-blur-md sticky top-0 z-10 flex flex-row items-center justify-between space-y-0">
                                 <div className="flex items-center gap-2">
-                                    <div className="p-2 bg-blue-500/10 rounded-md">
-                                        <Wand2 className="h-6 w-6 text-blue-600" />
+                                    <div className="p-2 bg-emerald-500/10 rounded-md">
+                                        <Wand2 className="h-6 w-6 text-emerald-600" />
                                     </div>
                                     <div>
                                         <DialogTitle className="text-2xl font-bold">
@@ -167,11 +171,10 @@ export default function TestData() {
                                     </div>
                                 </div>
                                 <Button variant="ghost" size="icon" onClick={() => setMockGenOpen(false)} className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors">
-                                    <Trash2 className="h-4 w-4 hidden" /> {/* Hack to keep imports valid if X not imported, using Trash2 as placeholder or just generic X if I import it? Wait, I didn't import X in TestData. using just the button for now or reusing an existing icon like X if available? I need to check imports. */}
-                                    <span className="sr-only">Close</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                    <Trash2 className="h-4 w-4" />
                                 </Button>
                             </DialogHeader>
+                            {/* ... kept inner dialog logic same for brevity, it uses grid layout which is fine ... */}
                             <div className="flex-1 overflow-hidden grid grid-cols-2 gap-0">
                                 <div className="space-y-4 overflow-y-auto p-6 border-r bg-background/30 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                                     <h4 className="font-semibold text-sm text-foreground uppercase tracking-wider mb-2">Schema Definition</h4>
@@ -238,7 +241,7 @@ export default function TestData() {
                                             {JSON.stringify(generateMockData(schema, 5), null, 2)}
                                         </pre>
                                     </div>
-                                    <Button onClick={handleGenerate} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 py-6 text-md font-semibold">
+                                    <Button onClick={handleGenerate} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 py-6 text-md font-semibold">
                                         <Wand2 className="h-5 w-5 mr-2" /> Generate & Save Dataset
                                     </Button>
                                 </div>
@@ -253,13 +256,13 @@ export default function TestData() {
                         accept=".csv,.json"
                         onChange={handleFileUpload}
                     />
-                    <Button onClick={() => fileInputRef.current?.click()}>
+                    <Button onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/20">
                         <Upload className="h-4 w-4 mr-2" /> Upload CSV/JSON
                     </Button>
                 </div>
             </div>
 
-            {/* Main Content Layout - Sidebar vs Empty */}
+            {/* Main Content Layout - Premium Glass Cards */}
             {datasets.length === 0 ? (
                 <EmptyState
                     icon={Database}
@@ -271,32 +274,34 @@ export default function TestData() {
             ) : (
                 <div className="flex-1 min-h-0 flex gap-6">
                     {/* Left Sidebar: Dataset List */}
-                    <Card className="w-[300px] flex flex-col border-0 shadow-md bg-card/50 backdrop-blur-sm">
-                        <CardHeader className="pb-3 px-4 pt-4 border-b">
-                            <CardTitle className="text-base">Datasets</CardTitle>
+                    <Card className="w-[320px] flex flex-col border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+                        <CardHeader className="pb-3 px-5 pt-5 border-b bg-emerald-50/50 dark:bg-emerald-900/10">
+                            <CardTitle className="text-sm font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Your Datasets</CardTitle>
                         </CardHeader>
-                        <ScrollArea className="flex-1">
-                            <div className="p-2 space-y-1">
+                        <ScrollArea className="flex-1 bg-transparent">
+                            <div className="p-3 space-y-2">
                                 {datasets.map(dataset => (
                                     <div
                                         key={dataset.id}
                                         onClick={() => handleSelectDataset(dataset)}
-                                        className={`group px-3 py-2 rounded-md text-sm cursor-pointer flex justify-between items-center transition-all ${selectedDataset?.id === dataset.id
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                                        className={`group px-4 py-3 rounded-xl text-sm font-medium cursor-pointer flex justify-between items-center transition-all duration-200 ${selectedDataset?.id === dataset.id
+                                            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md transform scale-[1.02]'
+                                            : 'hover:bg-white/60 dark:hover:bg-white/10 text-muted-foreground hover:text-foreground hover:shadow-sm'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3 truncate">
-                                            <FileSpreadsheet className="h-4 w-4 opacity-70" />
+                                            <div className={`p-1.5 rounded-lg ${selectedDataset?.id === dataset.id ? 'bg-white/20' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
+                                                <FileSpreadsheet className={`h-4 w-4 ${selectedDataset?.id === dataset.id ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`} />
+                                            </div>
                                             <span className="truncate max-w-[150px]">{dataset.name}</span>
                                         </div>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className={`h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ${selectedDataset?.id === dataset.id ? 'text-primary-foreground hover:bg-primary-foreground/20' : 'hover:bg-background'}`}
+                                            className={`h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity rounded-full ${selectedDataset?.id === dataset.id ? 'text-white hover:bg-white/20' : 'text-red-500 hover:bg-red-50'}`}
                                             onClick={(e) => handleDeleteDataset(dataset.id, e)}
                                         >
-                                            <Trash2 className="h-3 w-3" />
+                                            <Trash2 className="h-3.5 w-3.5" />
                                         </Button>
                                     </div>
                                 ))}
@@ -305,37 +310,42 @@ export default function TestData() {
                     </Card>
 
                     {/* Right Main: Data Preview */}
-                    <Card className="flex-1 flex flex-col border-0 shadow-md overflow-hidden bg-card/50 backdrop-blur-sm">
-                        <CardHeader className="pb-2 px-6 pt-4 border-b bg-muted/10 flex flex-row justify-between items-center">
+                    <Card className="flex-1 flex flex-col border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-2xl overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+                        <CardHeader className="pb-3 px-6 pt-5 border-b bg-emerald-50/30 dark:bg-emerald-900/5 flex flex-row justify-between items-center">
                             <div>
-                                <CardTitle className="text-base flex items-center gap-2">
-                                    <Database className="h-4 w-4 text-blue-500" />
+                                <CardTitle className="text-base flex items-center gap-2 text-foreground/80">
+                                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-900/40 rounded-md">
+                                        <Database className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                    </div>
                                     {selectedDataset?.name || 'Select a dataset'}
                                 </CardTitle>
-                                <CardDescription className="text-xs mt-1">
+                                <CardDescription className="text-xs mt-1 ml-9">
                                     {previewData.length > 0 ? `${previewData.length} records loaded for preview` : 'No preview available'}
                                 </CardDescription>
                             </div>
                         </CardHeader>
-                        <CardContent className="flex-1 p-0 min-h-0">
+                        <CardContent className="flex-1 p-0 min-h-0 relative">
                             {loading ? (
-                                <div className="h-full flex items-center justify-center text-muted-foreground">Loading data...</div>
+                                <div className="h-full flex flex-col items-center justify-center gap-3 text-emerald-600/60">
+                                    <div className="h-8 w-8 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-sm font-medium">Fetching Data...</span>
+                                </div>
                             ) : previewData.length > 0 ? (
                                 <ScrollArea className="h-full">
                                     <div className="p-0">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow className="hover:bg-transparent border-b-border/50">
+                                                <TableRow className="hover:bg-transparent border-b border-emerald-100/50 dark:border-emerald-900/20">
                                                     {Object.keys(previewData[0]).map(k => (
-                                                        <TableHead key={k} className="h-9 text-xs font-semibold whitespace-nowrap bg-muted/20 sticky top-0 z-10">{k}</TableHead>
+                                                        <TableHead key={k} className="h-10 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-900/20 sticky top-0 z-10 first:pl-6">{k}</TableHead>
                                                     ))}
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {previewData.map((row, i) => (
-                                                    <TableRow key={i} className="border-b-border/50 hover:bg-muted/30">
+                                                    <TableRow key={i} className="border-b border-gray-100/50 dark:border-gray-800/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-900/10">
                                                         {Object.values(row).map((v: any, j) => (
-                                                            <TableCell key={j} className="py-2 text-xs truncate max-w-[200px]">{String(v)}</TableCell>
+                                                            <TableCell key={j} className="py-2.5 text-xs text-muted-foreground truncate max-w-[200px] first:pl-6">{String(v)}</TableCell>
                                                         ))}
                                                     </TableRow>
                                                 ))}
@@ -344,8 +354,11 @@ export default function TestData() {
                                     </div>
                                 </ScrollArea>
                             ) : (
-                                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                                    Select a dataset to view its content.
+                                <div className="h-full flex flex-col items-center justify-center text-muted-foreground/50 gap-4">
+                                    <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center">
+                                        <Database className="h-10 w-10 opacity-20" />
+                                    </div>
+                                    <span className="text-sm">Select a dataset to view its content.</span>
                                 </div>
                             )}
                         </CardContent>

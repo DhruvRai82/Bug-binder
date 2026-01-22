@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   TestTube2,
@@ -9,7 +9,8 @@ import {
   Globe,
   PlayCircle,
   Layers,
-  Code
+  Code,
+  Lock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,11 +27,13 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigationLock } from "@/contexts/NavigationLockContext";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
@@ -49,6 +52,7 @@ const navigationGroups = [
   {
     items: [
       { title: "Web Recorder", url: "/recorder", icon: PlayCircle },
+      { title: "Flow Builder", url: "/flow-builder", icon: Layers }, // MOVED HERE
       { title: "Automation Suite", url: "/test-hub", icon: Layers },
     ]
   },
@@ -67,19 +71,31 @@ const navigationGroups = [
 ];
 
 // Helper component that forwards ref to ensure TooltipTrigger works correctly.
-// This is critical for preventing "stuck" tooltips.
 const SidebarLink = React.forwardRef<
   HTMLAnchorElement,
-  { item: any; collapsed: boolean }
->(({ item, collapsed }, ref) => {
+  { item: any; collapsed: boolean; isLocked: boolean }
+>(({ item, collapsed, isLocked }, ref) => {
   const { pathname } = useLocation();
-  // Simple equality check for active state, or startsWith if nested?
-  // Previous logic was exact match usually for sidebar items, except maybe sub-routes.
-  // Let's use exact match for now as per previous simple logic usually implied, 
-  // or checks if it starts with for some.
-  // The 'isActive' in NavLink usually implies partial match relative to 'to'.
-  // But here we can just check pathname.
   const isActive = pathname === item.url || pathname.startsWith(item.url + '/');
+
+  if (isLocked) {
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-3 px-4 py-3 w-full rounded-xl mb-1 opacity-50 cursor-not-allowed select-none bg-transparent text-muted-foreground",
+          collapsed && "justify-center w-10 h-10 p-0 mx-auto"
+        )}
+      >
+        <div className="relative">
+          <item.icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+          <div className="absolute -top-1 -right-1 bg-background rounded-full p-0.5">
+            <Lock className="w-2.5 h-2.5 text-amber-500" />
+          </div>
+        </div>
+        {!collapsed && <span className="flex-1 text-base tracking-wide">{item.title}</span>}
+      </div>
+    );
+  }
 
   return (
     <Link
@@ -116,10 +132,19 @@ SidebarLink.displayName = "SidebarLink";
 
 const AdminLink = React.forwardRef<
   HTMLAnchorElement,
-  { collapsed: boolean }
->(({ collapsed }, ref) => {
+  { collapsed: boolean; isLocked: boolean }
+>(({ collapsed, isLocked }, ref) => {
   const { pathname } = useLocation();
   const isActive = pathname.startsWith('/admin');
+
+  if (isLocked) {
+    return (
+      <div className={cn("flex items-center gap-3 px-4 py-3 w-full rounded-xl mb-1 opacity-50 cursor-not-allowed bg-transparent text-muted-foreground", collapsed && "justify-center w-10 h-10 p-0 mx-auto")}>
+        <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+        {!collapsed && <span className="flex-1 text-base tracking-wide">Admin Panel</span>}
+      </div>
+    )
+  }
 
   return (
     <Link
@@ -144,27 +169,29 @@ const AdminLink = React.forwardRef<
 });
 AdminLink.displayName = "AdminLink";
 
-// SettingsLink component removed as it is moving to the Profile Dropdown
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const { isAdmin } = useAuth();
   const location = useLocation();
-
+  const { isNavLocked } = useNavigationLock(); // Consume Lock Context
 
   const isActive = (path: string) => location.pathname === path;
   const collapsed = state === "collapsed";
 
   return (
     <Sidebar className={collapsed ? "w-16" : "w-[19rem]"} collapsible="icon">
-      {/* Explicitly defined TooltipProvider at root of sidebar content if needed, but App likely wraps it */}
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {!collapsed && (
           <>
             {/* Logo */}
             <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-2.5 shadow-lg">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-2.5 shadow-lg relative">
                 <Zap className="h-7 w-7 text-white" />
+                {isNavLocked && (
+                  <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 shadow-sm animate-pulse border border-white">
+                    <Lock className="w-3 h-3 text-white" />
+                  </div>
+                )}
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -173,17 +200,24 @@ export function AppSidebar() {
                 <p className="text-xs text-muted-foreground">Test Management Platform</p>
               </div>
             </div>
-
-            {/* Search */}
-
+            {isNavLocked && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-700 text-[10px] px-2 py-1 rounded text-center mb-2 font-medium animate-in fade-in slide-in-from-left-1">
+                Navigation Locked
+              </div>
+            )}
           </>
         )}
 
         {collapsed && (
-          <div className="flex justify-center">
+          <div className="flex justify-center relative">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-2">
               <Zap className="h-6 w-6 text-white" />
             </div>
+            {isNavLocked && (
+              <div className="absolute top-0 right-2 bg-amber-500 rounded-full p-0.5 border border-white">
+                <Lock className="w-2 h-2 text-white" />
+              </div>
+            )}
           </div>
         )}
       </SidebarHeader>
@@ -199,16 +233,27 @@ export function AppSidebar() {
                 <SidebarMenu>
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <SidebarLink item={item} collapsed={collapsed} />
-                        </TooltipTrigger>
-                        {collapsed && (
-                          <TooltipContent side="right" className="bg-slate-900 text-white border-slate-700 font-medium z-[50]">
-                            {item.title}
-                          </TooltipContent>
-                        )}
-                      </Tooltip>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={0}>
+                          <TooltipTrigger asChild>
+                            {/* We pass isLocked to the actual Link component */}
+                            <div>
+                              <SidebarLink item={item} collapsed={collapsed} isLocked={isNavLocked} />
+                            </div>
+                          </TooltipTrigger>
+                          {isNavLocked ? (
+                            <TooltipContent side="right" className="bg-amber-600 text-white font-medium z-[50]">
+                              Flow Builder Active - Close to Navigate
+                            </TooltipContent>
+                          ) : (
+                            collapsed && (
+                              <TooltipContent side="right" className="bg-slate-900 text-white border-slate-700 font-medium z-[50]">
+                                {item.title}
+                              </TooltipContent>
+                            )
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
@@ -217,7 +262,6 @@ export function AppSidebar() {
             {index < navigationGroups.length - 1 && !collapsed && <SidebarSeparator className="my-2 mx-4" />}
           </div>
         ))}
-
 
       </SidebarContent>
 

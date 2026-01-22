@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { FlowManager } from './FlowManager';
 import { Button } from '@/components/ui/button';
 import { FlowCanvas } from './FlowCanvas';
@@ -6,7 +6,11 @@ import { api, API_BASE_URL } from '@/lib/api';
 import { toast } from 'sonner';
 import { FileNode } from '@/pages/IDE/types';
 
-export function FlowBuilder() {
+interface FlowBuilderProps {
+    onEditorActive?: (isActive: boolean) => void;
+}
+
+export function FlowBuilder({ onEditorActive }: FlowBuilderProps) {
     const [activeFile, setActiveFile] = useState<FileNode | null>(null);
     const [initialData, setInitialData] = useState<{ nodes: any[], edges: any[] }>({ nodes: [], edges: [] });
 
@@ -18,6 +22,13 @@ export function FlowBuilder() {
     const [viewerOpen, setViewerOpen] = useState(false);
     const [viewerSrc, setViewerSrc] = useState('');
     const [viewerTitle, setViewerTitle] = useState('');
+
+    // Notify parent when active state changes
+    useEffect(() => {
+        if (onEditorActive) {
+            onEditorActive(!!activeFile);
+        }
+    }, [activeFile, onEditorActive]);
 
     // Handle opening a file (Editor or Output)
     const handleFileSelect = async (file: FileNode, isOutput = false) => {

@@ -68,11 +68,16 @@ export default function Schedules() {
     const handleCreate = async () => {
         if (!selectedScript) return toast.error("Select a script");
 
+        const scriptObj = scripts.find(s => s.id === selectedScript);
+        const name = scriptObj ? `Schedule: ${scriptObj.name}` : `Schedule for ${selectedScript}`;
+
         try {
             await api.post('/api/schedules', {
-                scriptId: selectedScript,
+                suiteId: selectedScript, // Map script to suiteId as expected by backend
+                scriptId: selectedScript, // Keep for reference if needed
                 cronExpression,
-                projectId: selectedProject?.id
+                projectId: selectedProject?.id,
+                name: name
             });
             toast.success("Schedule Created");
             setOpen(false);
@@ -111,19 +116,20 @@ export default function Schedules() {
     };
 
     return (
-        <div className="p-8 space-y-8 animate-in fade-in duration-500 h-full flex flex-col">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-red-600">
+        <div className="h-full flex flex-col p-8 pt-6 animate-in fade-in duration-500">
+            {/* Premium Header */}
+            <div className="flex justify-between items-end mb-8 flex-shrink-0">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
                         Smart Scheduler
                     </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Automate your testing with precise frequency.
+                    <p className="text-muted-foreground max-w-lg">
+                        Automate your testing with precise frequency. Run tests daily, weekly, or on custom cron schedules.
                     </p>
                 </div>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-orange-600 hover:bg-orange-700">
+                        <Button className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 shadow-lg shadow-orange-500/25 transition-all hover:scale-105 border-0">
                             <Plus className="h-4 w-4 mr-2" /> New Schedule
                         </Button>
                     </DialogTrigger>
@@ -178,71 +184,91 @@ export default function Schedules() {
                 </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
-                {/* Active Schedules */}
-                <div className="md:col-span-2 space-y-6 overflow-y-auto pr-2">
-                    <h2 className="text-lg font-semibold flex items-center"><CalendarClock className="h-5 w-5 mr-2 text-orange-500" /> Active Schedules</h2>
-                    <div className="grid gap-4 md:grid-cols-2">
-                        {schedules.map(schedule => (
-                            <Card key={schedule.id} className="border-l-4 border-l-orange-500 shadow-md hover:shadow-lg transition-shadow">
-                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-base font-medium truncate w-[150px]" title={schedule.scriptName}>
-                                        {schedule.scriptName || 'Unknown Script'}
-                                    </CardTitle>
-                                    <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Active</Badge>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-2xl font-bold font-mono text-foreground mt-2">
-                                        {schedule.cronExpression}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mt-1 font-medium">
-                                        {cronstrue.toString(schedule.cronExpression, { throwExceptionOnParseError: false })}
-                                    </div>
-                                    <div className="mt-4 flex gap-2">
-                                        <Button variant="outline" size="sm" className="flex-1 hover:bg-green-50 hover:text-green-600" onClick={() => handleRunNow(schedule.scriptId)}>
-                                            <Play className="h-3 w-3 mr-2" /> Run Now
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={() => setScheduleToDelete(schedule.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                        {schedules.length === 0 && (
-                            <div className="col-span-full border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center text-muted-foreground bg-muted/20">
-                                <AlarmClock className="h-12 w-12 mb-4 opacity-20" />
-                                <p>No active schedules found.</p>
-                                <Button variant="link" onClick={() => setOpen(true)} className="mt-2 text-orange-600">Create one now</Button>
-                            </div>
-                        )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 flex-1 min-h-0">
+                {/* Active Schedules - Floating Cards Grid */}
+                <div className="md:col-span-2 flex flex-col space-y-4 overflow-hidden">
+                    <div className="flex items-center gap-2 pb-2">
+                        <CalendarClock className="h-5 w-5 text-orange-500" />
+                        <h2 className="text-lg font-bold text-foreground/80">Active Schedules</h2>
                     </div>
+
+                    <ScrollArea className="flex-1 -mr-4 pr-4">
+                        <div className="grid gap-4 md:grid-cols-2 pb-4">
+                            {schedules.map(schedule => (
+                                <Card key={schedule.id} className="group border-0 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300 ring-1 ring-black/5 dark:ring-white/10 hover:ring-orange-500/30 overflow-hidden relative">
+                                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-red-500 opacity-80" />
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-5">
+                                        <CardTitle className="text-base font-bold truncate w-[160px]" title={schedule.scriptName}>
+                                            {schedule.scriptName || 'Unknown Script'}
+                                        </CardTitle>
+                                        <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50 font-medium">Active</Badge>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="flex items-baseline gap-2 mt-1">
+                                            <div className="text-2xl font-bold font-mono text-foreground/90 tracking-tight">
+                                                {schedule.cronExpression}
+                                            </div>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground font-medium mb-4 flex items-center gap-1.5">
+                                            <Clock className="h-3 w-3" />
+                                            {cronstrue.toString(schedule.cronExpression, { throwExceptionOnParseError: false })}
+                                        </div>
+
+                                        <div className="flex gap-2 pt-2 border-t border-orange-100 dark:border-orange-900/20">
+                                            <Button variant="ghost" size="sm" className="flex-1 hover:bg-orange-50 text-orange-700 hover:text-orange-800 h-8 text-xs font-semibold" onClick={() => handleRunNow(schedule.scriptId)}>
+                                                <Play className="h-3 w-3 mr-1.5 fill-current" /> Run Now
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-full" onClick={() => setScheduleToDelete(schedule.id)}>
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                            {schedules.length === 0 && (
+                                <div className="col-span-full h-64 border-2 border-dashed border-orange-200 dark:border-orange-900/30 rounded-2xl flex flex-col items-center justify-center text-muted-foreground bg-orange-50/30 dark:bg-orange-900/5">
+                                    <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-4">
+                                        <AlarmClock className="h-8 w-8 text-orange-400" />
+                                    </div>
+                                    <p className="font-medium text-foreground/70">No active schedules found.</p>
+                                    <Button variant="link" onClick={() => setOpen(true)} className="mt-1 text-orange-600 font-semibold">Create your first schedule</Button>
+                                </div>
+                            )}
+                        </div>
+                    </ScrollArea>
                 </div>
 
-                {/* History / Recent Activity */}
-                <Card className="md:col-span-1 shadow-lg bg-card/50 backdrop-blur-sm h-full flex flex-col">
-                    <CardHeader>
-                        <CardTitle className="flex items-center text-lg"><History className="h-5 w-5 mr-2 text-blue-500" /> Recent Activity</CardTitle>
+                {/* History / Recent Activity - Glass Panel */}
+                <Card className="md:col-span-1 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-0 ring-1 ring-black/5 dark:ring-white/10 h-full flex flex-col overflow-hidden rounded-2xl">
+                    <CardHeader className="bg-muted/10 border-b border-black/5 dark:border-white/5 pb-4">
+                        <CardTitle className="flex items-center text-lg font-bold"><History className="h-5 w-5 mr-2 text-blue-500" /> Recent Activity</CardTitle>
                         <CardDescription>Latest automated execution results.</CardDescription>
                     </CardHeader>
-                    <CardContent className="flex-1 overflow-hidden p-0 relative">
-                        <ScrollArea className="h-full px-6 pb-4">
+                    <CardContent className="flex-1 overflow-hidden p-0 relative bg-gradient-to-b from-transparent to-muted/5">
+                        <ScrollArea className="h-full px-5 py-4">
                             {history.length > 0 ? (
-                                <div className="space-y-4 pt-2">
+                                <div className="space-y-4">
                                     {history.map((run, i) => (
-                                        <div key={i} className="flex items-start gap-4 border-b pb-4 last:border-0">
-                                            <div className={`mt-1 h-2 w-2 rounded-full ${run.status === 'pass' ? 'bg-green-500' : 'bg-red-500'}`} />
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium leading-none">{run.scriptName}</p>
-                                                <p className="text-xs text-muted-foreground">{run.timestamp}</p>
-                                                <Badge variant={run.status === 'pass' ? 'default' : 'destructive'} className="text-[10px] h-5">{run.status.toUpperCase()}</Badge>
+                                        <div key={i} className="flex items-start gap-3 relative pb-4 last:pb-0 group">
+                                            {/* Timeline connector */}
+                                            {i !== history.length - 1 && <div className="absolute left-[5px] top-2 bottom-0 w-px bg-border group-last:hidden" />}
+
+                                            <div className={`mt-1.5 h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 z-10 ${run.status === 'pass' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]'}`} />
+                                            <div className="space-y-1 flex-1 min-w-0">
+                                                <div className="flex justify-between items-start">
+                                                    <p className="text-sm font-semibold leading-none truncate pr-2" title={run.scriptName}>{run.scriptName}</p>
+                                                    <Badge variant={run.status === 'pass' ? 'outline' : 'destructive'} className={`text-[10px] h-5 px-1.5 uppercase ${run.status === 'pass' ? 'text-green-600 border-green-200 bg-green-50' : ''}`}>
+                                                        {run.status === 'pass' ? 'PASS' : 'FAIL'}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground font-mono">{run.timestamp}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground text-sm text-center">
-                                    <Clock className="h-8 w-8 mb-3 opacity-30" />
+                                    <Clock className="h-10 w-10 mb-3 opacity-20" />
                                     No recent execution history available.
                                 </div>
                             )}

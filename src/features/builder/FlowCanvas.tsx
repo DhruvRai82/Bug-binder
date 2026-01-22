@@ -38,11 +38,12 @@ interface FlowStepParams {
     selector?: string;
     value?: string;
     timeout?: number;
+    datasetId?: string;
 }
 
 interface FlowStepData {
     label: string;
-    action: 'navigate' | 'click' | 'type' | 'wait' | 'screenshot';
+    action: 'navigate' | 'click' | 'type' | 'wait' | 'screenshot' | 'condition' | 'loop' | 'assert_text' | 'assert_visible' | 'use_data';
     params: FlowStepParams;
 }
 
@@ -170,6 +171,7 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
             case 'loop': label = 'Loop'; break;
             case 'assert_text': label = 'Assert Text'; params = { selector: '.success', value: 'Success' }; break;
             case 'assert_visible': label = 'Assert Visible'; params = { selector: '#modal' }; break;
+            case 'use_data': label = 'Use Data'; params = { datasetId: '' }; break;
         }
 
         const newNode: Node<FlowStepData> = {
@@ -398,6 +400,20 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
                             <Button variant="destructive" size="sm" className="w-full mt-4" onClick={() => setNodes((nds) => nds.filter((n) => n.id !== selectedNode.id))}>
                                 Delete Node
                             </Button>
+
+                            {selectedNode.data.action === 'use_data' && (
+                                <div className="space-y-2">
+                                    <Label>Dataset ID</Label>
+                                    <Input
+                                        value={selectedNode.data.params.datasetId || ''}
+                                        onChange={(e) => updateSelectedNode('datasetId', e.target.value)}
+                                        placeholder="Enter Dataset ID (e.g. users_csv)"
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        Variables from this dataset will be available as {'${columnName}'}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </ScrollArea>
                 </div>

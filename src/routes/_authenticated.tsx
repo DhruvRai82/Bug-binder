@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/common/AppSidebar"
 import { ProjectProvider, useProject } from "@/context/ProjectContext"
 import { SettingsProvider } from "@/contexts/SettingsContext"
 import { useAuth } from "@/contexts/AuthContext"
+import { NavigationLockProvider } from "@/contexts/NavigationLockContext"
 import { useTheme } from "@/components/common/ThemeProvider"
 import { ProjectSelector } from "@/features/projects/ProjectSelector"
 import { ScrollToTop } from '@/components/common/ScrollToTop'
@@ -58,22 +59,24 @@ function AuthenticatedComponent() {
   }
 
   return (
-    <SidebarProvider className="h-screen w-full overflow-hidden">
-      <div className="h-full w-full flex overflow-hidden bg-background">
-        <AppSidebar />
-        <main className="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative z-10">
-          <Header user={user} logout={logout} isMobile={false} />
-          <div id="main-content-scroll" className="flex-1 overflow-y-auto relative">
-            <ProjectProvider>
-              <SettingsProvider>
-                <ProjectCheckWrapper />
-              </SettingsProvider>
-            </ProjectProvider>
-            <ScrollToTop />
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+    <NavigationLockProvider>
+      <SidebarProvider className="h-screen w-full overflow-hidden">
+        <div className="h-full w-full flex overflow-hidden bg-background">
+          <AppSidebar />
+          <main className="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative z-10">
+            <Header user={user} logout={logout} isMobile={false} />
+            <div id="main-content-scroll" className="flex-1 overflow-y-auto relative">
+              <ProjectProvider>
+                <SettingsProvider>
+                  <ProjectCheckWrapper />
+                </SettingsProvider>
+              </ProjectProvider>
+              <ScrollToTop />
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    </NavigationLockProvider>
   )
 }
 

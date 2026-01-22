@@ -1,5 +1,5 @@
 import React from 'react';
-import { MousePointerClick, Globe, Type, Clock, Camera, CheckCircle, AlertTriangle, GitBranch, Repeat } from 'lucide-react';
+import { MousePointerClick, Globe, Type, Clock, Camera, CheckCircle, AlertTriangle, GitBranch, Repeat, Database } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
@@ -51,6 +51,16 @@ export const FlowSidebar = () => {
                         <div className="grid gap-2">
                             <DraggableItem label="Assert Visible" icon={<CheckCircle className="w-4 h-4 text-emerald-500" />} type="assert_visible" onDragStart={onDragStart} />
                             <DraggableItem label="Assert Text" icon={<SameTextIcon />} type="assert_text" onDragStart={onDragStart} />
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Data Integration */}
+                    <div>
+                        <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Data</h3>
+                        <div className="grid gap-2">
+                            <DraggableItem label="Use Data" icon={<Database className="w-4 h-4 text-blue-500" />} type="use_data" onDragStart={onDragStart} />
                         </div>
                     </div>
 

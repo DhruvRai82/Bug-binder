@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AnalyticsChart } from '@/features/reports/AnalyticsChart';
 import { Route } from '@/routes/_authenticated/dashboard';
 import { useProject } from '@/context/ProjectContext';
+import { Separator } from '@/components/ui/separator';
 
 export default function Dashboard() {
   const { selectedProject } = useProject();
@@ -165,135 +166,148 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-4 w-full space-y-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Overview of test cases and bugs for {selectedProject?.name}
-          </p>
-        </div>
+    <div className="p-8 pt-6 space-y-8 animate-in fade-in duration-500 min-h-full">
+      {/* Premium Header */}
+      <div className="flex flex-col space-y-1 mb-6">
+        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent drop-shadow-sm">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground text-lg font-medium">
+          Real-time insights for <span className="text-foreground font-semibold">{selectedProject?.name || 'Project'}</span>
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/20 dark:to-background border-blue-100 dark:border-blue-900/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full">
-              <TestTube2 className="h-5 w-5" />
+      {/* Stats Cards - Floating Glass Effect */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <Card className="relative border-0 shadow-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-2xl hover:scale-105 transition-transform duration-300">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white/20 rounded-full blur-2xl" />
+          <CardContent className="p-6 relative z-10">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
+                <TestTube2 className="h-6 w-6 text-white" />
+              </div>
+              <Badge variant="secondary" className="bg-white/20 text-white hover:bg-white/30 border-0 backdrop-blur-sm">Total</Badge>
             </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Total Test Cases</p>
-              <h3 className="text-xl font-bold text-foreground">{totalTestCases}</h3>
-              <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium mt-0.5">{passRate}% pass rate</p>
+            <div className="space-y-1">
+              <h3 className="text-3xl font-bold">{totalTestCases}</h3>
+              <p className="text-blue-100 text-xs font-medium uppercase tracking-wider">Test Cases</p>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-white dark:from-green-950/20 dark:to-background border-green-100 dark:border-green-900/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 rounded-full">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Passed</p>
-              <h3 className="text-xl font-bold text-foreground">{passedTestCases}</h3>
-              <p className="text-[10px] text-green-600 dark:text-green-400 font-medium mt-0.5">Tests Passing</p>
+            <div className="mt-4 text-xs font-medium text-blue-100 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" /> {passRate}% Pass Rate
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-white dark:from-red-950/20 dark:to-background border-red-100 dark:border-red-900/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 rounded-full">
-              <XCircle className="h-5 w-5" />
+        <Card className="relative border-0 shadow-lg bg-card/80 dark:bg-slate-950/90 backdrop-blur-xl rounded-2xl group hover:shadow-xl transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-2.5 bg-green-100 dark:bg-green-900/30 rounded-xl text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Passed</span>
             </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Failed Tests</p>
-              <h3 className="text-xl font-bold text-foreground">{failedTestCases.length}</h3>
-              <p className="text-[10px] text-red-600 dark:text-red-400 font-medium mt-0.5">Strict Failures</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800/20 dark:to-background border-gray-100 dark:border-gray-800/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
-              <Clock className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Not Executed</p>
-              <h3 className="text-xl font-bold text-foreground">{notExecutedTestCases.length}</h3>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">Pending Run</p>
+            <h3 className="text-3xl font-bold text-foreground">{passedTestCases}</h3>
+            <div className="w-full bg-muted h-1.5 mt-4 rounded-full overflow-hidden">
+              <div className="bg-green-500 h-full rounded-full" style={{ width: `${passRate}%` }} />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/20 dark:to-background border-orange-100 dark:border-orange-900/50 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 rounded-full">
-              <Bug className="h-5 w-5" />
+        <Card className="relative border-0 shadow-lg bg-card/80 dark:bg-slate-950/90 backdrop-blur-xl rounded-2xl group hover:shadow-xl transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-2.5 bg-red-100 dark:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                <XCircle className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Failed</span>
             </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Open Bugs</p>
-              <h3 className="text-xl font-bold text-foreground">{openBugs}</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{allBugs.length} Total</p>
+            <h3 className="text-3xl font-bold text-foreground">{failedTestCases.length}</h3>
+            <div className="w-full bg-muted h-1.5 mt-4 rounded-full overflow-hidden">
+              <div className="bg-red-500 h-full rounded-full" style={{ width: `${(failedTestCases.length / totalTestCases) * 100}%` }} />
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative border-0 shadow-lg bg-card/80 dark:bg-slate-950/90 backdrop-blur-xl rounded-2xl group hover:shadow-xl transition-all">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform">
+                <Clock className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Pending</span>
+            </div>
+            <h3 className="text-3xl font-bold text-foreground">{notExecutedTestCases.length}</h3>
+            <div className="w-full bg-muted h-1.5 mt-4 rounded-full overflow-hidden">
+              <div className="bg-gray-400 h-full rounded-full" style={{ width: `${(notExecutedTestCases.length / totalTestCases) * 100}%` }} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="relative border-0 shadow-lg bg-card/80 dark:bg-slate-950/90 backdrop-blur-xl rounded-2xl group hover:shadow-xl transition-all border-l-4 border-l-orange-500">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="p-2.5 bg-orange-100 dark:bg-orange-900/30 rounded-xl text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform">
+                <Bug className="h-5 w-5" />
+              </div>
+              <span className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Bugs</span>
+            </div>
+            <h3 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{openBugs}</h3>
+            <p className="text-xs text-muted-foreground mt-3 font-medium">{criticalBugs} Critical Issues</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 bg-card/50 p-4 rounded-lg border shadow-sm backdrop-blur-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      {/* Modern Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 bg-white/40 dark:bg-slate-900/40 p-2 rounded-2xl border border-white/20 shadow-sm backdrop-blur-md items-center">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search test cases and bugs..."
+            placeholder="Search metrics, tests, or bug tickets..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-background"
+            className="pl-11 bg-transparent border-0 focus-visible:ring-0 placeholder:text-muted-foreground/70 h-12 text-base"
           />
         </div>
-        <div className="flex gap-2">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-background">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Pass">Pass</SelectItem>
-              <SelectItem value="Fail">Fail</SelectItem>
-              <SelectItem value="Blocked">Blocked</SelectItem>
-              <SelectItem value="Not Executed">Not Executed</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={severityFilter} onValueChange={setSeverityFilter}>
-            <SelectTrigger className="w-40 bg-background">
-              <SelectValue placeholder="Filter by severity" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Severity</SelectItem>
-              <SelectItem value="Critical">Critical</SelectItem>
-              <SelectItem value="High">High</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="Low">Low</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2 w-full sm:w-auto px-2">
+          <Separator orientation="vertical" className="h-8 hidden sm:block bg-gray-200 dark:bg-gray-700" />
+          <div className="flex gap-2 w-full">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-40 bg-white/50 dark:bg-slate-800/50 border-0 h-10 rounded-xl shadow-sm hover:bg-white/80">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Pass">Pass</SelectItem>
+                <SelectItem value="Fail">Fail</SelectItem>
+                <SelectItem value="Blocked">Blocked</SelectItem>
+                <SelectItem value="Not Executed">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <SelectTrigger className="w-full sm:w-40 bg-white/50 dark:bg-slate-800/50 border-0 h-10 rounded-xl shadow-sm hover:bg-white/80">
+                <SelectValue placeholder="Severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Severity</SelectItem>
+                <SelectItem value="Critical">Critical</SelectItem>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Module Breakdown Section */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Option A: Chart */}
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+      {/* Main Charts Area */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {/* Module Chart */}
+        <Card className="border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-3xl">
           <CardHeader>
-            <CardTitle>Test Cases by Module (Top 10)</CardTitle>
-            <CardDescription>Volume of test cases per functional area</CardDescription>
+            <CardTitle>Test Volume by Module</CardTitle>
+            <CardDescription>Top 10 most active testing areas</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-[300px]">
             <AnalyticsChart
               type="bar"
               data={moduleChartData}
@@ -304,218 +318,153 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Option B: Table */}
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm max-h-[400px] flex flex-col">
-          <CardHeader>
-            <CardTitle>Module Performance Matrix</CardTitle>
-            <CardDescription>Detailed breakdown of status by module</CardDescription>
+        {/* Module Matrix Table */}
+        <Card className="border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-3xl flex flex-col max-h-[400px]">
+          <CardHeader className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-gray-800 pb-4">
+            <CardTitle className="text-lg">Performance Matrix</CardTitle>
+            <CardDescription>Detailed execution status per module</CardDescription>
           </CardHeader>
-          <CardContent className="overflow-y-auto flex-1 p-0">
-            <div className="relative w-full overflow-auto">
-              <table className="w-full caption-bottom text-sm text-left">
-                <thead className="[&_tr]:border-b sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Module</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-center">Total</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-center text-green-600">Pass</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-center text-red-600">Fail</th>
-                    <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-center text-gray-500">Pending</th>
+          <CardContent className="p-0 overflow-auto flex-1">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gray-50/80 dark:bg-slate-900/80 sticky top-0 backdrop-blur-sm z-10">
+                <tr>
+                  <th className="py-4 px-6 font-semibold text-muted-foreground">Module</th>
+                  <th className="py-4 px-6 font-semibold text-center text-muted-foreground">Total</th>
+                  <th className="py-4 px-6 font-bold text-center text-green-600">Pass</th>
+                  <th className="py-4 px-6 font-bold text-center text-red-600">Fail</th>
+                  <th className="py-4 px-6 font-semibold text-center text-gray-400">Pending</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800/50">
+                {moduleStats.map((stat, i) => (
+                  <tr key={stat.name} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+                    <td className="py-3 px-6 font-medium">{stat.name || 'Unassigned'}</td>
+                    <td className="py-3 px-6 text-center text-muted-foreground">{stat.total}</td>
+                    <td className="py-3 px-6 text-center font-medium bg-green-50/30 dark:bg-green-900/10 text-green-700 dark:text-green-400">{stat.pass}</td>
+                    <td className="py-3 px-6 text-center">
+                      {stat.fail > 0 ? (
+                        <span className="inline-flex items-center justify-center px-2 py-1 rounded-md bg-red-100 text-red-700 text-xs font-bold">{stat.fail}</span>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-6 text-center text-gray-400">{stat.notExecuted}</td>
                   </tr>
-                </thead>
-                <tbody className="[&_tr:last-child]:border-0">
-                  {moduleStats.map((stat) => (
-                    <tr key={stat.name} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                      <td className="p-4 align-middle font-medium">{stat.name || 'Unassigned'}</td>
-                      <td className="p-4 align-middle text-center">{stat.total}</td>
-                      <td className="p-4 align-middle text-center">{stat.pass}</td>
-                      <td className="p-4 align-middle text-center">
-                        {stat.fail > 0 ? (
-                          <Badge variant="destructive" className="h-5 px-1.5 min-w-[1.5rem] justify-center">{stat.fail}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </td>
-                      <td className="p-4 align-middle text-center text-muted-foreground">{stat.notExecuted}</td>
-                    </tr>
-                  ))}
-                  {moduleStats.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="p-4 text-center text-muted-foreground">No module data available</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </CardContent>
         </Card>
       </div>
 
-
-      {/* Analytics Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+      {/* Secondary Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="border-0 shadow-lg bg-card/40 backdrop-blur-xl rounded-2xl">
           <CardHeader>
-            <CardTitle>Test Status</CardTitle>
-            <CardDescription>Distribution of test execution results (Click to filter)</CardDescription>
+            <CardTitle className="text-base">Results Distribution</CardTitle>
           </CardHeader>
-          <CardContent>
-            <AnalyticsChart
-              type="pie"
-              data={testStatusData}
-              title=""
-              dataKey="value"
-              nameKey="name"
-              onClick={handleStatusChartClick}
-            />
+          <CardContent className="h-[250px] -ml-4">
+            <AnalyticsChart type="pie" data={testStatusData} title="" dataKey="value" nameKey="name" onClick={handleStatusChartClick} />
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
+        <Card className="border-0 shadow-lg bg-card/40 backdrop-blur-xl rounded-2xl">
           <CardHeader>
-            <CardTitle>Bug Severity</CardTitle>
-            <CardDescription>Breakdown of bugs by severity level (Click to filter)</CardDescription>
+            <CardTitle className="text-base">Bug Severity</CardTitle>
           </CardHeader>
-          <CardContent>
-            <AnalyticsChart
-              type="pie"
-              data={bugSeverityData}
-              title=""
-              dataKey="value"
-              nameKey="name"
-              colors={['#FF6B6B', '#FFA726', '#FFEE58', '#42A5F5']}
-              onClick={handleSeverityChartClick}
-            />
+          <CardContent className="h-[250px] -ml-4">
+            <AnalyticsChart type="pie" data={bugSeverityData} title="" dataKey="value" nameKey="name" colors={['#EF4444', '#F97316', '#EAB308', '#3B82F6']} onClick={handleSeverityChartClick} />
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-lg bg-card/40 backdrop-blur-xl rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-base">7-Day Trend</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[250px]">
+            <AnalyticsChart type="line" data={trendData} title="" dataKey="value" nameKey="name" />
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>Bug Status</CardTitle>
-            <CardDescription>Current state of reported issues</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AnalyticsChart
-              type="bar"
-              data={bugStatusData}
-              title=""
-              dataKey="value"
-              nameKey="name"
-            />
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>Pass Rate Trend</CardTitle>
-            <CardDescription>Pass rate percentage over the last 7 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AnalyticsChart
-              type="line"
-              data={trendData}
-              title=""
-              dataKey="value"
-              nameKey="name"
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Failed Test Cases */}
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-red-100 rounded-md">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-              </div>
-              Failed Test Cases
-              <Badge variant="secondary" className="ml-auto">{filteredFailedTestCases.length}</Badge>
-            </CardTitle>
-            <CardDescription>Tests that require immediate attention (Strict Failures)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {filteredFailedTestCases.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <CheckCircle2 className="h-12 w-12 text-green-500 mb-2 opacity-50" />
-                  <p>No failed tests! Great job.</p>
+      {/* Failures & Bugs Lists */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full min-h-0">
+        {/* Failed Tests */}
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-red-50/50 to-white dark:from-red-950/20 dark:to-slate-900 backdrop-blur-xl rounded-3xl h-full flex flex-col">
+          <CardHeader className="border-b border-red-100 dark:border-red-900/30 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-100 dark:bg-red-900/40 rounded-lg text-red-600">
+                  <AlertTriangle className="h-5 w-5" />
                 </div>
-              ) : (
-                filteredFailedTestCases.slice(0, 10).map((testCase) => (
-                  <div key={testCase.id} className="group flex items-center justify-between p-4 border rounded-xl bg-background hover:shadow-md transition-all">
-                    <div className="flex-1 min-w-0 mr-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold truncate">{testCase.testCaseId}</span>
-                        <Badge variant="outline" className="text-xs font-normal">{testCase.module}</Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate" title={testCase.testScenario}>
-                        {testCase.testScenario}
-                      </div>
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(testCase.status)} className="shrink-0">
-                      {testCase.status}
-                    </Badge>
-                  </div>
-                ))
-              )}
-              {filteredFailedTestCases.length > 10 && (
-                <Button variant="ghost" className="w-full text-muted-foreground">
-                  View {filteredFailedTestCases.length - 10} more...
-                </Button>
-              )}
+                <div>
+                  <CardTitle className="text-lg text-red-900 dark:text-red-100">Failed Tests</CardTitle>
+                  <CardDescription className="text-red-700/60 dark:text-red-300/60">Requires immediate attention</CardDescription>
+                </div>
+              </div>
+              <Badge variant="destructive" className="px-3 py-1 rounded-full">{filteredFailedTestCases.length}</Badge>
             </div>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-auto p-4 custom-scrollbar">
+            {filteredFailedTestCases.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground opacity-60">
+                <CheckCircle2 className="h-10 w-10 text-green-500 mb-2" />
+                <p>All tests passed!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredFailedTestCases.map(tc => (
+                  <div key={tc.id} className="p-4 bg-white dark:bg-slate-900/60 rounded-xl shadow-sm border border-red-100 dark:border-red-900/20 flex justify-between items-center group hover:shadow-md transition-all">
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-sm truncate" title={tc.testCaseId}>{tc.testCaseId}</h4>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{tc.testScenario}</p>
+                    </div>
+                    <Badge variant="destructive" className="text-[10px] uppercase tracking-wider">Fail</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Recent Bugs */}
-        <Card className="border-0 shadow-lg bg-card/50 backdrop-blur-sm h-full">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-orange-100 rounded-md">
-                <Bug className="h-5 w-5 text-orange-600" />
-              </div>
-              Recent Bugs
-              <Badge variant="secondary" className="ml-auto">{filteredBugs.length}</Badge>
-            </CardTitle>
-            <CardDescription>Latest reported issues across modules</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {filteredBugs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <CheckCircle2 className="h-12 w-12 text-green-500 mb-2 opacity-50" />
-                  <p>No bugs found. Clean sheet!</p>
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-orange-50/50 to-white dark:from-orange-950/20 dark:to-slate-900 backdrop-blur-xl rounded-3xl h-full flex flex-col">
+          <CardHeader className="border-b border-orange-100 dark:border-orange-900/30 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900/40 rounded-lg text-orange-600">
+                  <Bug className="h-5 w-5" />
                 </div>
-              ) : (
-                filteredBugs.slice(0, 10).map((bug) => (
-                  <div key={bug.id} className="group flex items-center justify-between p-4 border rounded-xl bg-background hover:shadow-md transition-all">
-                    <div className="flex-1 min-w-0 mr-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold truncate">{bug.bugId}</span>
-                        <Badge variant={getSeverityBadgeVariant(bug.severity)} className="text-xs">
-                          {bug.severity}
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground truncate" title={bug.title}>
-                        {bug.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Reporter: {bug.reporter}
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="shrink-0">
-                      {bug.status}
-                    </Badge>
-                  </div>
-                ))
-              )}
-              {filteredBugs.length > 10 && (
-                <Button variant="ghost" className="w-full text-muted-foreground">
-                  View {filteredBugs.length - 10} more...
-                </Button>
-              )}
+                <div>
+                  <CardTitle className="text-lg text-orange-900 dark:text-orange-100">Recent Issues</CardTitle>
+                  <CardDescription className="text-orange-700/60 dark:text-orange-300/60">Live bug tracker feed</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="px-3 py-1 rounded-full border-orange-200 text-orange-700 bg-orange-50">{filteredBugs.length}</Badge>
             </div>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-auto p-4 custom-scrollbar">
+            {filteredBugs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground opacity-60">
+                <CheckCircle2 className="h-10 w-10 text-green-500 mb-2" />
+                <p>No active bugs.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredBugs.map(bug => (
+                  <div key={bug.id} className="p-4 bg-white dark:bg-slate-900/60 rounded-xl shadow-sm border border-orange-100 dark:border-orange-900/20 flex justify-between items-center group hover:shadow-md transition-all">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-sm truncate">{bug.bugId}</span>
+                        <Badge variant="outline" className={`text-[10px] h-5 ${bug.severity === 'Critical' ? 'border-red-200 text-red-600 bg-red-50' :
+                          bug.severity === 'High' ? 'border-orange-200 text-orange-600 bg-orange-50' : ''
+                          }`}>{bug.severity}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{bug.title}</p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] bg-slate-100 text-slate-600">{bug.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -27,6 +27,7 @@ import { Route as AuthenticatedSchedulesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedRecorderRouteImport } from './routes/_authenticated/recorder'
 import { Route as AuthenticatedIdeRouteImport } from './routes/_authenticated/ide'
 import { Route as AuthenticatedHttpLabRouteImport } from './routes/_authenticated/http-lab'
+import { Route as AuthenticatedFlowBuilderRouteImport } from './routes/_authenticated/flow-builder'
 import { Route as AuthenticatedDatabaseRouteImport } from './routes/_authenticated/database'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBugsRouteImport } from './routes/_authenticated/bugs'
@@ -131,6 +132,12 @@ const AuthenticatedHttpLabRoute = AuthenticatedHttpLabRouteImport.update({
   path: '/http-lab',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFlowBuilderRoute =
+  AuthenticatedFlowBuilderRouteImport.update({
+    id: '/flow-builder',
+    path: '/flow-builder',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDatabaseRoute = AuthenticatedDatabaseRouteImport.update({
   id: '/database',
   path: '/database',
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/bugs': typeof AuthenticatedBugsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/database': typeof AuthenticatedDatabaseRoute
+  '/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/http-lab': typeof AuthenticatedHttpLabRoute
   '/ide': typeof AuthenticatedIdeRoute
   '/recorder': typeof AuthenticatedRecorderRoute
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/bugs': typeof AuthenticatedBugsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/database': typeof AuthenticatedDatabaseRoute
+  '/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/http-lab': typeof AuthenticatedHttpLabRoute
   '/ide': typeof AuthenticatedIdeRoute
   '/recorder': typeof AuthenticatedRecorderRoute
@@ -268,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/bugs': typeof AuthenticatedBugsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/database': typeof AuthenticatedDatabaseRoute
+  '/_authenticated/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/_authenticated/http-lab': typeof AuthenticatedHttpLabRoute
   '/_authenticated/ide': typeof AuthenticatedIdeRoute
   '/_authenticated/recorder': typeof AuthenticatedRecorderRoute
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/bugs'
     | '/dashboard'
     | '/database'
+    | '/flow-builder'
     | '/http-lab'
     | '/ide'
     | '/recorder'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/bugs'
     | '/dashboard'
     | '/database'
+    | '/flow-builder'
     | '/http-lab'
     | '/ide'
     | '/recorder'
@@ -362,6 +374,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bugs'
     | '/_authenticated/dashboard'
     | '/_authenticated/database'
+    | '/_authenticated/flow-builder'
     | '/_authenticated/http-lab'
     | '/_authenticated/ide'
     | '/_authenticated/recorder'
@@ -522,6 +535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHttpLabRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/flow-builder': {
+      id: '/_authenticated/flow-builder'
+      path: '/flow-builder'
+      fullPath: '/flow-builder'
+      preLoaderRoute: typeof AuthenticatedFlowBuilderRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/database': {
       id: '/_authenticated/database'
       path: '/database'
@@ -643,6 +663,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBugsRoute: typeof AuthenticatedBugsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDatabaseRoute: typeof AuthenticatedDatabaseRoute
+  AuthenticatedFlowBuilderRoute: typeof AuthenticatedFlowBuilderRoute
   AuthenticatedHttpLabRoute: typeof AuthenticatedHttpLabRoute
   AuthenticatedIdeRoute: typeof AuthenticatedIdeRoute
   AuthenticatedRecorderRoute: typeof AuthenticatedRecorderRoute
@@ -661,6 +682,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBugsRoute: AuthenticatedBugsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDatabaseRoute: AuthenticatedDatabaseRoute,
+  AuthenticatedFlowBuilderRoute: AuthenticatedFlowBuilderRoute,
   AuthenticatedHttpLabRoute: AuthenticatedHttpLabRoute,
   AuthenticatedIdeRoute: AuthenticatedIdeRoute,
   AuthenticatedRecorderRoute: AuthenticatedRecorderRoute,

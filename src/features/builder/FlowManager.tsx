@@ -287,6 +287,19 @@ export function FlowManager({ onFileSelect }: FlowManagerProps) {
                                         try {
                                             await api.delete(`/api/fs/${file.id}`);
                                             toast.success("Deleted successfully");
+
+                                            // Optimistic Update: Recursive filter
+                                            setFileSystem(prev => {
+                                                const removeNode = (nodes: FileNode[]): FileNode[] => {
+                                                    return nodes.filter(n => {
+                                                        if (n.id === file.id) return false;
+                                                        if (n.children) n.children = removeNode(n.children);
+                                                        return true;
+                                                    });
+                                                };
+                                                return removeNode(prev);
+                                            });
+
                                             fetchFileSystem();
                                         } catch (e) {
                                             toast.error("Delete failed");

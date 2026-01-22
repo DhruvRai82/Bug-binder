@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useProject } from '@/context/ProjectContext';
 import { ScriptDetailsModal } from '@/features/execution/ScriptDetailsModal';
 import { ReportsView } from '@/features/reports/ReportsView';
+import { ExecutionHistoryDrawer } from '@/features/execution/ExecutionHistoryDrawer';
 
 interface Recording {
     id: string;
@@ -32,6 +33,9 @@ export default function Library() {
     // Modal states
     const [selectedScript, setSelectedScript] = useState<Recording | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+    // History Drawer State
+    const [historyScript, setHistoryScript] = useState<Recording | null>(null);
 
     useEffect(() => {
         if (selectedProject) {
@@ -258,6 +262,14 @@ export default function Library() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
+                                                onClick={() => setHistoryScript(rec)}
+                                                title="View Execution History"
+                                            >
+                                                <Clock className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
                                                 className="text-destructive hover:text-destructive"
                                                 onClick={() => deleteRecording(rec.id)}
                                                 title="Delete"
@@ -290,6 +302,14 @@ export default function Library() {
                 isOpen={isDetailsOpen}
                 onClose={() => setIsDetailsOpen(false)}
                 script={selectedScript}
+            />
+
+            <ExecutionHistoryDrawer
+                isOpen={!!historyScript}
+                onClose={() => setHistoryScript(null)}
+                scriptId={historyScript?.id ?? null}
+                scriptName={historyScript?.name ?? ''}
+                projectId={selectedProject?.id ?? ''}
             />
         </div>
     );
