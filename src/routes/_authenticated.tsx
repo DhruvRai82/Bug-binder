@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/common/AppSidebar"
 import { ProjectProvider, useProject } from "@/context/ProjectContext"
 import { SettingsProvider } from "@/contexts/SettingsContext"
 import { useAuth } from "@/contexts/AuthContext"
-import { NavigationLockProvider } from "@/contexts/NavigationLockContext"
+import { NavigationLockProvider, useNavigationLock } from "@/contexts/NavigationLockContext"
 import { useTheme } from "@/components/common/ThemeProvider"
 import { ProjectSelector } from "@/features/projects/ProjectSelector"
 import { ScrollToTop } from '@/components/common/ScrollToTop'
@@ -23,6 +23,7 @@ import { MobileNavBar } from "@/components/common/MobileNavBar"
 import { MobileHeader } from "@/components/common/MobileHeader"
 import { MobileLayout } from "@/mobile/MobileLayout"
 import { AppLoadingSkeleton } from '@/components/common/skeletons'
+import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: ({ context }) => {
@@ -82,6 +83,7 @@ function AuthenticatedComponent() {
 
 function Header({ user, logout, isMobile }: { user: any, logout: () => void, isMobile: boolean }) {
   const { theme, setTheme } = useTheme()
+  const { isNavLocked } = useNavigationLock()
   // const isMobile = useIsMobile(); // REMOVED: Received as prop
 
   return (
@@ -109,14 +111,25 @@ function Header({ user, logout, isMobile }: { user: any, logout: () => void, isM
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/settings" className="cursor-pointer">
-                <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </Link>
+            <DropdownMenuItem asChild={!isNavLocked} disabled={isNavLocked}>
+              {isNavLocked ? (
+                <div className="flex items-center text-muted-foreground w-full">
+                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  <span>Settings <span className="text-[10px] ml-1 opacity-75">(Locked)</span></span>
+                </div>
+              ) : (
+                <Link to="/settings" className="cursor-pointer w-full flex items-center">
+                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600 focus:text-red-600 cursor-pointer" onClick={() => logout()}>
+            <DropdownMenuItem
+              className={cn("cursor-pointer", isNavLocked ? "opacity-50 pointer-events-none" : "text-red-600 focus:text-red-600")}
+              disabled={isNavLocked}
+              onClick={() => !isNavLocked && logout()}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

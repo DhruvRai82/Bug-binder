@@ -13,9 +13,16 @@ interface AIAnalysis {
     confidenceScore: number;
 }
 
+interface LogEntry {
+    timestamp?: string;
+    level: 'info' | 'warn' | 'error' | 'debug';
+    message: string;
+    metadata?: any;
+}
+
 interface ExecutionConsoleProps {
     runId: string;
-    logs: string[];
+    logs: (string | LogEntry)[];
     status: 'running' | 'completed' | 'failed';
     progress?: number; // 0-100
     aiAnalysis?: AIAnalysis;
@@ -30,6 +37,31 @@ export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs,
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [logs]);
+
+    const renderLogLine = (log: string | LogEntry, i: number) => {
+        const isObj = typeof log === 'object';
+        const message = isObj ? (log as LogEntry).message : (log as string);
+        const level = isObj ? (log as LogEntry).level :
+            (message.toLowerCase().includes('error') ? 'error' :
+                message.toLowerCase().includes('warn') ? 'warn' : 'info');
+        const timestamp = isObj && (log as LogEntry).timestamp ? (log as LogEntry).timestamp : new Date().toISOString(); // Fallback
+
+        const timeStr = new Date(timestamp!).toLocaleTimeString();
+
+        return (
+            <div key={i} className="break-words whitespace-pre-wrap font-mono text-xs flex gap-2">
+                <span className="text-slate-500 min-w-[80px] select-none">[{timeStr}]</span>
+                <span className={
+                    level === 'error' ? 'text-red-400 font-bold' :
+                        level === 'warn' ? 'text-amber-400' :
+                            level === 'debug' ? 'text-blue-400' :
+                                'text-slate-300'
+                }>
+                    {message}
+                </span>
+            </div>
+        );
+    };
 
     return (
         <Card className="w-full h-full bg-slate-950 border-slate-800 text-slate-200 flex flex-col shadow-2xl">
@@ -77,21 +109,13 @@ export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs,
                 <div className="flex-1 overflow-hidden flex flex-col">
                     <div
                         ref={scrollRef}
-                        className="flex-1 w-full overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
+                        className="flex-1 w-full overflow-y-auto p-4 space-y-0.5 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent"
                     >
                         {logs.length === 0 && (
                             <div className="text-slate-600 italic">Waiting for logs...</div>
                         )}
-                        {logs.map((log, i) => (
-                            <div key={i} className="break-words whitespace-pre-wrap">
-                                <span className="text-slate-500 mr-2">[{new Date().toLocaleTimeString()}]</span>
-                                <span className={log.includes('Msg:') ? 'text-blue-400' :
-                                    log.toLowerCase().includes('error') || log.toLowerCase().includes('fail') ? 'text-red-400' :
-                                        'text-slate-300'}>
-                                    {log}
-                                </span>
-                            </div>
-                        ))}
+                        {logs.map((log, i) => renderLogLine(log, i))}
+
                         {status === 'running' && (
                             <div className="animate-pulse text-emerald-500/50">_</div>
                         )}

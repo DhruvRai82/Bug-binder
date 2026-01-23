@@ -55,8 +55,13 @@ function BugsRoute() {
 
   const stored = localStorage.getItem('selectedProject')
   const selectedProject = stored ? JSON.parse(stored) : null
+  const isMobile = useIsMobile()
 
   if (!selectedProject) return <div>Please select a project.</div>
+
+  if (isMobile) {
+    return <MobileBugs />
+  }
 
   return <Bugs selectedProject={selectedProject} />
 }

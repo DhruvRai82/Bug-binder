@@ -16,12 +16,19 @@ export default function HistoryView() {
     const [runs, setRuns] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedRun, setSelectedRun] = useState<any>(null);
+    const [filterSource, setFilterSource] = useState<string>('orchestrator');
 
     const fetchHistory = async () => {
         if (!selectedProject) return;
         setLoading(true);
         try {
-            const data: any = await api.get(`/api/runner/runs/${selectedProject.id}`);
+            // Fetch Orchestrator AND Scheduler by default if filter is 'execution'
+            // But strict filtering is safer. Let's support 'recorder' vs 'rest'
+            // Actually, user wants Orchestrator history separate from Recorder.
+
+            const sourceParam = filterSource === 'recorder' ? 'recorder' : 'orchestrator';
+            const data: any = await api.get(`/api/runner/runs/${selectedProject.id}?source=${sourceParam}`);
+
             // Sort by Date Descending
             const sorted = Array.isArray(data) ? data.sort((a: any, b: any) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()) : [];
             setRuns(sorted);
@@ -68,9 +75,24 @@ export default function HistoryView() {
         <div className="flex flex-col h-full bg-background/50">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b bg-card">
-                <div>
+                <div className="flex flex-col gap-2">
                     <h2 className="text-lg font-semibold">Execution History</h2>
-                    <p className="text-sm text-muted-foreground">View logs and results of past test runs.</p>
+                    <div className="flex items-center gap-2">
+                        <div className="flex bg-muted/50 p-1 rounded-lg">
+                            <button
+                                onClick={() => setFilterSource('orchestrator')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${filterSource === 'orchestrator' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            >
+                                Orchestrator
+                            </button>
+                            <button
+                                onClick={() => setFilterSource('recorder')}
+                                className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${filterSource === 'recorder' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                            >
+                                Recorder
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={fetchHistory}>
@@ -79,7 +101,7 @@ export default function HistoryView() {
                     </Button>
                     <Button variant="destructive" size="sm" onClick={handleClearHistory} disabled={runs.length === 0}>
                         <Trash2 className="w-4 h-4 mr-2" />
-                        Clear History
+                        Clear {filterSource === 'orchestrator' ? 'Orchestrator' : 'Recorder'} History
                     </Button>
                 </div>
             </div>

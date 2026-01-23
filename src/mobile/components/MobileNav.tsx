@@ -4,6 +4,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
     BarChart3,
     TestTube2,
+    Bug as BugIcon,
     Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ import { MobileDrawer } from "./MobileDrawer";
 const navItems = [
     { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
     { title: "Tests", url: "/test-cases", icon: TestTube2 },
+    { title: "Bugs", url: "/bugs", icon: BugIcon },
 ];
 
 export function MobileNav() {

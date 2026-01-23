@@ -1,20 +1,24 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Route } from '@/routes/_authenticated/test-cases';
-import { TestCase, DailyData, Project } from '@/types';
+import { TestCase, DailyData } from '@/types';
 import { api } from '@/lib/api';
 import { useProject } from '@/context/ProjectContext';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Search, Plus, Calendar, Filter, Archive, CheckCircle2, XCircle, AlertCircle, HelpCircle, ChevronRight, FileText, Edit2, Save, X, MoreVertical, Trash2, Pencil, Copy } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
+import { Search, LayoutGrid, Layers, ArrowRight } from 'lucide-react';
+import { MobileTestCaseList } from '@/mobile/components/test-cases/MobileTestCaseList';
+import { MobileTestCaseDetail } from '@/mobile/components/test-cases/MobileTestCaseDetail';
+import { MobileTestCaseEditor } from '@/mobile/components/test-cases/MobileTestCaseEditor';
+import { MobileFab } from '@/mobile/components/test-cases/MobileFab';
+import { MobileAIGenDialog } from '@/mobile/components/test-cases/MobileAIGenDialog';
+import { ImportDialog } from '@/features/test-management/ImportDialog';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreVertical, Plus, Edit2, Trash2 } from 'lucide-react';
 
 export function MobileTestCases() {
     const loaderData = Route.useLoaderData();
@@ -27,21 +31,19 @@ export function MobileTestCases() {
 
     // UI State
     const [searchQuery, setSearchQuery] = useState('');
-    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+    const [viewMode, setViewMode] = useState<'list' | 'detail' | 'edit'>('list');
 
-    // Forms State
+    // Selection State
     const [selectedTestCase, setSelectedTestCase] = useState<TestCase | null>(null);
-    const [editForm, setEditForm] = useState<Partial<TestCase>>({});
 
-    // Page Management State
+    // Dialogs State
     const [isNewPageOpen, setIsNewPageOpen] = useState(false);
     const [isRenamePageOpen, setIsRenamePageOpen] = useState(false);
+    const [showAiDialog, setShowAiDialog] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [pageForm, setPageForm] = useState({ name: '', date: '' });
 
-    // New Test Case State
-    const [isNewTestCaseOpen, setIsNewTestCaseOpen] = useState(false);
-    const [newTestCaseForm, setNewTestCaseForm] = useState<Partial<TestCase>>({});
+    const importContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setCustomPages(loaderData.pages || []);
@@ -52,6 +54,34 @@ export function MobileTestCases() {
             setDailyData(loaderData.initialData);
         }
     }, [loaderData]);
+
+    // --- Helpers ---
+    const getActivePageData = () => {
+        const page = customPages.find(p => p.id === activePageId);
+        if (!page) return { testCases: [] };
+        return dailyData.find(d => d.date === page.date) || { testCases: [] };
+    };
+
+    const updateLocalData = (updatedList: TestCase[]) => {
+        const page = customPages.find(p => p.id === activePageId);
+        if (!page) return;
+        setDailyData(prev => prev.map(d => d.date === page.date ? { ...d, testCases: updatedList } : d));
+    };
+
+    const persistChanges = async (updatedList: TestCase[]) => {
+        const page = customPages.find(p => p.id === activePageId);
+        if (!page || !selectedProject) return;
+        const fullData = dailyData.find(d => d.date === page.date);
+        try {
+            await api.put(`/api/projects/${selectedProject.id}/daily-data/${page.date}`, {
+                testCases: updatedList,
+                bugs: fullData?.bugs || []
+            });
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to save changes");
+        }
+    };
 
     // --- Data Loading ---
     const loadDailyData = async (date: string) => {
@@ -72,12 +102,6 @@ export function MobileTestCases() {
         }
     };
 
-    const getActivePageData = () => {
-        const page = customPages.find(p => p.id === activePageId);
-        if (!page) return { testCases: [] };
-        return dailyData.find(d => d.date === page.date) || { testCases: [] };
-    };
-
     const handlePageChange = (pageId: string) => {
         setActivePageId(pageId);
         const page = customPages.find(p => p.id === pageId);
@@ -87,7 +111,7 @@ export function MobileTestCases() {
         }
     };
 
-    // --- Page Mgmt ---
+    // --- Actions ---
     const handleCreatePage = async () => {
         if (!selectedProject || !pageForm.name || !pageForm.date) return;
         try {
@@ -142,75 +166,64 @@ export function MobileTestCases() {
         }
     };
 
-    // --- Test Case Actions ---
-    const handleCreateTestCase = async () => {
+    const handleImport = (data: any[]) => {
+        if (!selectedProject || !activePageId) return;
+        const page = customPages.find(p => p.id === activePageId);
+        if (!page) {
+            toast.error("Select a page first");
+            return;
+        }
+
+        const newCases = data.map((tc: any) => ({
+            id: Date.now().toString() + Math.random().toString().slice(2, 6),
+            testCaseId: tc.testCaseId || `TC-${Math.random().toString().slice(2, 6)}`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            status: 'Not Executed',
+            ...tc
+        })) as TestCase[];
+
+        const currentData = getActivePageData();
+        const updatedList = [...(currentData.testCases || []), ...newCases];
+
+        updateLocalData(updatedList);
+        persistChanges(updatedList).then(() => toast.success(`Imported ${newCases.length} test cases`));
+    };
+
+    const handleSaveTestCase = async (data: TestCase | Partial<TestCase>) => {
         if (!selectedProject || !activePageId) return;
         const page = customPages.find(p => p.id === activePageId);
         if (!page) return;
 
-        const newCase: TestCase = {
-            id: Date.now().toString(),
-            testCaseId: newTestCaseForm.testCaseId || `TC-${Date.now().toString().slice(-4)}`,
-            testScenario: newTestCaseForm.testScenario || 'New Scenario',
-            status: 'Not Executed',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            ...newTestCaseForm
-        } as TestCase;
-
         const currentData = getActivePageData();
-        const updatedList = [...(currentData.testCases || []), newCase];
-        const fullData = dailyData.find(d => d.date === page.date);
+        let updatedList: TestCase[];
 
-        // Optimistic
-        setDailyData(prev => prev.map(d => d.date === page.date ? { ...d, testCases: updatedList } : d));
-        setIsNewTestCaseOpen(false);
-        setNewTestCaseForm({});
-
-        try {
-            await api.put(`/api/projects/${selectedProject.id}/daily-data/${page.date}`, {
-                testCases: updatedList,
-                bugs: fullData?.bugs || []
-            });
-            toast.success("Test Case Added");
-        } catch (e) {
-            toast.error("Failed to add test case");
+        if (selectedTestCase) {
+            // Update existing
+            const updatedTC = { ...selectedTestCase, ...data, updatedAt: new Date().toISOString() } as TestCase;
+            updatedList = (currentData.testCases || []).map(tc => tc.id === selectedTestCase.id ? updatedTC : tc);
+            setSelectedTestCase(updatedTC); // Update local selection
+        } else {
+            // Create new
+            const newCase: TestCase = {
+                id: Date.now().toString(),
+                testCaseId: `TC-${Date.now().toString().slice(-4)}`,
+                testScenario: 'New Scenario',
+                status: 'Not Executed',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                ...data
+            } as TestCase;
+            updatedList = [...(currentData.testCases || []), newCase];
         }
-    };
 
-    const startEditing = () => {
-        setEditForm(selectedTestCase || {});
-        setIsEditing(true);
-    };
+        updateLocalData(updatedList);
+        persistChanges(updatedList);
 
-    const handleSaveEdit = async () => {
-        if (!selectedTestCase || !selectedProject || !activePageId) return;
-        const page = customPages.find(p => p.id === activePageId);
-        if (!page) return;
+        toast.success(selectedTestCase ? "Saved changes" : "Created test case");
 
-        const updatedTC = {
-            ...selectedTestCase,
-            ...editForm,
-            updatedAt: new Date().toISOString()
-        } as TestCase;
-
-        const currentData = getActivePageData();
-        const updatedList = (currentData.testCases || []).map(tc => tc.id === selectedTestCase.id ? updatedTC : tc);
-        const fullData = dailyData.find(d => d.date === page.date);
-
-        // Optimistic
-        setSelectedTestCase(updatedTC);
-        setDailyData(prev => prev.map(d => d.date === page.date ? { ...d, testCases: updatedList } : d));
-        setIsEditing(false);
-
-        try {
-            await api.put(`/api/projects/${selectedProject.id}/daily-data/${page.date}`, {
-                testCases: updatedList,
-                bugs: fullData?.bugs || []
-            });
-            toast.success("Saved");
-        } catch (e) {
-            toast.error("Failed to save");
+        if (!selectedTestCase) {
+            setViewMode('list'); // Close editor on create
         }
     };
 
@@ -218,35 +231,59 @@ export function MobileTestCases() {
         if (!selectedTestCase || !selectedProject || !activePageId) return;
         if (!confirm("Delete this test case?")) return;
 
-        const page = customPages.find(p => p.id === activePageId);
-        if (!page) return;
-
         const currentData = getActivePageData();
         const updatedList = (currentData.testCases || []).filter(tc => tc.id !== selectedTestCase.id);
-        const fullData = dailyData.find(d => d.date === page.date);
 
-        setDailyData(prev => prev.map(d => d.date === page.date ? { ...d, testCases: updatedList } : d));
-        setIsDetailsOpen(false);
+        updateLocalData(updatedList);
+        persistChanges(updatedList);
 
-        try {
-            await api.put(`/api/projects/${selectedProject.id}/daily-data/${page.date}`, {
-                testCases: updatedList,
-                bugs: fullData?.bugs || []
-            });
-            toast.success("Deleted");
-        } catch (e) { toast.error("Delete failed"); }
+        setSelectedTestCase(null);
+        setViewMode('list');
+        toast.success("Deleted");
     };
 
-    // --- Render Helpers ---
-    const StatusBadge = ({ status }: { status: string }) => {
-        switch (status) {
-            case 'Pass': return <Badge className="bg-green-500/15 text-green-700 hover:bg-green-500/25 border-green-200">Pass</Badge>;
-            case 'Fail': return <Badge className="bg-red-500/15 text-red-700 hover:bg-red-500/25 border-red-200">Fail</Badge>;
-            case 'Blocked': return <Badge className="bg-orange-500/15 text-orange-700 hover:bg-orange-500/25 border-orange-200">Blocked</Badge>;
-            default: return <Badge variant="outline" className="text-muted-foreground">Not Run</Badge>;
+    const handleStatusChange = (status: string) => {
+        if (!selectedTestCase) return;
+        // Just leverage handleSaveTestCase for partial update
+        handleSaveTestCase({ status: status as any });
+    };
+
+    const handleAIGenerate = async (prompt: string) => {
+        setIsGenerating(true);
+        try {
+            const response = await api.post('/api/ai/generate-bulk-test-cases', { prompt });
+            console.log("AI Response", response);
+
+            const generatedTestCases = Array.isArray(response) ? response : [response];
+
+            // Format them correctly
+            const newCases = generatedTestCases.map((tc: any) => ({
+                id: Date.now().toString() + Math.random().toString().slice(2, 6),
+                testCaseId: tc.testCaseId || `TC-${Math.random().toString().slice(2, 6)}`,
+                testScenario: tc.testScenario || 'AI Generated',
+                status: 'Not Executed',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                ...tc
+            })) as TestCase[];
+
+            const currentData = getActivePageData();
+            const updatedList = [...(currentData.testCases || []), ...newCases];
+
+            updateLocalData(updatedList);
+            persistChanges(updatedList);
+
+            toast.success(`Generated ${newCases.length} test cases`);
+            setShowAiDialog(false);
+        } catch (e) {
+            console.error(e);
+            toast.error("AI Generation Failed");
+        } finally {
+            setIsGenerating(false);
         }
     };
 
+    // --- Render Logic ---
     const activeData = getActivePageData();
     const filteredCases = (activeData.testCases || []).filter(tc =>
         !searchQuery ||
@@ -254,16 +291,22 @@ export function MobileTestCases() {
         tc.testCaseId.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const hasPages = customPages.length > 0;
+
     return (
-        <div className="flex flex-col h-screen bg-background pb-16">
+        <div className="flex flex-col h-screen bg-background pb-20">
             {/* Header */}
-            <div className="px-4 py-3 border-b bg-background/95 backdrop-blur z-10 sticky top-0">
+            <div className="px-4 py-3 border-b bg-background/95 backdrop-blur z-20 sticky top-0 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                    <h1 className="text-xl font-bold">Test Cases</h1>
-                    <div className="flex gap-2">
-                        <Button size="icon" variant="secondary" className="rounded-full shadow-sm" onClick={() => setIsNewTestCaseOpen(true)}>
-                            <Plus className="h-5 w-5" />
-                        </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                            <LayoutGrid className="h-5 w-5 text-indigo-600" />
+                        </div>
+                        <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Test Cases</h1>
+                    </div>
+
+                    {/* Page Actions Menu - Only show if we have pages or to delete/rename */}
+                    {hasPages && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button size="icon" variant="ghost" className="rounded-full">
@@ -288,167 +331,128 @@ export function MobileTestCases() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                    )}
+                </div>
+
+                {/* Search - only show if pages exist */}
+                {hasPages && (
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search cases..."
+                            className="pl-9 bg-muted/50 border-transparent focus:bg-background focus:border-input transition-all rounded-xl shadow-inner h-10"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
                     </div>
-                </div>
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search cases..." className="pl-9 bg-muted/50 border-none rounded-xl" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-                </div>
+                )}
             </div>
 
-            {/* Page Tabs */}
-            {customPages.length > 0 ? (
-                <div className="flex overflow-x-auto p-2 gap-2 scrollbar-hide border-b bg-muted/5 shrink-0">
-                    {customPages.map(page => (
-                        <button key={page.id} onClick={() => handlePageChange(page.id)}
-                            className={cn("px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border",
-                                activePageId === page.id ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-input hover:bg-muted"
-                            )}>
-                            {page.name}
-                        </button>
-                    ))}
-                </div>
-            ) : <div className="p-8 text-center text-muted-foreground"><p>No pages. Tap menu to create one.</p></div>}
-
-            {/* List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-muted/5">
-                {filteredCases.map(tc => (
-                    <Card key={tc.id} className="active:scale-[0.99] transition-all border-border/50 shadow-sm" onClick={() => { setSelectedTestCase(tc); setIsEditing(false); setIsDetailsOpen(true); }}>
-                        <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-2">
-                                <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground bg-muted/50">{tc.testCaseId}</Badge>
-                                <StatusBadge status={tc.status} />
-                            </div>
-                            <h3 className="font-semibold text-sm leading-snug mb-2">{tc.testScenario}</h3>
-                            {tc.module && <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-full w-fit text-xs text-muted-foreground"><Archive className="h-3 w-3" /> {tc.module}</span>}
-                        </CardContent>
-                    </Card>
-                ))}
-                {filteredCases.length === 0 && <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50"><FileText className="h-10 w-10 mb-2" />Empty</div>}
-            </div>
-
-            {/* Details Drawer */}
-            <Drawer open={isDetailsOpen} onOpenChange={(o) => { setIsDetailsOpen(o); if (!o) setIsEditing(false); }}>
-                <DrawerContent className="max-h-[95vh] flex flex-col">
-                    <DrawerHeader className="border-b pb-4 shrink-0">
-                        {!isEditing ? (
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="space-y-1">
-                                    <DrawerTitle className="font-mono text-sm text-muted-foreground text-left flex gap-2 items-center">
-                                        {selectedTestCase?.testCaseId}
-                                        <Badge variant="secondary" className="text-xs font-normal">{selectedTestCase?.module}</Badge>
-                                    </DrawerTitle>
-                                    <DrawerDescription className="text-left font-bold text-foreground text-lg leading-tight mt-1">{selectedTestCase?.testScenario}</DrawerDescription>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button size="sm" variant="ghost" onClick={startEditing}><Edit2 className="h-4 w-4" /></Button>
-                                    <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-50" onClick={handleDeleteTestCase}><Trash2 className="h-4 w-4" /></Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between"><h3 className="font-semibold">Edit Test Case</h3><Button size="sm" variant="ghost" onClick={() => setIsEditing(false)}><X className="h-4 w-4" /></Button></div>
-                                <Input className="font-bold" value={editForm.testScenario || ''} onChange={e => setEditForm({ ...editForm, testScenario: e.target.value })} placeholder="Test Scenario" />
-                            </div>
-                        )}
-                    </DrawerHeader>
-
-                    <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                        {!isEditing ? (
-                            <>
-                                {/* View Mode - Expanded */}
-                                <div className="grid grid-cols-4 gap-2">
-                                    {['Pass', 'Fail', 'Blocked', 'Not Executed'].map(status => (
-                                        <button key={status} onClick={() => {
-                                            if (!selectedTestCase || !selectedProject || !activePageId) return;
-                                            const uTC = { ...selectedTestCase, status: status as any };
-                                            setSelectedTestCase(uTC);
-                                            const page = customPages.find(p => p.id === activePageId);
-                                            if (!page) return;
-                                            const currentData = getActivePageData();
-                                            const updatedList = (currentData.testCases || []).map(tc => tc.id === selectedTestCase.id ? uTC : tc);
-                                            setDailyData(prev => prev.map(d => d.date === page?.date ? { ...d, testCases: updatedList } : d));
-                                            const fd = dailyData.find(d => d.date === page?.date);
-                                            api.put(`/api/projects/${selectedProject.id}/daily-data/${page?.date}`, { testCases: updatedList, bugs: fd?.bugs || [] }).then(() => toast.success("Updated"));
-                                        }} className={cn("flex flex-col items-center justify-center p-2 rounded-xl border gap-1 transition-all active:scale-95", selectedTestCase?.status === status ? "bg-accent border-primary" : "bg-card hover:bg-muted/50")}>
-                                            <span className="text-[10px] whitespace-nowrap">{status}</span>
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <div className="space-y-6">
-                                    {selectedTestCase?.testCaseDescription && (
-                                        <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Description</h4><p className="text-sm text-foreground/80">{selectedTestCase?.testCaseDescription}</p></div>
-                                    )}
-
-                                    <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Pre-Conditions</h4><p className="text-sm bg-muted/30 p-3 rounded-lg border-l-2 border-primary/20">{selectedTestCase?.preConditions || '-'}</p></div>
-
-                                    <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Steps</h4><p className="text-sm bg-muted/30 p-3 rounded-lg border-l-2 border-primary/20 whitespace-pre-wrap">{selectedTestCase?.testSteps || '-'}</p></div>
-
-                                    <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Test Data</h4><p className="text-sm font-mono bg-muted/30 p-3 rounded-lg border-l-2 border-primary/20">{selectedTestCase?.testData || '-'}</p></div>
-
-                                    <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Expected</h4><p className="text-sm bg-muted/30 p-3 rounded-lg border-l-2 border-primary/20">{selectedTestCase?.expectedResult || '-'}</p></div>
-
-                                    <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Actual Result</h4><p className="text-sm bg-muted/30 p-3 rounded-lg border-l-2 border-primary/20">{selectedTestCase?.actualResult || '-'}</p></div>
-
-                                    {selectedTestCase?.comments && <div className="space-y-1"><h4 className="font-semibold text-xs uppercase text-muted-foreground">Comments</h4><p className="text-sm bg-yellow-500/10 p-3 rounded-lg border-yellow-200 text-yellow-800">{selectedTestCase?.comments}</p></div>}
-                                </div>
-                            </>
-                        ) : (
-                            <div className="space-y-5 pb-8">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1"><Label>Module</Label><Input value={editForm.module || ''} onChange={e => setEditForm({ ...editForm, module: e.target.value })} /></div>
-                                    <div className="space-y-1"><Label>Case ID</Label><Input value={editForm.testCaseId || ''} onChange={e => setEditForm({ ...editForm, testCaseId: e.target.value })} /></div>
-                                </div>
-
-                                <div className="space-y-1"><Label>Description Detail</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[80px]" value={editForm.testCaseDescription || ''} onChange={e => setEditForm({ ...editForm, testCaseDescription: e.target.value })} placeholder="Full description" /></div>
-
-                                <div className="space-y-1"><Label>Pre-Conditions</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={editForm.preConditions || ''} onChange={e => setEditForm({ ...editForm, preConditions: e.target.value })} /></div>
-
-                                <div className="space-y-1"><Label>Test Steps</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[100px]" value={editForm.testSteps || ''} onChange={e => setEditForm({ ...editForm, testSteps: e.target.value })} /></div>
-
-                                <div className="space-y-1"><Label>Test Data</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={editForm.testData || ''} onChange={e => setEditForm({ ...editForm, testData: e.target.value })} placeholder="e.g. User: admin, Pass: 123" /></div>
-
-                                <div className="space-y-1"><Label>Expected Result</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={editForm.expectedResult || ''} onChange={e => setEditForm({ ...editForm, expectedResult: e.target.value })} /></div>
-
-                                <div className="space-y-1"><Label>Actual Result</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={editForm.actualResult || ''} onChange={e => setEditForm({ ...editForm, actualResult: e.target.value })} /></div>
-
-                                <div className="space-y-1"><Label>Comments</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={editForm.comments || ''} onChange={e => setEditForm({ ...editForm, comments: e.target.value })} /></div>
-                            </div>
-                        )}
+            {/* Page Tabs OR Empty State */}
+            {hasPages ? (
+                <>
+                    <div className="flex overflow-x-auto p-2 gap-2 scrollbar-hide border-b bg-muted/5 shrink-0">
+                        {customPages.map(page => (
+                            <button key={page.id} onClick={() => handlePageChange(page.id)}
+                                className={cn("px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border shadow-sm flex items-center gap-2",
+                                    activePageId === page.id ? "bg-foreground text-background border-foreground" : "bg-background text-muted-foreground border-input hover:bg-muted"
+                                )}>
+                                {page.name}
+                                {activePageId === page.id && (
+                                    <Edit2
+                                        className="h-3 w-3 opacity-50 ml-1"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setPageForm({ name: page.name, date: page.date });
+                                            setIsRenamePageOpen(true);
+                                        }}
+                                    />
+                                )}
+                            </button>
+                        ))}
                     </div>
 
-                    <DrawerFooter className="border-t pt-2">
-                        {isEditing && <Button onClick={handleSaveEdit}>Save Changes</Button>}
-                        <DrawerClose asChild><Button variant="outline">Close</Button></DrawerClose>
-                    </DrawerFooter>
+                    <div className="flex-1 overflow-hidden relative">
+                        <MobileTestCaseList
+                            testCases={activeData.testCases || []}
+                            onSelect={(tc) => {
+                                setSelectedTestCase(tc);
+                                setViewMode('detail');
+                            }}
+                            filterQuery={searchQuery}
+                        />
+                    </div>
+                </>
+            ) : (
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4 animate-in fade-in duration-500">
+                    <div className="h-20 w-20 bg-indigo-50 rounded-full flex items-center justify-center mb-2">
+                        <Layers className="h-10 w-10 text-indigo-500" />
+                    </div>
+                    <h2 className="text-xl font-bold">No Pages Yet</h2>
+                    <p className="text-muted-foreground max-w-xs text-sm">
+                        Create a Sprint or Page to start adding test cases. Context is key!
+                    </p>
+                    <Button onClick={() => setIsNewPageOpen(true)} className="gap-2">
+                        Create First Page <ArrowRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+
+            {/* View/Edit Drawers */}
+            {/* View Mode (Drawer) - For Quick Access */}
+            <Drawer open={viewMode === 'detail' && !!selectedTestCase} onOpenChange={(open) => !open && setViewMode('list')}>
+                <DrawerContent className="max-h-[90vh]">
+                    {selectedTestCase && (
+                        <MobileTestCaseDetail
+                            testCase={selectedTestCase}
+                            isEditing={false}
+                            onEditStart={() => setViewMode('edit')}
+                            onEditCancel={() => { }}
+                            onSave={() => { }}
+                            onDelete={handleDeleteTestCase}
+                            onStatusChange={handleStatusChange}
+                        />
+                    )}
                 </DrawerContent>
             </Drawer>
 
-            {/* New Test Case Drawer - Updated to match new fields */}
-            <Drawer open={isNewTestCaseOpen} onOpenChange={setIsNewTestCaseOpen}>
-                <DrawerContent className="max-h-[90vh] flex flex-col">
-                    <DrawerHeader>
-                        <DrawerTitle>New Test Case</DrawerTitle>
-                        <DrawerDescription>Add a new test case to {customPages.find(p => p.id === activePageId)?.name}</DrawerDescription>
-                    </DrawerHeader>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-8">
-                        <div className="space-y-1"><Label>Scenario *</Label><Input value={newTestCaseForm.testScenario || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, testScenario: e.target.value })} placeholder="e.g. User Login" /></div>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="space-y-1"><Label>Module</Label><Input value={newTestCaseForm.module || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, module: e.target.value })} placeholder="e.g. Auth" /></div>
-                            <div className="space-y-1"><Label>ID (Optional)</Label><Input value={newTestCaseForm.testCaseId || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, testCaseId: e.target.value })} placeholder="Auto-gen" /></div>
-                        </div>
-                        <div className="space-y-1"><Label>Description</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={newTestCaseForm.testCaseDescription || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, testCaseDescription: e.target.value })} /></div>
-                        <div className="space-y-1"><Label>Steps</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[80px]" value={newTestCaseForm.testSteps || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, testSteps: e.target.value })} /></div>
-                        <div className="space-y-1"><Label>Test Data</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={newTestCaseForm.testData || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, testData: e.target.value })} /></div>
-                        <div className="space-y-1"><Label>Expected Result</Label><textarea className="w-full rounded-md border bg-transparent p-2 text-sm min-h-[60px]" value={newTestCaseForm.expectedResult || ''} onChange={e => setNewTestCaseForm({ ...newTestCaseForm, expectedResult: e.target.value })} /></div>
-                    </div>
-                    <DrawerFooter>
-                        <Button onClick={handleCreateTestCase} disabled={!newTestCaseForm.testScenario}>Create Case</Button>
-                        <DrawerClose asChild><Button variant="outline">Cancel</Button></DrawerClose>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
+            <MobileTestCaseEditor
+                isOpen={viewMode === 'edit'}
+                testCase={selectedTestCase || {}}
+                isNew={!selectedTestCase}
+                onClose={() => setViewMode(selectedTestCase ? 'detail' : 'list')}
+                onSave={handleSaveTestCase}
+            />
+
+            {/* FAB - Conditionally render actions */}
+            {hasPages && (
+                <MobileFab
+                    onNewTestCase={() => {
+                        setSelectedTestCase(null);
+                        setViewMode('edit');
+                    }}
+                    onNewPage={() => setIsNewPageOpen(true)}
+                    onAiGenerate={() => setShowAiDialog(true)}
+                    onImport={() => {
+                        const btn = importContainerRef.current?.querySelector('button');
+                        if (btn instanceof HTMLElement) btn.click();
+                        else toast.error("Import tool unavailable in mobile view");
+                    }}
+                />
+            )}
+
+            {/* Hidden Import Dialog Trigger Wrapper */}
+            <div ref={importContainerRef} className="fixed opacity-0 pointer-events-none -top-full">
+                <ImportDialog type="testcases" onImport={handleImport} />
+            </div>
+
+            {/* AI Dialog */}
+            <MobileAIGenDialog
+                open={showAiDialog}
+                onOpenChange={setShowAiDialog}
+                isGenerating={isGenerating}
+                onGenerate={handleAIGenerate}
+            />
 
             {/* New Page Dialog */}
             <Dialog open={isNewPageOpen} onOpenChange={setIsNewPageOpen}>
@@ -464,11 +468,21 @@ export function MobileTestCases() {
 
             <Dialog open={isRenamePageOpen} onOpenChange={setIsRenamePageOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Rename Page</DialogTitle></DialogHeader>
-                    <div className="space-y-3">
-                        <div className="space-y-1"><Label>Name</Label><Input value={pageForm.name} onChange={e => setPageForm({ ...pageForm, name: e.target.value })} /></div>
+                    <DialogHeader><DialogTitle>Manage Page</DialogTitle></DialogHeader>
+                    <div className="space-y-4 py-2">
+                        <div className="space-y-2">
+                            <Label>Page Name</Label>
+                            <Input value={pageForm.name} onChange={e => setPageForm({ ...pageForm, name: e.target.value })} />
+                        </div>
                     </div>
-                    <DialogFooter><Button onClick={handleRenamePage}>Save</Button></DialogFooter>
+                    <DialogFooter className="flex-row justify-between sm:justify-between items-center gap-2">
+                        <div className="flex-1">
+                            <Button variant="destructive" size="sm" onClick={() => { setIsRenamePageOpen(false); handleDeletePage(); }}>
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </Button>
+                        </div>
+                        <Button onClick={handleRenamePage}>Save Changes</Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

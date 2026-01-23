@@ -156,17 +156,30 @@ export default function ScriptDrawer({ open, onOpenChange, file }: ScriptDrawerP
 
                         <div className="flex-1 overflow-hidden relative">
                             {/* Code Editor */}
-                            <TabsContent value="code" className="absolute inset-0 m-0 p-0">
-                                <textarea
-                                    className={cn(
-                                        "w-full h-full p-4 font-mono text-[11px] resize-none focus:outline-none bg-background leading-relaxed",
-                                        !isEditing && "text-muted-foreground bg-muted/5"
-                                    )}
-                                    readOnly={!isEditing}
-                                    value={content}
-                                    onChange={e => setContent(e.target.value)}
-                                    spellCheck={false}
-                                />
+                            <TabsContent value="code" className="absolute inset-0 m-0 p-0 flex flex-col">
+                                <div className="flex-1 relative flex">
+                                    {/* Line Numbers */}
+                                    <div className="w-8 shrink-0 bg-muted/10 border-r border-muted/20 text-[10px] font-mono text-muted-foreground/50 text-right py-4 pr-2 select-none leading-relaxed">
+                                        {content.split('\n').map((_, i) => (
+                                            <div key={i}>{i + 1}</div>
+                                        ))}
+                                    </div>
+
+                                    {/* Editor Area */}
+                                    <textarea
+                                        className={cn(
+                                            "flex-1 h-full p-4 pl-2 font-mono text-[11px] resize-none focus:outline-none bg-background leading-relaxed whitespace-pre",
+                                            !isEditing && "text-muted-foreground"
+                                        )}
+                                        readOnly={!isEditing}
+                                        value={content}
+                                        onChange={e => setContent(e.target.value)}
+                                        spellCheck={false}
+                                        autoCapitalize="off"
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                    />
+                                </div>
                             </TabsContent>
 
                             {/* Console */}

@@ -107,8 +107,8 @@ const SidebarLink = React.forwardRef<
           ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
           : "gap-3 px-4 py-3 w-full rounded-xl mb-1",
         isActive
-          ? "bg-blue-600 text-white shadow-md font-bold"
-          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800"
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 transform scale-[1.02]"
+          : "text-muted-foreground hover:bg-blue-50/80 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-300 transform hover:scale-[1.01]"
       )}
     >
       <item.icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
@@ -156,8 +156,8 @@ const AdminLink = React.forwardRef<
           ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
           : "gap-3 px-4 py-3 w-full rounded-xl mb-1",
         isActive
-          ? "bg-blue-600 text-white shadow-md font-bold"
-          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800"
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 transform scale-[1.02]"
+          : "text-muted-foreground hover:bg-blue-50/80 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
       )}
     >
       <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
@@ -179,13 +179,13 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-[19rem]"} collapsible="icon">
+    <Sidebar className={cn(collapsed ? "w-16" : "w-[19rem]", "z-50 bg-background")} collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {!collapsed && (
           <>
             {/* Logo */}
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-2.5 shadow-lg relative">
+            <div className="flex items-center space-x-3 mb-4 animate-in fade-in slide-in-from-left-2 duration-500">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-2.5 shadow-lg shadow-blue-500/20 relative">
                 <Zap className="h-7 w-7 text-white" />
                 {isNavLocked && (
                   <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-0.5 shadow-sm animate-pulse border border-white">
@@ -194,10 +194,10 @@ export function AppSidebar() {
                 )}
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent tracking-tight">
                   TestFlow
                 </h1>
-                <p className="text-xs text-muted-foreground">Test Management Platform</p>
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest opacity-70">Testing Platform</p>
               </div>
             </div>
             {isNavLocked && (
@@ -210,7 +210,7 @@ export function AppSidebar() {
 
         {collapsed && (
           <div className="flex justify-center relative">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-2">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-2 shadow-md shadow-blue-500/20">
               <Zap className="h-6 w-6 text-white" />
             </div>
             {isNavLocked && (
@@ -222,32 +222,32 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent className="px-2 py-2">
+      <SidebarContent className="px-2 py-2 space-y-1">
         {navigationGroups.map((group, index) => (
           <div key={index}>
             <SidebarGroup className="p-0">
-              <SidebarGroupLabel className={collapsed ? "sr-only" : "hidden"}>
+              <SidebarGroupLabel className="hidden">
                 Group {index + 1}
               </SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="space-y-1">
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <TooltipProvider>
                         <Tooltip delayDuration={0}>
                           <TooltipTrigger asChild>
                             {/* We pass isLocked to the actual Link component */}
-                            <div>
+                            <div className="w-full">
                               <SidebarLink item={item} collapsed={collapsed} isLocked={isNavLocked} />
                             </div>
                           </TooltipTrigger>
                           {isNavLocked ? (
-                            <TooltipContent side="right" className="bg-amber-600 text-white font-medium z-[50]">
+                            <TooltipContent side="right" className="bg-amber-600 text-white font-medium z-[50] shadow-xl border-0">
                               Flow Builder Active - Close to Navigate
                             </TooltipContent>
                           ) : (
                             collapsed && (
-                              <TooltipContent side="right" className="bg-slate-900 text-white border-slate-700 font-medium z-[50]">
+                              <TooltipContent side="right" className="bg-slate-900 text-white border-slate-700 font-medium z-[50] shadow-xl">
                                 {item.title}
                               </TooltipContent>
                             )
@@ -259,7 +259,7 @@ export function AppSidebar() {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            {index < navigationGroups.length - 1 && !collapsed && <SidebarSeparator className="my-2 mx-4" />}
+            {index < navigationGroups.length - 1 && !collapsed && <div className="my-1 mx-4 h-px bg-gray-100 dark:bg-gray-800" />}
           </div>
         ))}
 

@@ -19,7 +19,7 @@ export default function MobileHistory() {
         if (!selectedProject) return;
         setLoading(true);
         try {
-            const data: any = await api.get(`/api/runner/runs/${selectedProject.id}`);
+            const data: any = await api.get(`/api/runner/runs/${selectedProject.id}?source=orchestrator`);
             const sorted = Array.isArray(data) ? data.sort((a: any, b: any) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()) : [];
             setRuns(sorted);
         } catch (error) {

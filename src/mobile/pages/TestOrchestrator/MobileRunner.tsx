@@ -127,7 +127,8 @@ export default function MobileRunner() {
             const response: any = await api.post('/api/runner/batch-execute', {
                 projectId: selectedProject.id,
                 fileIds,
-                config: runConfig
+                config: runConfig,
+                source: 'orchestrator'
             });
             setActiveRunId(response.runId);
             setRunData({ id: response.runId, status: 'running', logs: ['Initializing...'] });
