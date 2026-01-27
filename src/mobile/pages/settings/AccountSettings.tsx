@@ -86,10 +86,45 @@ export function MobileAccountSettings() {
                     </Card>
                 </div>
 
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase ml-1">Data & Privacy</h3>
+                    <Card>
+                        <CardContent className="p-0 divide-y">
+                            <div
+                                className="flex items-center justify-between p-4 active:bg-muted/50 transition-colors cursor-pointer"
+                                onClick={async () => {
+                                    const token = await import('@/lib/firebase').then(m => m.auth.currentUser?.getIdToken());
+                                    window.open(`http://localhost:8081/api/user/export?token=${token}`, '_blank');
+                                }}
+                            >
+                                <Label className="text-base font-normal pointer-events-none">Export Data</Label>
+                                <Button variant="ghost" size="sm">Download</Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-red-500 uppercase ml-1">Danger Zone</h3>
+                    <Button
+                        variant="destructive"
+                        className="w-full h-12 rounded-xl"
+                        onClick={() => {
+                            if (confirm("Permanently delete account?")) {
+                                import('@/lib/api').then(async ({ api }) => {
+                                    await api.delete('/api/user/account');
+                                    window.location.reload();
+                                });
+                            }
+                        }}
+                    >
+                        Delete My Account
+                    </Button>
+                </div>
+
                 <p className="text-xs text-muted-foreground px-2">
                     Regional settings apply to date formatting and report generation times for this project.
                 </p>
-
             </div>
         </div>
     );

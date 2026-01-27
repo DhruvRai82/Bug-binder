@@ -219,11 +219,13 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
 
     // ... (inside component)
     const [isHeadless, setIsHeadless] = useState(false);
+    const [browserType, setBrowserType] = useState<string>('chromium');
 
     const handleRunFlow = async () => {
         setIsRunning(true);
         try {
-            const startNode = nodes.find(n => n.type === 'input') || nodes[0];
+            // Find Root Node: The one with NO incoming edges
+            const startNode = nodes.find(n => !edges.some(e => e.target === n.id)) || nodes[0];
             const linearSteps: ExecutionStep[] = [];
 
             let currentNode: Node | undefined = startNode;
@@ -242,16 +244,30 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
 
             toast.info(`Executing ${linearSteps.length} steps...`);
             console.log('[FlowCanvas] Running Flow with Source Path:', sourcePath);
-            // Pass options: { headless: isHeadless, sourcePath }
+
+
+
+            // Pass options: { headless: isHeadless, sourcePath, browser }
             await api.post('/api/engine/run', {
                 steps: linearSteps,
-                options: { headless: isHeadless, sourcePath }
+                options: { headless: isHeadless, sourcePath, browser: browserType }
             });
-            toast.success('Flow Executed Successfully!');
+            toast.success(`Flow Started in ${browserType}`);
         } catch (error: any) {
             toast.error('Failed: ' + error.message);
         } finally {
             setIsRunning(false);
+        }
+    };
+
+    const handleStop = async () => {
+        try {
+            await api.post('/api/engine/stop', {});
+            toast.info('Stopping execution...');
+            setIsRunning(false);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to stop');
         }
     };
 
@@ -298,6 +314,22 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
 
                         <div className="h-4 w-px bg-border" />
 
+                        {/* Browser Selector */}
+                        <div className="w-[120px]">
+                            <Select value={browserType} onValueChange={setBrowserType}>
+                                <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue placeholder="Browser" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="chromium">Chrome</SelectItem>
+                                    <SelectItem value="firefox">Firefox</SelectItem>
+                                    <SelectItem value="webkit">WebKit</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="h-4 w-px bg-border" />
+
                         {/* AI Button */}
                         <Button
                             variant="ghost"
@@ -310,11 +342,18 @@ export function FlowCanvas({ initialNodes = defaultNodes, initialEdges = [], onS
 
                         <Button
                             size="sm"
-                            onClick={handleRunFlow}
-                            disabled={isRunning}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+                            onClick={isRunning ? handleStop : handleRunFlow}
+                            className={`${isRunning ? 'bg-red-500 hover:bg-red-600' : 'bg-primary hover:bg-primary/90'} text-primary-foreground shadow-md transition-all`}
                         >
-                            <Play className="w-4 h-4 mr-2" /> {isRunning ? 'Running...' : 'Run Flow'}
+                            {isRunning ? (
+                                <>
+                                    <span className="mr-2 animate-pulse">⏹</span> Stop
+                                </>
+                            ) : (
+                                <>
+                                    <Play className="w-4 h-4 mr-2" /> Run Flow
+                                </>
+                            )}
                         </Button>
                     </Panel>
                 </ReactFlow>

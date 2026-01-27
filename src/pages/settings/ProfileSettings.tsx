@@ -3,9 +3,50 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function ProfileSettings() {
-    const { user } = useAuth();
+    const { user: authUser } = useAuth(); // AuthUser from context (Firebase)
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        displayName: '',
+        bio: '',
+        photoURL: ''
+    });
+
+    // Load Profile from Backend
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const data = await api.get('/api/user/profile');
+                setFormData({
+                    displayName: data.displayName || authUser?.displayName || '',
+                    bio: data.bio || '',
+                    photoURL: data.photoURL || authUser?.photoURL || ''
+                });
+            } catch (error) {
+                console.error("Failed to load profile", error);
+            }
+        };
+        if (authUser) loadProfile();
+    }, [authUser]);
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        try {
+            await api.put('/api/user/profile', formData);
+            toast.success("Profile updated successfully");
+
+            // Optionally force reload auth context or just UI
+            // For now, UI state is enough.
+        } catch (error) {
+            toast.error("Failed to save profile");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
@@ -31,7 +72,7 @@ export default function ProfileSettings() {
                         <div className="relative group/avatar cursor-pointer">
                             <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 group-hover/avatar:border-primary transition-colors shadow-sm">
                                 <img
-                                    src={user?.photoURL || ''}
+                                    src={formData.photoURL || authUser?.photoURL || ''}
                                     alt="Avatar"
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover/avatar:scale-110"
                                 />
@@ -43,11 +84,15 @@ export default function ProfileSettings() {
                         <div className="space-y-2 flex-1">
                             <h4 className="font-medium text-foreground">Profile Photo</h4>
                             <p className="text-xs text-muted-foreground max-w-sm">
-                                Click the avatar to upload a custom image or choose from our presets.
+                                Paste a URL for your avatar image.
                             </p>
                             <div className="flex gap-2 pt-1">
-                                <Button variant="secondary" size="sm" className="h-8">Upload New</Button>
-                                <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10">Remove</Button>
+                                <Input
+                                    value={formData.photoURL}
+                                    onChange={e => setFormData({ ...formData, photoURL: e.target.value })}
+                                    placeholder="https://example.com/avatar.jpg"
+                                    className="h-8 text-xs bg-background"
+                                />
                             </div>
                         </div>
                     </div>
@@ -58,21 +103,32 @@ export default function ProfileSettings() {
                             <div className="relative">
                                 <Input
                                     id="username"
-                                    defaultValue={user?.displayName || ''}
+                                    value={formData.displayName}
+                                    onChange={e => setFormData({ ...formData, displayName: e.target.value })}
                                     className="h-10 transition-all duration-300 border-muted hover:border-primary/50 focus:border-primary bg-background/50 pl-4"
                                     placeholder="Enter your display name"
                                 />
                             </div>
-                            <p className="text-[0.8rem] text-muted-foreground">
-                                This is your public display name. It can be your real name or a pseudonym.
-                            </p>
+                        </div>
+
+                        <div className="grid gap-2 group/input">
+                            <Label htmlFor="bio" className="text-xs font-medium uppercase text-muted-foreground group-focus-within/input:text-primary transition-colors">Bio</Label>
+                            <div className="relative">
+                                <Input
+                                    id="bio"
+                                    value={formData.bio}
+                                    onChange={e => setFormData({ ...formData, bio: e.target.value })}
+                                    className="h-10 transition-all duration-300 border-muted hover:border-primary/50 focus:border-primary bg-background/50 pl-4"
+                                    placeholder="Software Engineer at Acme Inc."
+                                />
+                            </div>
                         </div>
 
                         <div className="grid gap-2 group/input opacity-80">
                             <Label htmlFor="email" className="text-xs font-medium uppercase text-muted-foreground">Email Address</Label>
                             <Input
                                 id="email"
-                                defaultValue={user?.email || ''}
+                                defaultValue={authUser?.email || ''}
                                 disabled
                                 className="h-10 bg-muted/50 cursor-not-allowed font-mono text-sm"
                             />
@@ -84,8 +140,12 @@ export default function ProfileSettings() {
                     </div>
 
                     <div className="pt-4 flex justify-end">
-                        <Button className="w-full sm:w-auto shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                            Save Changes
+                        <Button
+                            onClick={handleSave}
+                            disabled={isLoading}
+                            className="w-full sm:w-auto shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                        >
+                            {isLoading ? "Saving..." : "Save Changes"}
                         </Button>
                     </div>
                 </CardContent>

@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/common/ThemeProvider";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function AppearanceSettings() {
-    const { theme, setTheme } = useTheme();
+    const { theme, setTheme, color, setColor, radius, setRadius } = useTheme();
 
     return (
         <div className="space-y-6">
@@ -84,6 +86,65 @@ export default function AppearanceSettings() {
                     </CardContent>
                 </Card>
 
+
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Accent Color</CardTitle>
+                        <CardDescription>
+                            Select the primary color for the application.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                            {['zinc', 'blue', 'violet', 'orange', 'green', 'red'].map((c) => (
+                                <button
+                                    key={c}
+                                    onClick={() => setColor(c as any)}
+                                    className={cn(
+                                        "h-10 w-full rounded-md border-2 flex items-center justify-center transition-all",
+                                        color === c ? "border-primary ring-2 ring-primary ring-offset-2" : "border-transparent hover:bg-muted"
+                                    )}
+                                    style={{
+                                        // We can't easily get the HSL CSS var here without mapping, but we can visualize it simply
+                                        backgroundColor: c === 'zinc' ? '#18181b' :
+                                            c === 'blue' ? '#3b82f6' :
+                                                c === 'violet' ? '#8b5cf6' :
+                                                    c === 'orange' ? '#f97316' :
+                                                        c === 'green' ? '#22c55e' :
+                                                            '#ef4444' // red
+                                    }}
+                                >
+                                    {color === c && <Check className="h-4 w-4 text-white" />}
+                                </button>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Radius</CardTitle>
+                        <CardDescription>
+                            Adjust the roundness of the user interface.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-5 gap-2">
+                            {[0, 0.3, 0.5, 0.75, 1.0].map((r) => (
+                                <Button
+                                    key={r}
+                                    variant={radius === r ? "default" : "outline"}
+                                    onClick={() => setRadius(r)}
+                                    className="w-full"
+                                >
+                                    {r}rem
+                                </Button>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Accessibility</CardTitle>
@@ -101,7 +162,7 @@ export default function AppearanceSettings() {
                         </div>
                     </CardContent>
                 </Card>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

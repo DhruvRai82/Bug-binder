@@ -28,7 +28,6 @@ import { cn } from "@/lib/utils";
 
 const drawerItems = [
     { title: "Web Recorder", url: "/recorder", icon: PlayCircle, color: "text-orange-500" },
-    { title: "Flow Builder", url: "/flow-builder", icon: GitGraph, color: "text-pink-500" },
     { title: "Automation", url: "/test-hub", icon: Layers, color: "text-blue-500" },
     { title: "API Lab", url: "/http-lab", icon: Globe, color: "text-green-500" },
     { title: "Dev Studio", url: "/ide", icon: Code, color: "text-purple-500" },

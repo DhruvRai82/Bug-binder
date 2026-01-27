@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/common/ThemeProvider";
-import { ArrowLeft, Moon, Sun, Smartphone } from 'lucide-react';
+import { ArrowLeft, Moon, Sun, Smartphone, Check } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { cn } from "@/lib/utils";
 
 export function MobileAppearanceSettings() {
-    const { theme, setTheme } = useTheme();
+    const { theme, setTheme, color, setColor, radius, setRadius } = useTheme();
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -61,6 +62,59 @@ export function MobileAppearanceSettings() {
                             {theme === 'system' && <div className="h-4 w-4 rounded-full bg-primary" />}
                         </Label>
                     </RadioGroup>
+                </div>
+
+                {/* Accent Color */}
+                <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase ml-1">Accent Color</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                        {['zinc', 'blue', 'violet', 'orange', 'green', 'red'].map((c) => (
+                            <div
+                                key={c}
+                                onClick={() => setColor(c as any)}
+                                className={cn(
+                                    "h-16 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer relative overflow-hidden",
+                                    color === c ? "border-primary" : "border-transparent bg-muted/30"
+                                )}
+                            >
+                                <div
+                                    className="absolute inset-0 opacity-20"
+                                    style={{
+                                        backgroundColor: c === 'zinc' ? '#18181b' :
+                                            c === 'blue' ? '#3b82f6' :
+                                                c === 'violet' ? '#8b5cf6' :
+                                                    c === 'orange' ? '#f97316' :
+                                                        c === 'green' ? '#22c55e' :
+                                                            '#ef4444'
+                                    }}
+                                />
+                                {color === c && <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center shadow-lg transform scale-100 transition-transform">
+                                    <Check className="h-4 w-4 text-primary-foreground" />
+                                </div>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Radius */}
+                <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase ml-1">Radius</h3>
+                    <div className="flex p-1 bg-muted/40 rounded-xl gap-1 overflow-x-auto">
+                        {[0, 0.3, 0.5, 0.75, 1.0].map((r) => (
+                            <button
+                                key={r}
+                                onClick={() => setRadius(r)}
+                                className={cn(
+                                    "flex-1 min-w-[60px] py-2.5 text-sm font-medium rounded-lg transition-all duration-300",
+                                    radius === r
+                                        ? "bg-background text-foreground shadow-sm scale-[1.02]"
+                                        : "text-muted-foreground hover:bg-background/50 hover:text-foreground/80"
+                                )}
+                            >
+                                {r}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Accessibility */}

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MockFormRouteImport } from './routes/mock-form'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -27,7 +28,6 @@ import { Route as AuthenticatedSchedulesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedRecorderRouteImport } from './routes/_authenticated/recorder'
 import { Route as AuthenticatedIdeRouteImport } from './routes/_authenticated/ide'
 import { Route as AuthenticatedHttpLabRouteImport } from './routes/_authenticated/http-lab'
-import { Route as AuthenticatedFlowBuilderRouteImport } from './routes/_authenticated/flow-builder'
 import { Route as AuthenticatedDatabaseRouteImport } from './routes/_authenticated/database'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBugsRouteImport } from './routes/_authenticated/bugs'
@@ -41,6 +41,11 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 import { Route as AuthenticatedSettingsAiRouteImport } from './routes/_authenticated/settings/ai'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 
+const MockFormRoute = MockFormRouteImport.update({
+  id: '/mock-form',
+  path: '/mock-form',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -132,12 +137,6 @@ const AuthenticatedHttpLabRoute = AuthenticatedHttpLabRouteImport.update({
   path: '/http-lab',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedFlowBuilderRoute =
-  AuthenticatedFlowBuilderRouteImport.update({
-    id: '/flow-builder',
-    path: '/flow-builder',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedDatabaseRoute = AuthenticatedDatabaseRouteImport.update({
   id: '/database',
   path: '/database',
@@ -210,10 +209,10 @@ const AuthenticatedSettingsAccountRoute =
 export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/mock-form': typeof MockFormRoute
   '/bugs': typeof AuthenticatedBugsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/database': typeof AuthenticatedDatabaseRoute
-  '/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/http-lab': typeof AuthenticatedHttpLabRoute
   '/ide': typeof AuthenticatedIdeRoute
   '/recorder': typeof AuthenticatedRecorderRoute
@@ -241,10 +240,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/mock-form': typeof MockFormRoute
   '/bugs': typeof AuthenticatedBugsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/database': typeof AuthenticatedDatabaseRoute
-  '/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/http-lab': typeof AuthenticatedHttpLabRoute
   '/ide': typeof AuthenticatedIdeRoute
   '/recorder': typeof AuthenticatedRecorderRoute
@@ -274,10 +273,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
+  '/mock-form': typeof MockFormRoute
   '/_authenticated/bugs': typeof AuthenticatedBugsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/database': typeof AuthenticatedDatabaseRoute
-  '/_authenticated/flow-builder': typeof AuthenticatedFlowBuilderRoute
   '/_authenticated/http-lab': typeof AuthenticatedHttpLabRoute
   '/_authenticated/ide': typeof AuthenticatedIdeRoute
   '/_authenticated/recorder': typeof AuthenticatedRecorderRoute
@@ -308,10 +307,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/admin'
     | '/login'
+    | '/mock-form'
     | '/bugs'
     | '/dashboard'
     | '/database'
-    | '/flow-builder'
     | '/http-lab'
     | '/ide'
     | '/recorder'
@@ -339,10 +338,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/mock-form'
     | '/bugs'
     | '/dashboard'
     | '/database'
-    | '/flow-builder'
     | '/http-lab'
     | '/ide'
     | '/recorder'
@@ -371,10 +370,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/admin'
     | '/login'
+    | '/mock-form'
     | '/_authenticated/bugs'
     | '/_authenticated/dashboard'
     | '/_authenticated/database'
-    | '/_authenticated/flow-builder'
     | '/_authenticated/http-lab'
     | '/_authenticated/ide'
     | '/_authenticated/recorder'
@@ -405,10 +404,18 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
+  MockFormRoute: typeof MockFormRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/mock-form': {
+      id: '/mock-form'
+      path: '/mock-form'
+      fullPath: '/mock-form'
+      preLoaderRoute: typeof MockFormRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -535,13 +542,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHttpLabRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/flow-builder': {
-      id: '/_authenticated/flow-builder'
-      path: '/flow-builder'
-      fullPath: '/flow-builder'
-      preLoaderRoute: typeof AuthenticatedFlowBuilderRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/database': {
       id: '/_authenticated/database'
       path: '/database'
@@ -663,7 +663,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedBugsRoute: typeof AuthenticatedBugsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDatabaseRoute: typeof AuthenticatedDatabaseRoute
-  AuthenticatedFlowBuilderRoute: typeof AuthenticatedFlowBuilderRoute
   AuthenticatedHttpLabRoute: typeof AuthenticatedHttpLabRoute
   AuthenticatedIdeRoute: typeof AuthenticatedIdeRoute
   AuthenticatedRecorderRoute: typeof AuthenticatedRecorderRoute
@@ -682,7 +681,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedBugsRoute: AuthenticatedBugsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDatabaseRoute: AuthenticatedDatabaseRoute,
-  AuthenticatedFlowBuilderRoute: AuthenticatedFlowBuilderRoute,
   AuthenticatedHttpLabRoute: AuthenticatedHttpLabRoute,
   AuthenticatedIdeRoute: AuthenticatedIdeRoute,
   AuthenticatedRecorderRoute: AuthenticatedRecorderRoute,
@@ -719,6 +717,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
+  MockFormRoute: MockFormRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

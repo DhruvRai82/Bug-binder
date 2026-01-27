@@ -52,7 +52,6 @@ const navigationGroups = [
   {
     items: [
       { title: "Web Recorder", url: "/recorder", icon: PlayCircle },
-      { title: "Flow Builder", url: "/flow-builder", icon: Layers }, // MOVED HERE
       { title: "Automation Suite", url: "/test-hub", icon: Layers },
     ]
   },

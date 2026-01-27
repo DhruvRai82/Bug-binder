@@ -43,31 +43,44 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     const { selectedProject } = useProject();
     const [settings, setSettings] = useState<SettingsState>(defaultSettings);
 
-    // Load settings when project changes
+    // Load settings from backend AND local storage
     useEffect(() => {
-        if (!selectedProject) return;
+        const loadSettings = async () => {
+            try {
+                // Try to get token
+                const token = await import('@/lib/firebase').then(m => m.auth.currentUser?.getIdToken());
+                if (!token) return;
 
-        const storageKey = `settings_${selectedProject.id}`;
-        const storedSettings = localStorage.getItem(storageKey);
+                const { api } = await import('@/lib/api');
+                const userProfile = await api.get('/api/user/profile');
+                const backendSettings = userProfile.settings;
 
-        if (storedSettings) {
-            // Merge stored settings with defaults to ensure all keys exist
-            setSettings({ ...defaultSettings, ...JSON.parse(storedSettings) });
-        } else {
-            // Retrieve global defaults if no project specific settings
-            setSettings(defaultSettings);
+                if (backendSettings) {
+                    setSettings(prev => ({
+                        ...prev,
+                        ...backendSettings
+                    }));
+                }
+            } catch (error) {
+                console.error("Failed to load settings from backend:", error);
+            }
+        };
+
+        if (selectedProject) {
+            loadSettings();
         }
     }, [selectedProject]);
 
     const updateSetting = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => {
-        if (!selectedProject) return;
-
         setSettings(prev => {
             const newSettings = { ...prev, [key]: value };
 
-            // Persist to local storage
-            const storageKey = `settings_${selectedProject.id}`;
-            localStorage.setItem(storageKey, JSON.stringify(newSettings));
+            // Sync to Backend (Optimistic)
+            import('@/lib/api').then(({ api }) => {
+                api.put('/api/user/profile', {
+                    settings: { [key]: value }
+                }).catch(err => console.error("Failed to sync setting:", key, err));
+            });
 
             return newSettings;
         });

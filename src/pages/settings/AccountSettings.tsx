@@ -73,7 +73,55 @@ export default function AccountSettings() {
                     </CardContent>
                 </Card>
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Data Management</CardTitle>
+                        <CardDescription>
+                            Control your data and portability.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center justify-between p-4 border rounded-lg">
+                            <div>
+                                <h4 className="font-medium">Export Data</h4>
+                                <p className="text-sm text-muted-foreground">Download a copy of your personal data.</p>
+                            </div>
+                            <Button variant="outline" onClick={async () => {
+                                const token = await import('@/lib/firebase').then(m => m.auth.currentUser?.getIdToken());
+                                window.open(`http://localhost:8081/api/user/export?token=${token}`, '_blank');
+                            }}>
+                                Download JSON
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
 
+                <Card className="border-red-500/20 bg-red-500/5">
+                    <CardHeader>
+                        <CardTitle className="text-red-500">Danger Zone</CardTitle>
+                        <CardDescription>
+                            Irreversible actions. Proceed with caution.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between p-4 border border-red-200 dark:border-red-900/50 rounded-lg bg-background">
+                            <div>
+                                <h4 className="font-medium text-red-600">Delete Account</h4>
+                                <p className="text-sm text-muted-foreground">Permanently remove your account and all data.</p>
+                            </div>
+                            <Button variant="destructive" onClick={() => {
+                                if (confirm("Are you SURE? This cannot be undone.")) {
+                                    import('@/lib/api').then(async ({ api }) => {
+                                        await api.delete('/api/user/account');
+                                        location.reload(); // Force logout
+                                    });
+                                }
+                            }}>
+                                Delete Account
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

@@ -1,14 +1,50 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Camera, LogOut } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export function MobileProfileSettings() {
-    const { user, logout } = useAuth();
+    const { user: authUser } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        displayName: '',
+        bio: '',
+        photoURL: ''
+    });
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const data = await api.get('/api/user/profile');
+                setFormData({
+                    displayName: data.displayName || authUser?.displayName || '',
+                    bio: data.bio || '',
+                    photoURL: data.photoURL || authUser?.photoURL || ''
+                });
+            } catch (error) {
+                console.error("Failed to load profile", error);
+            }
+        };
+        if (authUser) loadProfile();
+    }, [authUser]);
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        try {
+            await api.put('/api/user/profile', formData);
+            toast.success("Profile updated");
+        } catch (error) {
+            toast.error("Failed to save");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -28,7 +64,7 @@ export function MobileProfileSettings() {
                     <div className="relative group cursor-pointer">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-muted">
                             <img
-                                src={user?.photoURL || ''}
+                                src={formData.photoURL || authUser?.photoURL || ''}
                                 alt="Avatar"
                                 className="w-full h-full object-cover"
                             />
@@ -43,17 +79,44 @@ export function MobileProfileSettings() {
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <Label>Display Name</Label>
-                        <Input defaultValue={user?.displayName || ''} />
+                        <Input
+                            value={formData.displayName}
+                            onChange={e => setFormData({ ...formData, displayName: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Bio</Label>
+                        <Input
+                            value={formData.bio}
+                            onChange={e => setFormData({ ...formData, bio: e.target.value })}
+                            placeholder="Tell us about yourself"
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>Photo URL</Label>
+                        <Input
+                            value={formData.photoURL}
+                            onChange={e => setFormData({ ...formData, photoURL: e.target.value })}
+                            placeholder="https://..."
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label>Email</Label>
-                        <Input defaultValue={user?.email || ''} disabled className="bg-muted text-muted-foreground" />
+                        <Input defaultValue={authUser?.email || ''} disabled className="bg-muted text-muted-foreground" />
                         <p className="text-xs text-muted-foreground">Managed by Google</p>
                     </div>
                 </div>
 
-                <Button className="w-full rounded-xl h-12 text-base">Save Changes</Button>
+                <Button
+                    className="w-full rounded-xl h-12 text-base"
+                    onClick={handleSave}
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                </Button>
 
             </div>
         </div>

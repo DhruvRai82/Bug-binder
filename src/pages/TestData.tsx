@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/context/ProjectContext';
 import { api } from '@/lib/api';
-import { FileSpreadsheet, Trash2, Database, Wand2, Upload, Plus } from 'lucide-react';
+import { FileSpreadsheet, Trash2, Database, Wand2, Upload, Plus, Code } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -295,14 +295,29 @@ export default function TestData() {
                                             </div>
                                             <span className="truncate max-w-[150px]">{dataset.name}</span>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className={`h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity rounded-full ${selectedDataset?.id === dataset.id ? 'text-white hover:bg-white/20' : 'text-red-500 hover:bg-red-50'}`}
-                                            onClick={(e) => handleDeleteDataset(dataset.id, e)}
-                                        >
-                                            <Trash2 className="h-3.5 w-3.5" />
-                                        </Button>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className={`h-7 w-7 rounded-full ${selectedDataset?.id === dataset.id ? 'text-white hover:bg-white/20' : 'text-muted-foreground hover:bg-muted'}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigator.clipboard.writeText(dataset.id);
+                                                    toast.success("ID Copied");
+                                                }}
+                                                title="Copy Dataset ID"
+                                            >
+                                                <Code className="h-3.5 w-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className={`h-7 w-7 rounded-full ${selectedDataset?.id === dataset.id ? 'text-white hover:bg-white/20' : 'text-red-500 hover:bg-red-50'}`}
+                                                onClick={(e) => handleDeleteDataset(dataset.id, e)}
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
