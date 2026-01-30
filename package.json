@@ -13,7 +13,7 @@
     "deploy": "gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview",
-    "electron:build-ts": "tsc -p electron/tsconfig.json && node -e \"require('fs').copyFileSync('electron/preload.cjs', 'dist-electron/electron/preload.cjs')\"",
+    "electron:build-ts": "tsc -p electron/tsconfig.json && node fix-esm-imports.js && node -e \"require('fs').copyFileSync('electron/preload.cjs', 'dist-electron/electron/preload.cjs')\"",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on tcp:5173 && npm run electron:build-ts && cross-env NODE_ENV=development electron .\"",
     "email-auth": "concurrently \"npm run dev:backend\" \"npm run dev\""
   },
