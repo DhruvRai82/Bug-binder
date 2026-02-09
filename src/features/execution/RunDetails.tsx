@@ -96,11 +96,17 @@ export const RunDetails: React.FC<RunDetailsProps> = ({ isOpen, onClose, run }) 
                         <h4 className="text-sm font-semibold mb-3">System Logs</h4>
                         <ScrollArea className="h-[200px] w-full rounded-md border bg-slate-950 p-4">
                             <div className="text-xs font-mono text-slate-300">
-                                {run.logs?.map((log: string, i: number) => (
-                                    <div key={i} className="mb-1 border-b border-slate-800 pb-1 last:border-0">
-                                        {log}
-                                    </div>
-                                ))}
+                                {run.logs?.map((log: any, i: number) => {
+                                    // Handle both string and object logs
+                                    const logMessage = typeof log === 'object' && log !== null
+                                        ? log.message || JSON.stringify(log)
+                                        : String(log);
+                                    return (
+                                        <div key={i} className="mb-1 border-b border-slate-800 pb-1 last:border-0">
+                                            {logMessage}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </ScrollArea>
                     </div>

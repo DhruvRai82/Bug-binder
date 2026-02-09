@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from '@/components/ui/drawer';
-import { Edit2, Trash2, X, Archive, CheckCircle2, XCircle, AlertCircle, HelpCircle, Save } from 'lucide-react';
+import { Edit2, Trash2, X, Archive, CheckCircle2, XCircle, AlertCircle, HelpCircle, Clock, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -56,10 +56,11 @@ export function MobileTestCaseDetail({
                         : "bg-card hover:bg-muted/50 border-border/50"
                 )}
             >
-                {status === 'Pass' && <CheckCircle2 className={cn("h-5 w-5", isSelected ? "text-green-600" : "text-muted-foreground")} />}
-                {status === 'Fail' && <XCircle className={cn("h-5 w-5", isSelected ? "text-red-600" : "text-muted-foreground")} />}
-                {status === 'Blocked' && <AlertCircle className={cn("h-5 w-5", isSelected ? "text-orange-600" : "text-muted-foreground")} />}
-                {status === 'Not Executed' && <HelpCircle className={cn("h-5 w-5", isSelected ? "text-slate-600" : "text-muted-foreground")} />}
+                {status === 'Pass' && <CheckCircle2 className={cn("h-5 w-5", isSelected ? "text-green-600 dark:text-green-400" : "text-muted-foreground")} />}
+                {status === 'Fail' && <XCircle className={cn("h-5 w-5", isSelected ? "text-red-600 dark:text-red-400" : "text-muted-foreground")} />}
+                {status === 'Blocked' && <AlertCircle className={cn("h-5 w-5", isSelected ? "text-orange-600 dark:text-orange-400" : "text-muted-foreground")} />}
+                {status === 'Not Executed' && <HelpCircle className={cn("h-5 w-5", isSelected ? "text-slate-600 dark:text-slate-400" : "text-muted-foreground")} />}
+                {status === 'Pending' && <Clock className={cn("h-5 w-5", isSelected ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground")} />}
                 <span className={cn("text-[10px] font-medium whitespace-nowrap", isSelected ? "text-foreground" : "text-muted-foreground")}>
                     {status}
                 </span>
@@ -116,7 +117,7 @@ export function MobileTestCaseDetail({
                 {!isEditing ? (
                     <>
                         <div className="grid grid-cols-4 gap-2">
-                            {['Pass', 'Fail', 'Blocked', 'Not Executed'].map(status => (
+                            {['Pass', 'Fail', 'Blocked', 'Not Executed', 'Pending'].map(status => (
                                 <StatusButton key={status} status={status} current={testCase.status} />
                             ))}
                         </div>

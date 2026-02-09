@@ -185,9 +185,15 @@ export default function ScriptDrawer({ open, onOpenChange, file }: ScriptDrawerP
                             {/* Console */}
                             <TabsContent value="console" className="absolute inset-0 m-0 p-0 bg-[#1e1e1e] text-white">
                                 <div className="h-full overflow-auto p-4 font-mono text-[10px]">
-                                    {logs.map((log, i) => (
-                                        <div key={i} className="whitespace-pre-wrap mb-1 opacity-90">{log}</div>
-                                    ))}
+                                    {logs.map((log, i) => {
+                                        // Handle both string and object logs
+                                        const logMessage = typeof log === 'object' && log !== null
+                                            ? (log as any).message || JSON.stringify(log)
+                                            : String(log);
+                                        return (
+                                            <div key={i} className="whitespace-pre-wrap mb-1 opacity-90">{logMessage}</div>
+                                        );
+                                    })}
                                 </div>
                             </TabsContent>
                         </div>

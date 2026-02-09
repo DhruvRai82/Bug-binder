@@ -35,28 +35,23 @@ function createWindow() {
         win.loadFile(path.join(DIST_DIR, 'index.html'));
     }
 }
-import { localProjectService } from '../backend/src/services/persistence/LocalProjectService.js';
 app.whenReady().then(() => {
     createWindow();
+    // Basic IPC for testing
     ipcMain.handle('ping', () => 'pong');
-    // Projects IPC
-    ipcMain.handle('get-projects', async (event, userId) => {
-        console.log('[IPC] get-projects requested for', userId);
-        return await localProjectService.getAllProjects(userId);
+    // Optional: Backend health check
+    // Frontend can use this to check if backend is running
+    ipcMain.handle('check-backend', async () => {
+        try {
+            const response = await fetch('http://localhost:3000/health');
+            return response.ok;
+        }
+        catch {
+            return false;
+        }
     });
-    ipcMain.handle('create-project', async (event, projectData) => {
-        // Destructure to match signature: createProject(name, description, userId, id?)
-        const { name, description, userId, id } = projectData;
-        console.log('[IPC] create-project', name);
-        return await localProjectService.createProject(name, description, userId, id);
-    });
-    // Window Controls IPC (Global)
-    // Window Controls IPC (Global) - REMOVED (Using Native Frame)
-    /*
-    ipcMain.handle('window-minimize', (event) => { ... });
-    ipcMain.handle('window-maximize', (event) => { ... });
-    ipcMain.handle('window-close', (event) => { ... });
-    */
+    // Note: All business logic (projects, tests, etc.) is now handled
+    // by the backend API. Frontend makes HTTP requests via api.ts
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0)
             createWindow();

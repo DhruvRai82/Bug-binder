@@ -25,7 +25,7 @@ export function MobileTestCaseList({ testCases, onSelect, filterQuery = '' }: Mo
         return matchesSearch && matchesStatus;
     });
 
-    const filters = ['All', 'Pass', 'Fail', 'Blocked', 'Not Executed'];
+    const filters = ['All', 'Pass', 'Fail', 'Blocked', 'Not Executed', 'Pending'];
 
     return (
         <div className="flex flex-col h-full bg-muted/5">

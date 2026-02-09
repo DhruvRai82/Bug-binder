@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Play, History, CalendarClock, TestTube2 } from 'lucide-react';
-import RunnerView from './RunnerView';
+import RunnerView from './TestOrchestrator/RunnerView-v2';
 import HistoryView from './HistoryView';
 import SchedulesView from './SchedulesView';
 

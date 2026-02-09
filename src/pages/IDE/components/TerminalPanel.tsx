@@ -24,12 +24,18 @@ export function TerminalPanel({ logs }: TerminalPanelProps) {
 
             <ScrollArea className="flex-1 p-4 font-mono text-xs sm:text-sm bg-black/90 text-white dark:bg-black/40 dark:text-zinc-300">
                 <div className="space-y-1">
-                    {logs.map((log, i) => (
-                        <div key={i} className="break-all border-l-2 border-transparent hover:border-primary/50 pl-2">
-                            <span className="opacity-50 select-none mr-2 text-green-500">$</span>
-                            {log}
-                        </div>
-                    ))}
+                    {logs.map((log, i) => {
+                        // Handle both string and object logs
+                        const logMessage = typeof log === 'object' && log !== null
+                            ? (log as any).message || JSON.stringify(log)
+                            : String(log);
+                        return (
+                            <div key={i} className="break-all border-l-2 border-transparent hover:border-primary/50 pl-2">
+                                <span className="opacity-50 select-none mr-2 text-green-500">$</span>
+                                {logMessage}
+                            </div>
+                        );
+                    })}
                     {logs.length === 0 && <div className="text-zinc-500 italic">No output. Ready to run...</div>}
                 </div>
             </ScrollArea>

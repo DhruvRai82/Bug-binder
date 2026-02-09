@@ -39,33 +39,52 @@ export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs,
     }, [logs]);
 
     const renderLogLine = (log: string | LogEntry, i: number) => {
-        const isObj = typeof log === 'object';
-        const message = isObj ? (log as LogEntry).message : (log as string);
-        const level = isObj ? (log as LogEntry).level :
-            (message.toLowerCase().includes('error') ? 'error' :
-                message.toLowerCase().includes('warn') ? 'warn' : 'info');
-        const timestamp = isObj && (log as LogEntry).timestamp ? (log as LogEntry).timestamp : new Date().toISOString(); // Fallback
+        // Ensure we never render objects directly
+        if (typeof log === 'object' && log !== null) {
+            const logEntry = log as LogEntry;
+            const message = logEntry.message || JSON.stringify(log);
+            const level = logEntry.level || 'info';
+            const timestamp = logEntry.timestamp || new Date().toISOString();
+            const timeStr = new Date(timestamp).toLocaleTimeString();
 
-        const timeStr = new Date(timestamp!).toLocaleTimeString();
+            return (
+                <div key={i} className="break-words whitespace-pre-wrap font-mono text-xs flex gap-2">
+                    <span className="text-muted-foreground/60 min-w-[80px] select-none">[{timeStr}]</span>
+                    <span className={
+                        level === 'error' ? 'text-red-400 font-bold' :
+                            level === 'warn' ? 'text-amber-400' :
+                                level === 'debug' ? 'text-blue-400' :
+                                    'text-foreground/80'
+                    }>
+                        {message}
+                    </span>
+                </div>
+            );
+        } else {
+            // String log
+            const message = String(log);
+            const level = message.toLowerCase().includes('error') ? 'error' :
+                message.toLowerCase().includes('warn') ? 'warn' : 'info';
+            const timeStr = new Date().toLocaleTimeString();
 
-        return (
-            <div key={i} className="break-words whitespace-pre-wrap font-mono text-xs flex gap-2">
-                <span className="text-slate-500 min-w-[80px] select-none">[{timeStr}]</span>
-                <span className={
-                    level === 'error' ? 'text-red-400 font-bold' :
-                        level === 'warn' ? 'text-amber-400' :
-                            level === 'debug' ? 'text-blue-400' :
-                                'text-slate-300'
-                }>
-                    {message}
-                </span>
-            </div>
-        );
+            return (
+                <div key={i} className="break-words whitespace-pre-wrap font-mono text-xs flex gap-2">
+                    <span className="text-muted-foreground/60 min-w-[80px] select-none">[{timeStr}]</span>
+                    <span className={
+                        level === 'error' ? 'text-red-400 font-bold' :
+                            level === 'warn' ? 'text-amber-400' :
+                                'text-foreground/80'
+                    }>
+                        {message}
+                    </span>
+                </div>
+            );
+        }
     };
 
     return (
-        <Card className="w-full h-full bg-slate-950 border-slate-800 text-slate-200 flex flex-col shadow-2xl">
-            <CardHeader className="py-3 px-4 border-b border-slate-800 flex flex-row items-center justify-between bg-slate-900/50">
+        <Card className="w-full h-full bg-card border flex flex-col shadow-2xl">
+            <CardHeader className="py-3 px-4 border-b flex flex-row items-center justify-between bg-muted/30">
                 <div className="flex items-center gap-2">
                     <Terminal className="w-4 h-4 text-emerald-400" />
                     <CardTitle className="text-sm font-mono text-emerald-400">
@@ -97,7 +116,7 @@ export const ExecutionConsole: React.FC<ExecutionConsoleProps> = ({ runId, logs,
 
             {/* Progress Bar */}
             {status === 'running' && (
-                <div className="h-1 w-full bg-slate-900">
+                <div className="h-1 w-full bg-muted">
                     <div
                         className="h-full bg-emerald-500 transition-all duration-500 ease-out"
                         style={{ width: `${progress}%` }}

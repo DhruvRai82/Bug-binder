@@ -223,6 +223,7 @@ export function TestCaseForm({ testCase, initialData, onSubmit, onCancel }: Test
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Not Executed">Not Executed</SelectItem>
+                      <SelectItem value="Pending">Pending</SelectItem>
                       <SelectItem value="Pass">Pass</SelectItem>
                       <SelectItem value="Fail">Fail</SelectItem>
                       <SelectItem value="Blocked">Blocked</SelectItem>

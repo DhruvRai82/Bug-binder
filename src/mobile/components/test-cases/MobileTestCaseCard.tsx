@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Archive, ChevronRight, CheckCircle2, XCircle, AlertCircle, HelpCircle } from 'lucide-react';
+import { Archive, ChevronRight, CheckCircle2, XCircle, AlertCircle, HelpCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TestCase } from '@/types';
 
@@ -13,18 +13,20 @@ interface MobileTestCaseCardProps {
 export function MobileTestCaseCard({ testCase, onClick }: MobileTestCaseCardProps) {
     const statusColor = (status: string) => {
         switch (status) {
-            case 'Pass': return 'text-green-600 bg-green-500/10 border-green-200';
-            case 'Fail': return 'text-red-600 bg-red-500/10 border-red-200';
-            case 'Blocked': return 'text-orange-600 bg-orange-500/10 border-orange-200';
-            default: return 'text-slate-500 bg-slate-100 border-slate-200';
+            case 'Pass': return 'text-green-600 bg-green-500/10 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800';
+            case 'Fail': return 'text-red-600 bg-red-500/10 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800';
+            case 'Blocked': return 'text-orange-600 bg-orange-500/10 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800';
+            case 'Pending': return 'text-blue-600 bg-blue-500/10 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800';
+            default: return 'text-slate-500 bg-slate-100 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
         }
     };
 
     const StatusIcon = ({ status }: { status: string }) => {
         switch (status) {
-            case 'Pass': return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-            case 'Fail': return <XCircle className="h-4 w-4 text-red-600" />;
-            case 'Blocked': return <AlertCircle className="h-4 w-4 text-orange-600" />;
+            case 'Pass': return <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />;
+            case 'Fail': return <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />;
+            case 'Blocked': return <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />;
+            case 'Pending': return <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
             default: return <HelpCircle className="h-4 w-4 text-slate-400" />;
         }
     };
@@ -38,7 +40,8 @@ export function MobileTestCaseCard({ testCase, onClick }: MobileTestCaseCardProp
             <div className={cn("absolute left-0 top-0 bottom-0 w-1",
                 testCase.status === 'Pass' ? 'bg-green-500' :
                     testCase.status === 'Fail' ? 'bg-red-500' :
-                        testCase.status === 'Blocked' ? 'bg-orange-500' : 'bg-slate-300'
+                        testCase.status === 'Blocked' ? 'bg-orange-500' :
+                            testCase.status === 'Pending' ? 'bg-blue-500' : 'bg-slate-300'
             )} />
 
             <CardContent className="p-4 pl-5">

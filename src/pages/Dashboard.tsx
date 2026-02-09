@@ -79,6 +79,7 @@ export default function Dashboard() {
       case 'Fail': return 'destructive';
       case 'Blocked': return 'secondary';
       case 'Not Executed': return 'outline';
+      case 'Pending': return 'secondary'; // Blue badge
       default: return 'outline';
     }
   };
@@ -98,7 +99,8 @@ export default function Dashboard() {
     { name: 'Pass', value: allTestCases.filter(tc => tc.status === 'Pass').length },
     { name: 'Fail', value: allTestCases.filter(tc => tc.status === 'Fail').length },
     { name: 'Blocked', value: allTestCases.filter(tc => tc.status === 'Blocked').length },
-    { name: 'Not Executed', value: allTestCases.filter(tc => tc.status === 'Not Executed').length }
+    { name: 'Not Executed', value: allTestCases.filter(tc => tc.status === 'Not Executed').length },
+    { name: 'Pending', value: allTestCases.filter(tc => tc.status === 'Pending').length }
   ].filter(item => item.value > 0);
 
   const bugSeverityData = [
@@ -280,7 +282,8 @@ export default function Dashboard() {
                 <SelectItem value="Pass">Pass</SelectItem>
                 <SelectItem value="Fail">Fail</SelectItem>
                 <SelectItem value="Blocked">Blocked</SelectItem>
-                <SelectItem value="Not Executed">Pending</SelectItem>
+                <SelectItem value="Not Executed">Not Executed</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
               </SelectContent>
             </Select>
             <Select value={severityFilter} onValueChange={setSeverityFilter}>

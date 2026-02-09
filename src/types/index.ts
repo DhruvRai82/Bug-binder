@@ -9,7 +9,7 @@ export interface TestCase {
   testData: string;
   expectedResult: string;
   actualResult: string;
-  status: 'Pass' | 'Fail' | 'Blocked' | 'Not Executed';
+  status: 'Pass' | 'Fail' | 'Blocked' | 'Not Executed' | 'Pending';
   comments: string;
   createdAt: string;
   updatedAt: string;

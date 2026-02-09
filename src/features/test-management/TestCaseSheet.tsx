@@ -33,7 +33,8 @@ const statusColors = {
   'Pass': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
   'Fail': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   'Blocked': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  'Not Executed': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+  'Not Executed': 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  'Pending': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
 };
 
 export function TestCaseSheet({ testCases, onTestCaseAdd, onBulkTestCaseAdd, onTestCaseUpdate, onTestCaseDelete, onBulkDelete, onBulkStatusUpdate, onExport, onImport }: TestCaseSheetProps) {
@@ -156,7 +157,7 @@ export function TestCaseSheet({ testCases, onTestCaseAdd, onBulkTestCaseAdd, onT
     }
   };
 
-  const handleQuickStatusUpdate = (testCaseId: string, status: 'Pass' | 'Fail' | 'Blocked' | 'Not Executed') => {
+  const handleQuickStatusUpdate = (testCaseId: string, status: 'Pass' | 'Fail' | 'Blocked' | 'Not Executed' | 'Pending') => {
     onTestCaseUpdate(testCaseId, { status });
   };
 
@@ -255,6 +256,7 @@ export function TestCaseSheet({ testCases, onTestCaseAdd, onBulkTestCaseAdd, onT
                   <SelectItem value="Fail">Fail</SelectItem>
                   <SelectItem value="Blocked">Blocked</SelectItem>
                   <SelectItem value="Not Executed">Not Executed</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleBulkStatusUpdate} disabled={!bulkStatus} size="sm">

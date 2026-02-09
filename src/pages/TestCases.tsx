@@ -282,7 +282,7 @@ export default function TestCases({ selectedProject }: TestCasesProps) {
   const handleBulkStatusUpdate = (ids: string[], status: string) => {
     const currentData = getCurrentPageData();
     const updatedTestCases = currentData.testCases.map(tc =>
-      ids.includes(tc.id) ? { ...tc, status: status as 'Pass' | 'Fail' | 'Blocked' | 'Not Executed', updatedAt: new Date().toISOString() } : tc
+      ids.includes(tc.id) ? { ...tc, status: status as 'Pass' | 'Fail' | 'Blocked' | 'Not Executed' | 'Pending', updatedAt: new Date().toISOString() } : tc
     );
 
     updateDayData({ testCases: updatedTestCases });
