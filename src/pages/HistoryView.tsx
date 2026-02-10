@@ -15,7 +15,9 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trash2, Clock, RotateCcw, Terminal, CheckCircle2, XCircle, AlertCircle, TrendingUp, Zap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExecutionConsole } from '@/features/execution/ExecutionConsole';
+import { TestNGResultsDisplay, type TestNGResults } from '@/components/TestNGResults';
 import { cn } from '@/lib/utils';
 
 export default function HistoryView() {
@@ -24,6 +26,8 @@ export default function HistoryView() {
     const [loading, setLoading] = useState(false);
     const [selectedRun, setSelectedRun] = useState<any>(null);
     const [filterSource, setFilterSource] = useState<string>('orchestrator');
+    const [testngResults, setTestngResults] = useState<TestNGResults | null>(null);
+    const [loadingTestNG, setLoadingTestNG] = useState(false);
 
     const fetchHistory = async () => {
         if (!selectedProject) return;
@@ -69,6 +73,36 @@ export default function HistoryView() {
             toast.error("Failed to clear history");
         }
     };
+
+    const fetchTestNGResults = async (runId: string) => {
+        setLoadingTestNG(true);
+        try {
+            const data: TestNGResults = await api.get(`/api/runner/run/${runId}/testng-results`);
+            setTestngResults(data);
+        } catch (error) {
+            console.error('Failed to fetch TestNG results:', error);
+            setTestngResults(null);
+        } finally {
+            setLoadingTestNG(false);
+        }
+    };
+
+    const handleViewReport = () => {
+        if (testngResults?.reportPath) {
+            // Convert Windows path to file:// URL
+            const fileUrl = `file:///${testngResults.reportPath.replace(/\\/g, '/')}`;
+            window.open(fileUrl, '_blank');
+        }
+    };
+
+    // Fetch TestNG results when run is selected
+    useEffect(() => {
+        if (selectedRun) {
+            fetchTestNGResults(selectedRun.id);
+        } else {
+            setTestngResults(null);
+        }
+    }, [selectedRun]);
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -326,16 +360,76 @@ export default function HistoryView() {
                             <Badge>{selectedRun?.status}</Badge>
                         </div>
                     </DialogHeader>
-                    <div className="flex-1 min-h-0 bg-black">
-                        {selectedRun && (
-                            <ExecutionConsole
-                                runId={selectedRun.id}
-                                logs={selectedRun.logs || []}
-                                status={selectedRun.status}
-                                progress={100}
-                                aiAnalysis={selectedRun.ai_analysis}
-                            />
-                        )}
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        <Tabs defaultValue="overview" className="h-full flex flex-col">
+                            <TabsList className="mx-4 mt-2">
+                                <TabsTrigger value="overview">Overview</TabsTrigger>
+                                <TabsTrigger value="results">Test Results</TabsTrigger>
+                                <TabsTrigger value="logs">Console Logs</TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="overview" className="flex-1 overflow-auto p-4 mt-0">
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Run ID</p>
+                                            <p className="font-mono text-sm">{selectedRun?.id}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Status</p>
+                                            <p className="font-semibold">{selectedRun?.status}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Start Time</p>
+                                            <p className="text-sm">{selectedRun?.startTime ? new Date(selectedRun.startTime).toLocaleString() : 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Duration</p>
+                                            <p className="text-sm">{selectedRun?.duration_ms ? `${(selectedRun.duration_ms / 1000).toFixed(2)}s` : 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                    {selectedRun?.files && selectedRun.files.length > 0 && (
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-2">Files Executed</p>
+                                            <div className="space-y-1">
+                                                {selectedRun.files.map((file: string, idx: number) => (
+                                                    <p key={idx} className="text-sm font-mono bg-muted px-2 py-1 rounded">{file}</p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="results" className="flex-1 overflow-auto p-4 mt-0">
+                                {loadingTestNG ? (
+                                    <div className="flex items-center justify-center h-full">
+                                        <p className="text-muted-foreground">Loading TestNG results...</p>
+                                    </div>
+                                ) : testngResults ? (
+                                    <TestNGResultsDisplay
+                                        results={testngResults}
+                                        onViewReport={handleViewReport}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full">
+                                        <p className="text-muted-foreground">No TestNG results available</p>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="logs" className="flex-1 min-h-0 bg-black mt-0">
+                                {selectedRun && (
+                                    <ExecutionConsole
+                                        runId={selectedRun.id}
+                                        logs={selectedRun.logs || []}
+                                        status={selectedRun.status}
+                                        progress={100}
+                                        aiAnalysis={selectedRun.ai_analysis}
+                                    />
+                                )}
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </DialogContent>
             </Dialog>

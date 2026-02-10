@@ -57,13 +57,10 @@ export function useTestExecution(projectId?: string) {
             toast.success(`Run started!`);
             setActiveRunId(response.runId);
 
-            // Initialize placeholder run data
+            // Initialize run data - logs will come from backend polling
             setCurrentRunData({
                 id: response.runId,
-                logs: [
-                    `[System] Initializing run in ${runConfig.environment} environment...`,
-                    `[System] Browser: ${runConfig.browser} (Headless: ${runConfig.headless})`
-                ],
+                logs: [], // Start empty, real logs will be populated by polling
                 status: 'running'
             });
 
