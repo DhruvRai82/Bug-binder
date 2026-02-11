@@ -62,11 +62,11 @@ function AuthenticatedComponent() {
   return (
     <NavigationLockProvider>
       <SidebarProvider className="h-screen w-full overflow-hidden">
-        <div className="h-full w-full flex overflow-hidden bg-background">
+        <div className="h-full w-full flex overflow-hidden bg-background gap-2 p-2">
           <AppSidebar />
           <main className="flex-1 flex flex-col h-full min-h-0 overflow-hidden relative z-10">
             <Header user={user} logout={logout} isMobile={false} />
-            <div id="main-content-scroll" className="flex-1 overflow-y-auto relative">
+            <div id="main-content-scroll" className="flex-1 overflow-y-auto relative border-2 border-primary/20 rounded-lg shadow-lg bg-background mt-4">
               <ProjectProvider>
                 <SettingsProvider>
                   <ProjectCheckWrapper />

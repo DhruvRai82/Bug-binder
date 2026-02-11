@@ -103,11 +103,11 @@ const SidebarLink = React.forwardRef<
       className={cn(
         "flex items-center transition-all duration-200 group/link select-none",
         collapsed
-          ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
+          ? "justify-center w-full h-10 p-2 rounded-lg mb-2"
           : "gap-3 px-4 py-3 w-full rounded-xl mb-1",
         isActive
-          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 transform scale-[1.02]"
-          : "text-muted-foreground hover:bg-blue-50/80 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-300 transform hover:scale-[1.01]"
+          ? "bg-sidebar-accent/80 text-sidebar-accent-foreground"
+          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/30 hover:text-sidebar-accent-foreground"
       )}
     >
       <item.icon className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
@@ -138,8 +138,11 @@ const AdminLink = React.forwardRef<
 
   if (isLocked) {
     return (
-      <div className={cn("flex items-center gap-3 px-4 py-3 w-full rounded-xl mb-1 opacity-50 cursor-not-allowed bg-transparent text-muted-foreground", collapsed && "justify-center w-10 h-10 p-0 mx-auto")}>
-        <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+      <div className={cn(
+        "flex items-center gap-3 px-4 py-3 w-full rounded-xl mb-1 opacity-50 cursor-not-allowed bg-transparent text-muted-foreground",
+        collapsed && "justify-center w-full h-10 p-2 rounded-lg mb-2"
+      )}>
+        <Shield className={cn("shrink-0 h-5 w-5")} />
         {!collapsed && <span className="flex-1 text-base tracking-wide">Admin Panel</span>}
       </div>
     )
@@ -152,14 +155,14 @@ const AdminLink = React.forwardRef<
       className={cn(
         "flex items-center transition-all duration-200 group/link select-none",
         collapsed
-          ? "justify-center w-10 h-10 p-0 mx-auto rounded-lg mb-1"
+          ? "justify-center w-full h-10 p-2 rounded-lg mb-2"
           : "gap-3 px-4 py-3 w-full rounded-xl mb-1",
         isActive
-          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30 transform scale-[1.02]"
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30"
           : "text-muted-foreground hover:bg-blue-50/80 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
       )}
     >
-      <Shield className={cn("shrink-0", collapsed ? "h-5 w-5" : "h-5 w-5")} />
+      <Shield className={cn("shrink-0 h-5 w-5")} />
       {!collapsed && (
         <span className="flex-1 text-base tracking-wide">Admin Panel</span>
       )}
@@ -178,7 +181,15 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar className={cn(collapsed ? "w-16" : "w-[19rem]", "z-50 bg-background")} collapsible="icon">
+    <Sidebar
+      variant="floating"
+      collapsible="icon"
+      className={cn(
+        collapsed ? "w-14" : "w-[19rem]",
+        "z-50 bg-background m-2",
+        "transition-all duration-300 ease-in-out"
+      )}
+    >
       <SidebarHeader className="border-b border-sidebar-border p-4">
         {!collapsed && (
           <>

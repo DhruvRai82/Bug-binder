@@ -3,9 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export default function DisplaySettings() {
     const { settings, updateSetting } = useSettings();
+    const { setOpen } = useSidebar();
+
+    // Handler to update both settings and sidebar state
+    const handleSidebarChange = (value: 'expanded' | 'collapsed') => {
+        updateSetting('sidebarPreference', value);
+        setOpen(value === 'expanded');
+    };
 
     return (
         <div className="space-y-6">
@@ -28,7 +36,7 @@ export default function DisplaySettings() {
                     <CardContent>
                         <RadioGroup
                             value={settings.sidebarPreference}
-                            onValueChange={(val) => updateSetting('sidebarPreference', val as 'expanded' | 'collapsed')}
+                            onValueChange={(val) => handleSidebarChange(val as 'expanded' | 'collapsed')}
                             className="grid grid-cols-2 gap-4"
                         >
                             <div>
